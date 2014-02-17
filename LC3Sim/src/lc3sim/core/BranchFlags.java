@@ -11,43 +11,46 @@ public class BranchFlags {
   }
   
   public void Init() {
-    z = true;
-    n = p = false;
+    z_ = true;
+    n_ = p_ = false;
   }
   
   // Updates flags assuming 'reg_data' was written to the register file.
   public void Update(short reg_data) {
-    n = reg_data < 0;
-    z = reg_data == 0;
-    p = reg_data > 0;
+    n_ = reg_data < 0;
+    z_ = reg_data == 0;
+    p_ = reg_data > 0;
   }
   
-  public Boolean IsN() {
-    return n;
+  public Boolean get_n() {
+    return n_;
   }
   
-  public Boolean IsP() {
-    return p;
+  public Boolean get_p() {
+    return p_;
   }
   
-  public Boolean IsZ() {
-    return z;
+  public Boolean get_z() {
+    return z_;
   }
   
-  public void SetN() {
-    n = true;
-    z = p = false;
+  // Setter methods enforce requirement that only one of n, z, p,
+  // can be set at once. Therefore it is only possible to set to
+  // 'true', and the other flags will be set to false.
+  public void set_n() {
+    n_ = true;
+    z_ = p_ = false;
   }
   
-  public void SetZ() {
-    z = true;
-    n = p = false;
+  public void set_z() {
+    z_ = true;
+    n_ = p_ = false;
   }
   
-  public void SetP() {
-    p = true;
-    n = z = false;
+  public void set_p() {
+    p_ = true;
+    n_ = z_ = false;
   }
   
-  private Boolean n, z, p;
+  private Boolean n_, z_, p_;
 }
