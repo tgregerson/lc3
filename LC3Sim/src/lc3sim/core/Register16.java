@@ -3,7 +3,7 @@ package lc3sim.core;
 import lc3sim.util.BitManipulation;
 
 // A 16-bit register.
-public class Register16 {
+public class Register16 extends BasicPropagator {
   public Register16() {
     Init();
   }
