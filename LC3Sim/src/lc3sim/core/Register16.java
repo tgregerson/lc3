@@ -1,30 +1,60 @@
 package lc3sim.core;
 
-import lc3sim.util.BitManipulation;
-
 // A 16-bit register.
-public class Register16 {
-  public Register16() {
+public class Register16 extends BasicPropagator
+                        implements Synchronized {
+  public Register16(ArchitecturalId my_id) {
+    super(my_id);
     Init();
   }
   
   public void Init() {
-    data_ = 0;
+    d_ = q_ = new BitWord(16);
+    q_changed_ = false;
   }
   
-  public short Read() {
-    return data_;
+  public BitWord Get() {
+    return q_;
   }
   
-  // Extracts the bit range [bit_high:bit_low], and pads with zeroes from the
-  // most-significant bits.
-  public short ReadBitRange(int bit_high, int bit_low) {
-    return BitManipulation.ExtractRange(data_, bit_high, bit_low);
+  public void Set(short value) {
+    Set(BitWord.FromShort(value));
   }
   
-  public void Write(short data) {
-    data_ = data;
+  public void Set(BitWord bit_word) {
+    d_ = bit_word.Resize(16, true);
   }
   
-  private short data_;
+  // BasicPropagator Interface
+  public void Notify(BitWord bit_word, Object arg, ArchitecturalId sender) {
+    assert bit_word.num_bits() == 16;
+    if (sender == ArchitecturalId.External) {
+      // Force immediate update and propagation
+      Boolean changed = q_.IsEqual(bit_word);
+      if (changed) {
+        q_ = bit_word;
+        SendNotification(q_);
+      }
+    } else {
+      // Defer update to clock edge.
+      d_ = bit_word;
+    }
+  }
+  
+  // Synchronized Interface
+  public void PreClock() {
+    q_changed_ = !d_.IsEqual(q_);
+    q_ = d_;
+  }
+  
+  public void PostClock() {
+    if (q_changed_) {
+      SendNotification(q_);
+      q_changed_ = false;
+    }
+  }
+  
+  private BitWord d_;
+  private BitWord q_;
+  private Boolean q_changed_;
 }

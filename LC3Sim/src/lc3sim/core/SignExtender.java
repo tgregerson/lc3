@@ -1,7 +1,11 @@
 package lc3sim.core;
 
 // Provides a static method for sign extension to 16 bits.
-public class SignExtender {
+public class SignExtender extends BasicPropagator {
+  
+  Notify(BitWord bit_word, Object arg, ArchitecturalId sender) {
+    
+  }
   
   // Sign extends 'in_value', which has 'in_bits' to 16-bits.
   public static short SignExtend16(short in_value, int in_bits) {
