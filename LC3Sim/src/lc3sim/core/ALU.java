@@ -2,7 +2,7 @@ package lc3sim.core;
 
 import java.util.BitSet;
 
-public class ALU extends BasicPropagator {
+public class ALU extends AbstractPropagator {
   // ALU Interface
   public ALU() {
     Init();

@@ -88,6 +88,20 @@ public class BitWord {
     return bits_;
   }
   
+  // Returns true if value is non-zero.
+  public Boolean ToBoolean() {
+    for (int i = 0; i < num_bits(); ++i) {
+      if (TestBit(i)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  public int ToInt() {
+    return (int)bits_.toLongArray()[0];
+  }
+  
   public static BitWord FromBoolean(Boolean bool) {
     BitSet one_bit = new BitSet(1);
     one_bit.set(0, bool);

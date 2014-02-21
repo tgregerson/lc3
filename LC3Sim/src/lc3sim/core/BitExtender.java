@@ -1,12 +1,18 @@
 package lc3sim.core;
 
-// Provides a static method for sign extension to 16 bits.
-public class SignExtender extends BasicPropagator {
-  public SignExtender(OutputId output_id, int input_bits, int output_bits) {
+// An architectural element that performs zero or sign extension.
+//
+// This class is largely a wrapper around the Resize() method of
+// BitWord, but is included as a separate class to allow for
+// easier visibility to Listeners.
+public class BitExtender extends AbstractPropagator {
+  public BitExtender(OutputId output_id, int input_bits, int output_bits,
+                      Boolean sign_extend) {
     assert input_bits < output_bits;
     input_bits_ = input_bits;
     output_bits_ = output_bits;
     out_id_ = output_id;
+    sign_extend_ = sign_extend;
     Init();
   }
   
@@ -17,12 +23,12 @@ public class SignExtender extends BasicPropagator {
   
   public void Notify(BitWord bit_word, OutputId sender, InputId receiver,
                      Object arg) {
-    input_buffer_.Resize(input_bits_, true);
+    input_buffer_.Resize(input_bits_, sign_extend_);
     UpdateOutput(out_id_);
   }
   
   protected BitWord ComputeOutput(OutputId unused) {
-    return input_buffer_.Resize(output_bits_, true);
+    return input_buffer_.Resize(output_bits_, sign_extend_);
   }
   
   // Sign extends 'in_value', which has 'in_bits' to 16-bits.
@@ -45,4 +51,5 @@ public class SignExtender extends BasicPropagator {
   private final OutputId out_id_;
   private final int input_bits_;
   private final int output_bits_;
+  private final Boolean sign_extend_;
 }

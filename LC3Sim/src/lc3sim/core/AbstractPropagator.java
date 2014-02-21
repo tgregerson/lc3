@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-// The BasicPropagator provides most of the implementation of a logic
+// The AbstractPropagator provides most of the implementation of a logic
 // element that can both respond to changes in its inputs (via Listener)
 // and broadcast changes in its output (via Listenable).
 //
@@ -16,8 +16,8 @@ import java.util.Set;
 // Changes to the output should occur via calls to UpdateOutput(), which
 // handles computing the output, comparing it to the previous output,
 // and broadcasting notifications to listeners if necessary.
-public abstract class BasicPropagator implements Listener, Listenable {
-  protected BasicPropagator() {
+public abstract class AbstractPropagator implements Listener, Listenable {
+  protected AbstractPropagator() {
     listener_bindings_ = new HashSet<ListenerCallback>();
     current_output_ = new HashMap<OutputId, BitWord>();
   }
@@ -47,13 +47,6 @@ public abstract class BasicPropagator implements Listener, Listenable {
     listener_bindings_.clear();
   }
   
-  // Executes NotifyUpdate on all listeners.
-  protected void SendNotification(BitWord bit_word) {
-    for (ListenerCallback cb : listener_bindings_) {
-      cb.Run(bit_word);
-    }
-  }
-  
   // Executes NotifyUpdate on listeners with associated with 'sender_id'.
   protected void SendNotification(BitWord bit_word, OutputId sender_id) {
     for (ListenerCallback cb : listener_bindings_) {
@@ -68,7 +61,7 @@ public abstract class BasicPropagator implements Listener, Listenable {
     BitWord new_output = ComputeOutput(id);
     if (!new_output.IsEqual(old_output)) {
       SetCurrentOutput(id, new_output);
-      SendNotification(old_output);
+      SendNotification(old_output, id);
     }
   }
   
