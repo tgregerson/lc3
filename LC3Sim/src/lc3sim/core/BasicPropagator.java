@@ -9,8 +9,6 @@ import java.util.Set;
 // element that can both respond to changes in its inputs (via Listener)
 // and broadcast changes in its output (via Listenable).
 //
-// BasicPropagator is appropriate for logic elements with a single output.
-//
 // Children must implement Notify() (from Listener), which implements the
 // actions to take on a change in input, and ComputeOutput(), which
 // calculates the output of the logic based on the current input values.
@@ -21,6 +19,7 @@ import java.util.Set;
 public abstract class BasicPropagator implements Listener, Listenable {
   protected BasicPropagator() {
     listener_bindings_ = new HashSet<ListenerCallback>();
+    current_output_ = new HashMap<OutputId, BitWord>();
   }
   
   public void RegisterListenerCallback(ListenerCallback cb) {
@@ -65,10 +64,10 @@ public abstract class BasicPropagator implements Listener, Listenable {
   }
   
   protected void UpdateOutput(OutputId id) {
-	BitWord old_output = CurrentOutput(id);
+    BitWord old_output = CurrentOutput(id);
     BitWord new_output = ComputeOutput(id);
-	if (!new_output.IsEqual(old_output)) {
-	  SetCurrentOutput(id, new_output);
+    if (!new_output.IsEqual(old_output)) {
+      SetCurrentOutput(id, new_output);
       SendNotification(old_output);
     }
   }
