@@ -5,7 +5,6 @@ import java.util.BitSet;
 public class ALU extends BasicPropagator {
   // ALU Interface
   public ALU() {
-    super(ArchitecturalId.AluOut);
     Init();
   }
   
@@ -13,27 +12,32 @@ public class ALU extends BasicPropagator {
     op_a_ = new BitWord(16);
     op_b_ = new BitWord(16);
     op_code_ = new BitWord(4);
-    current_output_ = new BitWord(16);
+    SetCurrentOutput(out_id_, new BitWord(16));
   }
   
-  public void Notify(BitWord bit_word, Object arg, ArchitecturalId sender) {
-    assert arg != null;
-    assert arg instanceof String;
-    if (sender == ArchitecturalId.Sr2MuxOut) {
+  @Override
+  public void Notify(BitWord bit_word, OutputId sender,
+                     InputId receiver, Object arg) {
+    if (sender == OutputId.Sr2Mux) {
       if (!op_b_.IsEqual(bit_word)) {
         op_b_ = bit_word;
-        UpdateOutput();
+        UpdateOutput(out_id_);
       }
-    } else if (sender == ArchitecturalId.GprSr1Out){
+    } else if (sender == OutputId.GprSr1){
       if (!op_a_.IsEqual(bit_word)) {
         op_a_ = bit_word;
-        UpdateOutput();
+        UpdateOutput(out_id_);
       }
     }
   }
   
-  public void UpdateOutput() {
-    // TODO
+  @Override
+  protected BitWord ComputeOutput(OutputId unused) {
+    if (op_code_.IsEqual(OpCode.kADD.as_BitWord())) {
+      return Add(op_a_, op_b_);
+    } else {
+      return null; // TODO add other ALU functions.
+    }
   }
   
   // Add treats operands as 2's complement and sign extends to 16-bit.
@@ -54,9 +58,11 @@ public class ALU extends BasicPropagator {
     return new BitWord16(sum, true);
   }
   
+  // Buffered inputs
   private BitWord op_a_;
   private BitWord op_b_;
   private BitWord op_code_;
-  private BitWord current_output_;
+
   private final int kBitWidth = 16;
+  private final OutputId out_id_ = OutputId.Alu;
 }

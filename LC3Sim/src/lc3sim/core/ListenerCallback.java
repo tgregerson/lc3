@@ -1,23 +1,42 @@
 package lc3sim.core;
 
 public class ListenerCallback {
-  public ListenerCallback(Listener listener, Object arg) {
+  // Create a callback, binding 'sender' to 'receiver', and optionally
+  // providing additional data through 'arg', which may be set to
+  // NULL if unused.
+  //
+  // 'listener' must be capable of servicing the notification, and is
+  // typically the owner of 'receiver'. 
+  public ListenerCallback(Listener listener, OutputId sender,
+		                      InputId receiver, Object arg) {
     listener_ = listener;
+    sender_ = sender;
+    receiver_ = receiver;
     arg_ = arg;
   }
   
-  public void Run(BitWord bit_word, ArchitecturalId sender_id) {
-    listener_.Notify(bit_word, arg_, sender_id);
+  public void Run(BitWord bit_word) {
+    listener_.Notify(bit_word, sender_, receiver_, arg_);
   }
   
-  public Listener get_listener() {
+  public Listener listener() {
     return listener_;
   }
   
-  public Object get_arg() {
+  public OutputId sender() {
+    return sender_;
+  }
+  
+  public InputId receiver() {
+    return receiver_;
+  }
+  
+  public Object arg() {
     return arg_;
   }
   
   private Listener listener_;
+  private OutputId sender_;
+  private InputId receiver_;
   private Object arg_;
 }

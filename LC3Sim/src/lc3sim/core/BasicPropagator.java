@@ -1,15 +1,25 @@
 package lc3sim.core;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-// Combines the Listener and Listenable classes to provide a basic
-// propagation chain for a logic unit with a single output.
-// Subclasses must implement Notify().
+// The BasicPropagator provides most of the implementation of a logic
+// element that can both respond to changes in its inputs (via Listener)
+// and broadcast changes in its output (via Listenable).
+//
+// BasicPropagator is appropriate for logic elements with a single output.
+//
+// Children must implement Notify() (from Listener), which implements the
+// actions to take on a change in input, and ComputeOutput(), which
+// calculates the output of the logic based on the current input values.
+//
+// Changes to the output should occur via calls to UpdateOutput(), which
+// handles computing the output, comparing it to the previous output,
+// and broadcasting notifications to listeners if necessary.
 public abstract class BasicPropagator implements Listener, Listenable {
-  // 'my_id' should correspond to the ID of the output of the propagator.
-  protected BasicPropagator(ArchitecturalId my_id) {
-    my_id_ = my_id;
+  protected BasicPropagator() {
     listener_bindings_ = new HashSet<ListenerCallback>();
   }
   
@@ -21,7 +31,7 @@ public abstract class BasicPropagator implements Listener, Listenable {
   public void UnregisterListener(Listener listener) {
     HashSet<ListenerCallback> keys_to_remove = new HashSet<ListenerCallback>();
     for (ListenerCallback cb : listener_bindings_) {
-      if (cb.get_listener() == listener) {
+      if (cb.listener() == listener) {
         keys_to_remove.add(cb);
       }
     }
@@ -41,10 +51,38 @@ public abstract class BasicPropagator implements Listener, Listenable {
   // Executes NotifyUpdate on all listeners.
   protected void SendNotification(BitWord bit_word) {
     for (ListenerCallback cb : listener_bindings_) {
-      cb.Run(bit_word, my_id_);
+      cb.Run(bit_word);
     }
   }
   
+  // Executes NotifyUpdate on listeners with associated with 'sender_id'.
+  protected void SendNotification(BitWord bit_word, OutputId sender_id) {
+    for (ListenerCallback cb : listener_bindings_) {
+      if (cb.sender() == sender_id) {
+        cb.Run(bit_word);
+      }
+    }
+  }
+  
+  protected void UpdateOutput(OutputId id) {
+	BitWord old_output = CurrentOutput(id);
+    BitWord new_output = ComputeOutput(id);
+	if (!new_output.IsEqual(old_output)) {
+	  SetCurrentOutput(id, new_output);
+      SendNotification(old_output);
+    }
+  }
+  
+  protected BitWord CurrentOutput(OutputId id) {
+	  return current_output_.get(id);
+  }
+  
+  abstract protected BitWord ComputeOutput(OutputId id);
+  
+  protected void SetCurrentOutput(OutputId id, BitWord bit_word) {
+	  current_output_.put(id, bit_word);
+  }
+  
   private Set<ListenerCallback> listener_bindings_;
-  private ArchitecturalId my_id_;
+  private Map<OutputId, BitWord> current_output_;
 }
