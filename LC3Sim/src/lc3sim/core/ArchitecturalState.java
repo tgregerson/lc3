@@ -193,8 +193,6 @@ public class ArchitecturalState {
   // State Machine
   private final StateMachine state_machine_ = new StateMachine();
   
-  // Logic elements
-  
   // Individual registers
   private final Register pc_ =
       new Register(16, InputId.Pc, InputId.PcLoad, OutputId.Pc);

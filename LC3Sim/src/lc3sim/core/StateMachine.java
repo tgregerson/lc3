@@ -13,6 +13,10 @@ public class StateMachine {
     kInvalidState
   }
   
+  public enum InstructionState {
+    
+  }
+  
   public StateMachine() {
     Init();
   }

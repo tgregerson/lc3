@@ -73,6 +73,11 @@ public enum InputId {
   MdrTriEnable,
   AluTriData,
   AluTriEnable,
+  
+  // Control Logic
+  ControlState,
+  ControlInstruction,
+  ControlPsr,
 
   // Non-Architectural
   External,
