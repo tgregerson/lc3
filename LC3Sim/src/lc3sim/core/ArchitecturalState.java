@@ -62,9 +62,17 @@ public class ArchitecturalState {
     
   }
   
+  public int ExecuteInstruction() {
+    state_machine_.ExecuteInstruction();
+    return pc();
+  }
+  
   public int pc() {
     return pc_.Read().ToInt();
   }
+  
+  // State Machine
+  private final StateMachine state_machine_ = new StateMachine();
   
   // Logic elements
   
