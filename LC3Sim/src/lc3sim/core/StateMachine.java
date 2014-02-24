@@ -1,14 +1,15 @@
 package lc3sim.core;
 
-// A state machine that controls the LC3 instruction cycle.
+// A state machine that controls the LC3 instruction cycle and generates control
+// signals for logic.
 public class StateMachine {
-  public enum InstructionState {
+  public enum InstructionPhase {
     kFetchInstruction,
     kDecodeInstruction,
     kEvaluateAddress,
     kFetchOperands,
-    kExecute,
-    kStore,
+    kExecuteOperation,
+    kStoreResult,
     kInvalidState
   }
   
@@ -17,30 +18,35 @@ public class StateMachine {
   }
   
   public void Init() {
-    current_state_ = InstructionState.kFetchInstruction;
+    next_phase_ = InstructionPhase.kFetchInstruction;
   }
   
   // Advances the state machine by one state.
-  public void AdvanceState() {
-    RunCurrentState();
-    switch (current_state_) {
+  public void ExecuteCurrentPhase() {
+    switch (next_phase_) {
       case kFetchInstruction:
-        current_state_ = InstructionState.kDecodeInstruction;
+        FetchInstruction();
+        next_phase_ = InstructionPhase.kDecodeInstruction;
         break;
       case kDecodeInstruction:
-        current_state_ = InstructionState.kEvaluateAddress;
+        DecodeInstruction();
+        next_phase_ = InstructionPhase.kEvaluateAddress;
         break;
       case kEvaluateAddress:
-        current_state_ = InstructionState.kFetchOperands;
+        EvaluateAddress();
+        next_phase_ = InstructionPhase.kFetchOperands;
         break;
       case kFetchOperands:
-        current_state_ = InstructionState.kExecute;
+        FetchOperands();
+        next_phase_ = InstructionPhase.kExecuteOperation;
         break;
-      case kExecute:
-        current_state_ = InstructionState.kStore;
+      case kExecuteOperation:
+        ExecuteOperation();
+        next_phase_ = InstructionPhase.kStoreResult;
         break;
-      case kStore:
-        current_state_ = InstructionState.kFetchInstruction;
+      case kStoreResult:
+        StoreResult();
+        next_phase_ = InstructionPhase.kFetchInstruction;
         break;
       default:
         assert false;
@@ -48,32 +54,46 @@ public class StateMachine {
     }
   }
   
-  // Advances the state machine to start of next cycle.
-  public void AdvanceCycle() {
+  // Advances the state machine to start of next phase.
+  public void ExecuteInstruction() {
     do {
-      AdvanceState(); 
-    } while (current_state_ != InstructionState.kFetchInstruction);
+      ExecuteCurrentPhase(); 
+    } while (next_phase_ != InstructionPhase.kFetchInstruction);
   }
   
-  // Advances the state machine until the PC is equal to one of the values in
-  // 'addresses' (or halt). Stops at the beginning of the next cycle.
-  public void AdvanceToAddr(short[] addresses) {
-    while (true) {
-      for (short address : addresses) {
-        if (address == architectural_state_.GetPC()) {
-          return;
-        }
-      }
-      AdvanceCycle();
-      // TODO: Deal with program halt.
-    }
-  }
-  
-  private void RunCurrentState() {
+  private void FetchInstruction() {
+    // MAR <= PC, PC <= PC + 1
+    // PCMux Select <= 00
+    // PCTri <= 1
+    
+    // MDR <= m[MAR]
+    
+    // IR <= MDR
     
   }
   
-  // The current state is pre-execution of that state.
-  private InstructionState current_state_;
+  private void DecodeInstruction() {
+    
+  }
+  
+  private void EvaluateAddress() {
+    
+  }
+  
+  private void FetchOperands() {
+    
+  }
+  
+  private void ExecuteOperation() {
+    
+  }
+  
+  private void StoreResult() {
+    
+  }
+  
+  // The current state is the state that the processor is about to execute.
+  private InstructionPhase next_phase_;
+
 
 }

@@ -40,4 +40,7 @@ public enum OutputId {
 	
 	// Reserved for UI
 	External,
+	
+	// Used when value doesn't matter
+	DontCare,
 }

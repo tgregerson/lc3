@@ -18,6 +18,11 @@ public class Register extends AbstractPropagator
     UpdateOutput(out_id_);
   }
   
+  // Get the current output.
+  public BitWord Read() {
+    return CurrentOutput(out_id_);
+  }
+  
   // BasicPropagator Interface
   public void Notify(BitWord bit_word, OutputId sender,
                      InputId receiver, Object arg) {
@@ -51,12 +56,12 @@ public class Register extends AbstractPropagator
 	  return q_;
   }
   
-  private BitWord d_;
-  private Boolean en_;
-  private BitWord q_;
+  protected BitWord d_;
+  protected Boolean en_;
+  protected BitWord q_;
   
-  private final Boolean has_enable_;
-  private final int num_bits_;
-  private final InputId in_id_;
-  private final OutputId out_id_; 
+  protected final Boolean has_enable_;
+  protected final int num_bits_;
+  protected final InputId in_id_;
+  protected final OutputId out_id_; 
 }

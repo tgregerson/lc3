@@ -47,9 +47,9 @@ public enum InputId {
   MdrMuxData0,
   MdrMuxData1,
   MdrMuxSel,
-  GprSr2MuxData0,
-  GprSr2MuxData1,
-  GprSr2MuxSel,
+  Sr2MuxData0,
+  Sr2MuxData1,
+  Sr2MuxSel,
   AddrAdder1MuxData0,
   AddrAdder1MuxData1,
   AddrAdder1MuxSel,
@@ -62,8 +62,8 @@ public enum InputId {
   // Tristate Buffers
   PcTriData,
   PcTriEnable,
-  MarTriData,
-  MarTriEnable,
+  MarMuxTriData,
+  MarMuxTriEnable,
   MdrTriData,
   MdrTriEnable,
   AluTriData,
@@ -71,5 +71,8 @@ public enum InputId {
 
   // Non-Architectural
   External,
+  
+  // Used when value doesn't matter
+  DontCare,
 }
 

@@ -39,9 +39,39 @@ public class BitWord {
     return equal;
   }
   
-  public BitWord SetBit(int bit_index) {
+  // Add treats operands as 2's complement and sign extends, or truncates as
+  // necessary, and stores the results using the specified number of bits.
+  public BitWord AddFixedWidth(BitWord other, int num_bits) {
+    // Avoid issues with type conversion by doing bit-wise addition rather than
+    // converting to intermediate int/long types.
+    BitWord op1 = this.Resize(num_bits, true);
+    BitWord op2 = other.Resize(num_bits, true);
+    BitSet sum = new BitSet(num_bits);
+    Boolean carry = false;
+    for (int i = 0; i < num_bits; ++ i) {
+      Boolean bit_sum = op1.TestBit(i) ^ op2.TestBit(i) ^ carry;
+      sum.set(i, bit_sum);
+      carry = (op1.TestBit(i) && op2.TestBit(i)) ||
+              (op1.TestBit(i) && carry) ||
+              (op2.TestBit(i) && carry);
+    }
+    return new BitWord(sum);
+  }
+  
+  // Sign extends operands to 'num_bits' and returns their bitwise logic AND.
+  public BitWord AndFixedWidth(BitWord other, int num_bits) {
+    BitWord op1 = this.Resize(num_bits, true);
+    BitWord op2 = other.Resize(num_bits, true);
+    BitSet result = new BitSet(num_bits);
+    for (int i = 0; i < num_bits; ++ i) {
+      result.set(i, op1.TestBit(i) & op2.TestBit(i));
+    }
+    return new BitWord(result);
+  }
+  
+  public BitWord SetBit(int bit_index, Boolean value) {
     BitSet bit_set = (BitSet)bits_.clone();
-    bit_set.set(bit_index);
+    bit_set.set(bit_index, value);
     return new BitWord(bit_set);
   }
   
@@ -98,6 +128,8 @@ public class BitWord {
     return false;
   }
   
+  // Does not sign extend BitWords < 32 bits.
+  // Truncates BitWords > 32 bits.
   public int ToInt() {
     return (int)bits_.toLongArray()[0];
   }

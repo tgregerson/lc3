@@ -5,11 +5,13 @@ import java.util.Map;
 
 public class Multiplexer extends AbstractPropagator {
   public Multiplexer(int num_addr_bits, int num_data_bits,
-                     AddressBinding[] bindings, OutputId output_id) {
+                     AddressBinding[] bindings, InputId select_id,
+                     OutputId output_id) {
     num_addr_bits_ = num_addr_bits;
     num_data_bits_ = num_data_bits;
     out_id_ = output_id;
     num_inputs_ = 1 << num_addr_bits;
+    select_id_ = select_id;
     assert bindings != null && bindings.length <= num_inputs_ &&
            bindings.length > 0;
     address_bindings_ = new HashMap<InputId, Integer>();
@@ -35,9 +37,10 @@ public class Multiplexer extends AbstractPropagator {
     if (address_bindings_.containsKey(receiver)) {
       input_buffers_[address_bindings_.get(receiver)] =
           data.Resize(num_data_bits_, false); 
-    } else {
-      // The address is the receiver.
+    } else if (receiver == select_id_){
       address_buffer_ = data.Resize(num_addr_bits_, false);
+    } else {
+      assert false;
     }
     UpdateOutput(out_id_);
   }
@@ -48,7 +51,7 @@ public class Multiplexer extends AbstractPropagator {
   
   // Binds the address 'address' to 'input'. The address must be
   // within the range of legal addresses based on the number of address bits.
-  public class AddressBinding {
+  public static class AddressBinding {
     public AddressBinding(BitWord addr, InputId in) {
       address = addr;
       input = in;
@@ -60,6 +63,7 @@ public class Multiplexer extends AbstractPropagator {
   private BitWord address_buffer_;
   private BitWord[] input_buffers_;
   private final Map<InputId, Integer> address_bindings_;
+  private final InputId select_id_;
   private final int num_addr_bits_;
   private final int num_data_bits_;
   private final int num_inputs_;
