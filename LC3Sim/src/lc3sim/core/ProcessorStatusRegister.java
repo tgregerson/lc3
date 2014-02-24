@@ -3,7 +3,7 @@ package lc3sim.core;
 public class ProcessorStatusRegister extends Register {
   
   public ProcessorStatusRegister() {
-    super(16, InputId.DontCare, OutputId.Psr, true);
+    super(16, InputId.DontCare, InputId.PsrLoad, OutputId.Psr);
   }
   
   public void Notify(BitWord data, OutputId sender, InputId receiver,

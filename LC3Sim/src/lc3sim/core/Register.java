@@ -3,12 +3,12 @@ package lc3sim.core;
 public class Register extends AbstractPropagator
                       implements Synchronized {
 
-  public Register(int num_bits, InputId data_input_id, OutputId my_output_id,
-                  Boolean has_enable) {
+  public Register(int num_bits, InputId data_id, InputId enable_id,
+                  OutputId output_id) {
     num_bits_ = num_bits;
-    in_id_ = data_input_id;
-    out_id_ = my_output_id;
-    has_enable_ = has_enable;
+    data_id_ = data_id;
+    out_id_ = output_id;
+    enable_id_ = enable_id;
     Init();
   }
   
@@ -18,7 +18,6 @@ public class Register extends AbstractPropagator
     UpdateOutput(out_id_);
   }
   
-  // Get the current output.
   public BitWord Read() {
     return CurrentOutput(out_id_);
   }
@@ -31,19 +30,19 @@ public class Register extends AbstractPropagator
       q_ = bit_word.Resize(num_bits_, false);
       UpdateOutput(out_id_);
     } else {
-      if (receiver == in_id_) {
-        // Update to data. Defer update to clock edge.
+      if (receiver == data_id_) {
         d_ = bit_word.Resize(num_bits_, false);
-      } else {
-        // Assume update to enable.
+      } else if (receiver == enable_id_) {
         en_ = bit_word.ToBoolean();
+      } else {
+        assert false;
       }
     }
   }
   
   // Synchronized Interface
   public void PreClock() {
-    if (!has_enable_ || en_) {
+    if (en_) {
       q_ = d_;
     }
   }
@@ -60,8 +59,8 @@ public class Register extends AbstractPropagator
   protected Boolean en_;
   protected BitWord q_;
   
-  protected final Boolean has_enable_;
   protected final int num_bits_;
-  protected final InputId in_id_;
+  protected final InputId data_id_;
+  protected final InputId enable_id_;
   protected final OutputId out_id_; 
 }

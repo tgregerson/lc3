@@ -4,16 +4,21 @@ package lc3sim.core;
 // view.
 public enum InputId {
   // Bus
-  DataBus,
+  Bus,
   
   // Synchronous logic inputs
   Pc,
+  PcLoad,
   Ir,
+  IrLoad,
   PsrN,
   PsrZ,
   PsrP,
+  PsrLoad,
   Mar,
+  MarLoad,
   Mdr,
+  MdrLoad,
   GprSr1Addr,
   GprSr2Addr,
   GprDrAddr,

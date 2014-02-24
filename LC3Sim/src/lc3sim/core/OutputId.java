@@ -3,7 +3,7 @@ package lc3sim.core;
 // All architecturally visible logic outputs.
 public enum OutputId {
 	// Bus
-	DataBus,
+	Bus,
 	
 	// Outputs of Synchronous logic
 	Pc,
@@ -37,6 +37,21 @@ public enum OutputId {
 	PcTri,
 	MdrTri,
 	AluTri,
+	
+	// Control signals
+	ControlPcLoad,
+	ControlIrLoad,
+	ControlMarLoad,
+	ControlMdrLoad,
+	ControlPsrLoad,
+	ControlGprDrLoad,
+	ControlMemoryWriteEnable,
+	ControlPcMuxSelect,
+	ControlMarMuxSelect,
+	ControlMdrMuxSelect,
+	ControlSr2MuxSelect,
+	ControlAddr1MuxSelect,
+	ControlAddr2MuxSelect,
 	
 	// Reserved for UI
 	External,
