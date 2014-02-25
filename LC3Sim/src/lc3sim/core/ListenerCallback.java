@@ -35,6 +35,10 @@ public class ListenerCallback {
     return arg_;
   }
   
+  public void set_arg(Object arg) {
+    arg_ = arg;
+  }
+  
   private Listener listener_;
   private OutputId sender_;
   private InputId receiver_;

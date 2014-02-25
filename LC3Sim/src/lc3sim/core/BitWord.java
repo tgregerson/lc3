@@ -152,5 +152,7 @@ public class BitWord {
     return (new BitWord(bit_set)).Resize(16, false);
   }
   
+  public static BitWord TRUE = FromBoolean(true);
+  public static BitWord FALSE = FromBoolean(false);
   private BitSet bits_;
 }

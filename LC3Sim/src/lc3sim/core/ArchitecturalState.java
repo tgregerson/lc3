@@ -191,7 +191,8 @@ public class ArchitecturalState {
   }
   
   // State Machine
-  private final StateMachine state_machine_ = new StateMachine();
+  private final CycleClock cycle_clock_ = new CycleClock();
+  private final StateMachine state_machine_ = new StateMachine(cycle_clock_);
   
   // Individual registers
   private final Register pc_ =

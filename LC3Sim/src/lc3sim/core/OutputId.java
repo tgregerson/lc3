@@ -37,7 +37,10 @@ public enum OutputId {
 	PcTri,
 	MdrTri,
 	AluTri,
-	
+
+	// Control drivers
+	ControlState,
+
 	// Control signals
 	ControlPcLoad,
 	ControlIrLoad,
@@ -52,6 +55,10 @@ public enum OutputId {
 	ControlSr2MuxSelect,
 	ControlAddr1MuxSelect,
 	ControlAddr2MuxSelect,
+	ControlPcTriEnable,
+	ControlMarMuxTriEnable,
+	ControlMdrTriEnable,
+	ControlAluTriEnable,
 	
 	// Reserved for UI
 	External,
