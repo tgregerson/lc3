@@ -90,7 +90,7 @@ public class BitWord {
   
   public BitWord Resize(int new_num_bits, Boolean sign_extend) {
     if (new_num_bits == num_bits()) {
-      return new BitWord(bits_);
+      return this;
     } else if (new_num_bits > num_bits()) {
       BitSet bit_set = new BitSet(new_num_bits);
       Boolean extend_val = sign_extend ? IsNegative() : false;

@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 // A state machine that controls the LC3 instruction cycle and generates control
 // signals for logic.
-public class StateMachine implements Listenable {
+public class StateMachine implements Listenable, Listener {
   // States for the phase state machine. These states may last for multiple
   // clock cycles in the LC3 architecture.
   public enum InstructionPhase {
@@ -20,9 +20,26 @@ public class StateMachine implements Listenable {
   // States for the cycle state machine. These states represent one clock cycle
   // in the LC3 architecture.
   public enum InstructionCycle {
-    kFetchInstruction1,
-    kFetchInstruction2,
-    kFetchInstruction3,
+    kFetchInstruction1(0),
+    kFetchInstruction2(1),
+    kDecodeInstruction1(2);
+    
+    private InstructionCycle(int code) {
+      code_as_int_ = code;
+      code_as_bit_word_ = BitWord.FromInt(code).Resize(kStateBits, false);
+    }
+    
+    public int as_int() {
+      return code_as_int_;
+    }
+    
+    public BitWord as_BitWord() {
+      return code_as_bit_word_;
+    }
+    
+    private final int code_as_int_;
+    private final BitWord code_as_bit_word_;
+    private final int kStateBits = 4;
   }
   
   public StateMachine(CycleClock clock) {
@@ -32,6 +49,7 @@ public class StateMachine implements Listenable {
   
   public void Init() {
     phase_ = InstructionPhase.kFetchInstruction;
+    instruction_ = new BitWord(16);
   }
   
   // Executes the phase in 'phase_' and advances it to the next phase.
@@ -103,16 +121,14 @@ public class StateMachine implements Listenable {
     // MdrLoad <= 1
     cycle_ = InstructionCycle.kFetchInstruction2;
     clock_.Tick();
-    
-    // IR <= MDR
-    // MdrTri <= 1
-    // IrLoad <= 1
-    cycle_ = InstructionCycle.kFetchInstruction3;
-    clock_.Tick();
   }
   
   private void DecodeInstruction() {
-    
+    // IR <= MDR
+    // MdrTri <= 1
+    // IrLoad <= 1
+    cycle_ = InstructionCycle.kDecodeInstruction1;
+    clock_.Tick();
   }
   
   private void EvaluateAddress() {
@@ -136,6 +152,13 @@ public class StateMachine implements Listenable {
       cb.set_arg(cycle_);
       cb.Run(BitWord.FALSE);
     }
+  }
+  
+  // Listener
+  public void Notify(BitWord data, OutputId sender, InputId receiver,
+                     Object arg) {
+    assert sender == OutputId.Ir;
+    instruction_ = data.Resize(16, false);
   }
   
   // Listenable
@@ -166,6 +189,7 @@ public class StateMachine implements Listenable {
   private CycleClock clock_;
   private InstructionPhase phase_;
   private InstructionCycle cycle_;
+  private BitWord instruction_;
   
   private HashSet<ListenerCallback> listener_callbacks_;
 }

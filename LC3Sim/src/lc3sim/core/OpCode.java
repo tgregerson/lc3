@@ -31,7 +31,7 @@ public enum OpCode {
     return code_as_bit_word_;
   }
   
-  private int code_as_int_;
-  private BitWord code_as_bit_word_;
+  private final int code_as_int_;
+  private final BitWord code_as_bit_word_;
   private final int kOpCodeLength = 4;
 }

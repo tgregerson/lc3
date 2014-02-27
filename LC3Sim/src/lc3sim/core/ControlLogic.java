@@ -70,7 +70,7 @@ public class ControlLogic extends AbstractPropagator {
         mdr_mux_select_ = BitWord.TRUE;
         mdr_load_ = BitWord.TRUE;
         break;
-      case kFetchInstruction3:
+      case kDecodeInstruction1:
         mdr_tri_enable_ = BitWord.TRUE;
         ir_load_ = BitWord.TRUE;
         break;
@@ -88,7 +88,6 @@ public class ControlLogic extends AbstractPropagator {
                      Object arg) {
     switch (receiver) {
       case ControlState:
-        assert arg instanceof InstructionCycle;
         cycle_ = (InstructionCycle)arg;
         break;
       case ControlInstruction:
