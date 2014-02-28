@@ -31,6 +31,24 @@ public enum OpCode {
     return code_as_bit_word_;
   }
   
+  public static OpCode Lookup(int code) {
+    for (OpCode op_code : OpCode.values()) {
+      if (code == op_code.as_int()) {
+        return op_code;
+      }
+    }
+    return null;
+  }
+  
+  public static OpCode Lookup(BitWord code) {
+    for (OpCode op_code : OpCode.values()) {
+      if (code.IsEqual(op_code.as_BitWord(), false)) {
+        return op_code;
+      }
+    }
+    return null;
+  }
+  
   private final int code_as_int_;
   private final BitWord code_as_bit_word_;
   private final int kOpCodeLength = 4;

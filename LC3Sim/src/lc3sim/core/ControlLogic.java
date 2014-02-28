@@ -77,6 +77,45 @@ public class ControlLogic extends AbstractPropagator {
     }
     
     // TODO Instruction decode
+    OpCode op_code = OpCode.Lookup(
+        instruction_.GetBitRange(kOpCodeBitHigh, kOpCodeBitLow));
+    assert op_code != null;
+    switch (op_code) {
+      case kADD:
+        break;
+      case kAND:
+        break;
+      case kBR:
+        break;
+      case kJMP_RET:
+        break;
+      case kJSR_JSRR:
+        break;
+      case kLD:
+        break;
+      case kLDI:
+        break;
+      case kLDR:
+        break;
+      case kLEA:
+        break;
+      case kNOT:
+        break;
+      case kRTI:
+        break;
+      case kST:
+        break;
+      case kSTI:
+        break;
+      case kSTR:
+        break;
+      case kTRAP:
+        break;
+      case kRESERVED:
+        break;
+      default:
+        assert false;
+    }
     
     // TODO Psr
   }
@@ -88,7 +127,8 @@ public class ControlLogic extends AbstractPropagator {
                      Object arg) {
     switch (receiver) {
       case ControlState:
-        cycle_ = (InstructionCycle)arg;
+        cycle_ = InstructionCycle.Lookup(data);
+        assert cycle_ != null;
         break;
       case ControlInstruction:
         assert(data.num_bits() == 16);
@@ -151,5 +191,7 @@ public class ControlLogic extends AbstractPropagator {
   private InstructionCycle cycle_;
   private BitWord instruction_;
   private BitWord psr_;
-
+  
+  private final int kOpCodeBitHigh = 15;
+  private final int kOpCodeBitLow = 12;
 }

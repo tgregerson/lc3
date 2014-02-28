@@ -26,11 +26,11 @@ public class ALU extends AbstractPropagator {
   
   @Override
   protected BitWord ComputeOutput(OutputId unused) {
-    if (op_code_.IsEqual(OpCode.kADD.as_BitWord())) {
+    if (op_code_.IsEqual(OpCode.kADD.as_BitWord(), false)) {
       return op_a_.AddFixedWidth(op_b_, bitwidth_);
-    } else if (op_code_.IsEqual(OpCode.kAND.as_BitWord())){
+    } else if (op_code_.IsEqual(OpCode.kAND.as_BitWord(), false)) {
       return op_a_.AndFixedWidth(op_b_, bitwidth_);
-    } else if (op_code_.IsEqual(OpCode.kNOT.as_BitWord())) {
+    } else if (op_code_.IsEqual(OpCode.kNOT.as_BitWord(), false)) {
       return op_a_.Invert();
     } else {
       assert false;

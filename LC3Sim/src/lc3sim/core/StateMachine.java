@@ -37,6 +37,24 @@ public class StateMachine implements Listenable, Listener {
       return code_as_bit_word_;
     }
     
+    public static InstructionCycle Lookup(int code) {
+      for (InstructionCycle cycle : InstructionCycle.values()) {
+        if (code == cycle.as_int()) {
+          return cycle;
+        }
+      }
+      return null;
+    }
+    
+    public static InstructionCycle Lookup(BitWord code) {
+      for (InstructionCycle cycle : InstructionCycle.values()) {
+        if (code.IsEqual(cycle.as_BitWord(), false)) {
+          return cycle;
+        }
+      }
+      return null;
+    }
+    
     private final int code_as_int_;
     private final BitWord code_as_bit_word_;
     private final int kStateBits = 4;
@@ -88,10 +106,18 @@ public class StateMachine implements Listenable, Listener {
   }
   
   private InstructionPhase NextPhase() {
+    // TODO Put these magic numbers in a static class somewhere.
+    OpCode op_code = OpCode.Lookup(instruction_.GetBitRange(15, 12));
+    assert op_code != null;
     switch (phase_) {
+      // TODO Incorporate op code into which phases are executed.
       case kFetchInstruction:
+        // All ops have DECODE
         return InstructionPhase.kDecodeInstruction;
       case kDecodeInstruction:
+        // Ops that have a calculated address go to EvaluateAddress
+        
+        // Ops with operands in the register file can skip to FetchOperands
         return InstructionPhase.kEvaluateAddress;
       case kEvaluateAddress:
         return InstructionPhase.kFetchOperands;

@@ -23,12 +23,12 @@ public class BitWord {
     return bits_.get(bit_index);
   }
   
-  // Returns true if this and 'cmp' have the same value. If they are not
-  // the same length, the shorter will be sign-extended.
-  public Boolean IsEqual(BitWord cmp) {
+  // Returns true if this and 'cmp' have the same value. If 'signed', values
+  // are treated as 2's complement and sign-extended.
+  public Boolean IsEqual(BitWord cmp, Boolean signed) {
     int length = num_bits() > cmp.num_bits() ? num_bits() : cmp.num_bits();
-    BitWord copy = Resize(length, true);
-    cmp = cmp.Resize(length, true);
+    BitWord copy = Resize(length, signed);
+    cmp = cmp.Resize(length, signed);
     Boolean equal = true;
     for (int i = 0; i < length; ++i) {
       if (copy.TestBit(i) != cmp.TestBit(i)) {
