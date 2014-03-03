@@ -1,9 +1,10 @@
 package lc3sim.core;
 
 public class ProcessorStatusRegister extends Register {
+  public static int kNumBits = 16;
   
   public ProcessorStatusRegister() {
-    super(16, InputId.DontCare, InputId.PsrLoad, OutputId.Psr);
+    super(kNumBits, InputId.DontCare, InputId.PsrLoad, OutputId.Psr);
   }
   
   public void Notify(BitWord data, OutputId sender, InputId receiver,
@@ -30,6 +31,10 @@ public class ProcessorStatusRegister extends Register {
           assert false;
       }
     }
+  }
+  
+  public Boolean supervisor_mode() {
+    return !Read().TestBit(privilege_index_);
   }
 
   private final int privilege_index_ = 15;

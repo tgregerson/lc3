@@ -2,6 +2,8 @@ package lc3sim.core;
 
 import java.util.HashSet;
 
+import lc3sim.core.instructions.Instruction;
+
 // A state machine that controls the LC3 instruction cycle and generates control
 // signals for logic.
 public class StateMachine implements Listenable, Listener {
@@ -14,6 +16,8 @@ public class StateMachine implements Listenable, Listener {
     kFetchOperands,
     kExecuteOperation,
     kStoreResult,
+    kHandleInterrupt,
+    kReturnFromInterrupt,
     kInvalid,
   }
   
@@ -22,7 +26,9 @@ public class StateMachine implements Listenable, Listener {
   public enum InstructionCycle {
     kFetchInstruction1(0),
     kFetchInstruction2(1),
-    kDecodeInstruction1(2);
+    kDecodeInstruction1(2),
+    kEvaluateAddress1(3),
+    kFetchOperands1(4);
     
     private InstructionCycle(int code) {
       code_as_int_ = code;
@@ -67,7 +73,7 @@ public class StateMachine implements Listenable, Listener {
   
   public void Init() {
     phase_ = InstructionPhase.kFetchInstruction;
-    instruction_ = new BitWord(16);
+    instruction_ = Instruction.FromBitWord(new BitWord(Instruction.kNumBits));
   }
   
   // Executes the phase in 'phase_' and advances it to the next phase.
@@ -91,6 +97,7 @@ public class StateMachine implements Listenable, Listener {
       case kStoreResult:
         StoreResult();
         break;
+        // TODO: Add support for interrupt special phases.
       default:
         assert false;
         break;
@@ -106,19 +113,32 @@ public class StateMachine implements Listenable, Listener {
   }
   
   private InstructionPhase NextPhase() {
-    // TODO Put these magic numbers in a static class somewhere.
-    OpCode op_code = OpCode.Lookup(instruction_.GetBitRange(15, 12));
-    assert op_code != null;
     switch (phase_) {
-      // TODO Incorporate op code into which phases are executed.
       case kFetchInstruction:
-        // All ops have DECODE
         return InstructionPhase.kDecodeInstruction;
       case kDecodeInstruction:
-        // Ops that have a calculated address go to EvaluateAddress
-        
-        // Ops with operands in the register file can skip to FetchOperands
-        return InstructionPhase.kEvaluateAddress;
+        // Ops that do not access memory can skip ahead to FetchOperands.
+        // All others go to EvaluateAddress.
+        switch (instruction_.op_code()) {
+          case ADD:
+            return InstructionPhase.kFetchOperands;
+          case AND:
+            return InstructionPhase.kFetchOperands;
+          case BR:
+            return InstructionPhase.kFetchOperands;
+          case JMP_RET:
+            return InstructionPhase.kFetchOperands;
+          case JSR_JSRR:
+            return InstructionPhase.kFetchOperands;
+          case LEA:
+            return InstructionPhase.kFetchOperands;
+          case NOT:
+            return InstructionPhase.kFetchOperands;
+          case RTI:
+            return InstructionPhase.kReturnFromInterrupt;
+          default:
+            return InstructionPhase.kEvaluateAddress;
+        }
       case kEvaluateAddress:
         return InstructionPhase.kFetchOperands;
       case kFetchOperands:
@@ -126,6 +146,7 @@ public class StateMachine implements Listenable, Listener {
       case kExecuteOperation:
         return InstructionPhase.kStoreResult;
       case kStoreResult:
+        // TODO Check for interrupt.
         return InstructionPhase.kFetchInstruction;
       default:
         return InstructionPhase.kInvalid;
@@ -158,11 +179,21 @@ public class StateMachine implements Listenable, Listener {
   }
   
   private void EvaluateAddress() {
-    
+    // MAR <= computed address
+    cycle_ = InstructionCycle.kEvaluateAddress1;
+    clock_.Tick();
   }
   
   private void FetchOperands() {
-    
+    // For instructions that read memory:
+    // MDR <= mem[MAR]
+    //
+    // For instructions that only read registers, this phase is not really
+    // necessary, since the register file has asynchronous read. For now, set
+    // the source register addresses appropriately anyway to be consistent with
+    // the description of the Fetch Operands phase in textbooks.
+    cycle_ = InstructionCycle.kFetchOperands1;
+    clock_.Tick();
   }
   
   private void ExecuteOperation() {
@@ -184,7 +215,7 @@ public class StateMachine implements Listenable, Listener {
   public void Notify(BitWord data, OutputId sender, InputId receiver,
                      Object arg) {
     assert sender == OutputId.Ir;
-    instruction_ = data.Resize(16, false);
+    instruction_ = Instruction.FromBitWord(data);
   }
   
   // Listenable
@@ -215,7 +246,7 @@ public class StateMachine implements Listenable, Listener {
   private CycleClock clock_;
   private InstructionPhase phase_;
   private InstructionCycle cycle_;
-  private BitWord instruction_;
+  private Instruction instruction_;
   
   private HashSet<ListenerCallback> listener_callbacks_;
 }

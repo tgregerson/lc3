@@ -1,22 +1,24 @@
-package lc3sim.core;
+package lc3sim.core.instructions;
+
+import lc3sim.core.BitWord;
 
 public enum OpCode {
-  kADD(1),
-  kAND(3),
-  kBR(0),
-  kJMP_RET(12),
-  kJSR_JSRR(4),
-  kLD(2),
-  kLDI(10),
-  kLDR(6),
-  kLEA(14),
-  kNOT(9),
-  kRTI(8),
-  kST(3),
-  kSTI(11),
-  kSTR(7),
-  kTRAP(15),
-  kRESERVED(13);
+  ADD(1),
+  AND(3),
+  BR(0),
+  JMP_RET(12),
+  JSR_JSRR(4),
+  LD(2),
+  LDI(10),
+  LDR(6),
+  LEA(14),
+  NOT(9),
+  RTI(8),
+  ST(3),
+  STI(11),
+  STR(7),
+  TRAP(15),
+  RESERVED(13);
   
   private OpCode(int code) {
     code_as_int_ = code;
