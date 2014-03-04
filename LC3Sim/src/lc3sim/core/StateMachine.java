@@ -3,6 +3,7 @@ package lc3sim.core;
 import java.util.HashSet;
 
 import lc3sim.core.instructions.Instruction;
+import lc3sim.core.instructions.OpCode;
 
 // A state machine that controls the LC3 instruction cycle and generates control
 // signals for logic.
@@ -28,7 +29,9 @@ public class StateMachine implements Listenable, Listener {
     kFetchInstruction2(1),
     kDecodeInstruction1(2),
     kEvaluateAddress1(3),
-    kFetchOperands1(4);
+    kFetchOperands1(4),
+    kExecuteOperation1(5),
+    kExecuteOperation2(6);
     
     private InstructionCycle(int code) {
       code_as_int_ = code;
@@ -197,7 +200,14 @@ public class StateMachine implements Listenable, Listener {
   }
   
   private void ExecuteOperation() {
+    cycle_ = InstructionCycle.kExecuteOperation1;
+    clock_.Tick();
     
+    if (instruction_.op_code() == OpCode.LDR ||
+        instruction_.op_code() == OpCode.STR) {
+      cycle_ = InstructionCycle.kExecuteOperation2;
+      clock_.Tick();
+    }
   }
   
   private void StoreResult() {

@@ -1,6 +1,8 @@
 package lc3sim.core.instructions;
 
 import lc3sim.core.BitWord;
+import lc3sim.core.ControlSet;
+import lc3sim.core.StateMachine.InstructionCycle;;
 
 public abstract class Instruction {
   public static final int kNumBits = 16;
@@ -39,6 +41,33 @@ public abstract class Instruction {
         assert false;
         return null;
     }
+  }
+  
+  public abstract ControlSet ControlSet(InstructionCycle cycle);
+  
+  // FetchInstruction1, FetchInstruction2, and DecodeInstruction1 are the same
+  // for all instructions, so they are provided here.
+  protected ControlSet FetchInstruction1ControlSet() {
+    ControlSet control_set = new ControlSet();
+    control_set.pc_load = BitWord.TRUE;
+    control_set.pc_tri_enable = BitWord.TRUE;
+    control_set.pc_mux_select = BitWord.FromInt(0).Resize(2, false);
+    control_set.mar_load = BitWord.TRUE;
+    return control_set;
+  }
+
+  protected ControlSet FetchInstruction2ControlSet() {
+    ControlSet control_set = new ControlSet();
+    control_set.mdr_mux_select = BitWord.TRUE;
+    control_set.mdr_load = BitWord.TRUE;
+    return control_set;
+  }
+  
+  protected ControlSet DecodeInstruction1ControlSet() {
+    ControlSet control_set = new ControlSet();
+    control_set.mdr_tri_enable = BitWord.TRUE;
+    control_set.ir_load = BitWord.TRUE;
+    return control_set;
   }
   
   // Below are convenience methods for accessing named fields from the LC3 ISA.
@@ -187,296 +216,3 @@ public abstract class Instruction {
   private static final int kOpCodeLowBit = 12;
   
 }
-
-/*
-public class Instruction {
-  public static final int kNumBits = 16;
-
-  public Instruction(BitWord bitword) {
-    assert bitword.num_bits() == kNumBits;
-    bitword_ = bitword;
-    op_code_ = OpCode.Lookup(
-        bitword_.GetBitRange(kOpCodeHighBit, kOpCodeLowBit));
-    assert op_code_ != null;
-  }
-  
-  // Below are convenience methods for accessing named fields from the LC3 ISA.
-  // A given instruction only has access to some named fields, as specified by
-  // the has_<field_name>() functions. Attempting to access a named field not
-  // present in the instruction results in undefined behavior.
-  public OpCode op_code() {
-    return op_code_;
-  }
-  
-  public Boolean has_sr1() {
-    return op_code_ == OpCode.ADD ||
-           op_code_ == OpCode.AND;
-  }
-  
-  public BitWord sr1() {
-    switch (op_code_) {
-      case ADD:
-        return bitword_.GetBitRange(kSr1HighBit, kSr1LowBit);
-      case AND:
-        return bitword_.GetBitRange(kSr1HighBit, kSr1LowBit);
-      default:
-        assert false;
-        return null;
-    }
-  }
-  
-  public Boolean has_sr2() {
-    return (op_code_ == OpCode.ADD && !mode_bit()) ||
-           (op_code_ == OpCode.AND && !mode_bit());
-  }
-  
-  public BitWord sr2() {
-    switch (op_code_) {
-      case ADD:
-        assert !mode_bit();
-        return bitword_.GetBitRange(kSr2HighBit, kSr2LowBit);
-      case AND:
-        assert !mode_bit();
-        return bitword_.GetBitRange(kSr2HighBit, kSr2LowBit);
-      default:
-        assert false;
-        return null;
-    }
-  }
-  
-  public Boolean has_sr() {
-    return op_code_ == OpCode.NOT ||
-           op_code_ == OpCode.ST  ||
-           op_code_ == OpCode.STI ||
-           op_code_ == OpCode.STR;
-  }
-  
-  public BitWord sr() {
-    switch (op_code_) {
-      case NOT:
-        // For NOT, SR is in the location normally SR1.
-        return bitword_.GetBitRange(kSr1HighBit, kSrLowBit);
-      case ST:
-        return bitword_.GetBitRange(kSrHighBit, kSrLowBit);
-      case STI:
-        return bitword_.GetBitRange(kSrHighBit, kSrLowBit);
-      case STR:
-        return bitword_.GetBitRange(kSrHighBit, kSrLowBit);
-      default:
-        assert false;
-        return null;
-    }
-  }
-  
-  public Boolean has_base_r() {
-    return  op_code_ == OpCode.JMP_RET ||
-           (op_code_ == OpCode.JSR_JSRR && !mode_bit()) ||
-            op_code_ == OpCode.LDR ||
-            op_code_ == OpCode.STR;
-  }
-
-  public BitWord base_r() {
-    switch (op_code_) {
-      case JMP_RET:
-        return bitword_.GetBitRange(kBaseRHighBit, kBaseRLowBit);
-      case JSR_JSRR:
-        assert !mode_bit();
-        return bitword_.GetBitRange(kBaseRHighBit, kBaseRLowBit);
-      case LDR:
-        return bitword_.GetBitRange(kBaseRHighBit, kBaseRLowBit);
-      case STR:
-        return bitword_.GetBitRange(kBaseRHighBit, kBaseRLowBit);
-      default:
-        assert false;
-        return null;
-    }
-  }
-  
-  public Boolean has_dr() {
-    return op_code_ == OpCode.ADD ||
-           op_code_ == OpCode.AND ||
-           op_code_ == OpCode.LD  ||
-           op_code_ == OpCode.LDI ||
-           op_code_ == OpCode.LDR ||
-           op_code_ == OpCode.LEA ||
-           op_code_ == OpCode.NOT;
-  }
-  
-  public BitWord dr() {
-    switch (op_code_) {
-      case ADD:
-        return bitword_.GetBitRange(kDrHighBit, kDrLowBit);
-      case AND:
-        return bitword_.GetBitRange(kDrHighBit, kDrLowBit);
-      case LD:
-        return bitword_.GetBitRange(kDrHighBit, kDrLowBit);
-      case LDI:
-        return bitword_.GetBitRange(kDrHighBit, kDrLowBit);
-      case LDR:
-        return bitword_.GetBitRange(kDrHighBit, kDrLowBit);
-      case LEA:
-        return bitword_.GetBitRange(kDrHighBit, kDrLowBit);
-      case NOT:
-        return bitword_.GetBitRange(kDrHighBit, kDrLowBit);
-      default:
-        assert false;
-        return null;
-    }
-  }
-  
-  public Boolean has_imm() {
-    return (op_code_ == OpCode.ADD && mode_bit()) ||
-           (op_code_ == OpCode.AND && mode_bit()) ||
-            op_code_ == OpCode.BR  ||
-           (op_code_ == OpCode.JSR_JSRR && mode_bit()) ||
-            op_code_ == OpCode.LD  ||
-            op_code_ == OpCode.LDI ||
-            op_code_ == OpCode.LDR ||
-            op_code_ == OpCode.LEA ||
-            op_code_ == OpCode.ST  ||
-            op_code_ == OpCode.STI ||
-            op_code_ == OpCode.STR ||
-            op_code_ == OpCode.TRAP;
-  }
-  
-  // Used for all immediate value fields.
-  public BitWord imm() {
-    switch (op_code_) {
-      case ADD:
-        assert mode_bit();
-        return bitword_.GetBitRange(kImm5HighBit, kImm5LowBit);
-      case AND:
-        assert mode_bit();
-        return bitword_.GetBitRange(kImm5HighBit, kImm5LowBit);
-      case BR:
-        return bitword_.GetBitRange(kPcOffset9HighBit, kPcOffset9LowBit);
-      case JSR_JSRR:
-        assert mode_bit();
-        return bitword_.GetBitRange(kPcOffset11HighBit, kPcOffset11LowBit);
-      case LD:
-        return bitword_.GetBitRange(kPcOffset9HighBit, kPcOffset9LowBit);
-      case LDI:
-        return bitword_.GetBitRange(kPcOffset9HighBit, kPcOffset9LowBit);
-      case LDR:
-        return bitword_.GetBitRange(kOffset6HighBit, kOffset6LowBit);
-      case LEA:
-        return bitword_.GetBitRange(kPcOffset9HighBit, kPcOffset9LowBit);
-      case ST:
-        return bitword_.GetBitRange(kPcOffset9HighBit, kPcOffset9LowBit);
-      case STI:
-        return bitword_.GetBitRange(kPcOffset9HighBit, kPcOffset9LowBit);
-      case STR:
-        return bitword_.GetBitRange(kOffset6HighBit, kOffset6LowBit);
-      case TRAP:
-        return bitword_.GetBitRange(kTrapvect8HighBit, kTrapvect8LowBit);
-      default:
-        assert false;
-        return null;
-    }
-  }
-  
-  public Boolean has_n() {
-    return op_code_ == OpCode.BR;
-  }
-  
-  public Boolean n() {
-    assert op_code_ == OpCode.BR;
-    return bitword_.TestBit(kBrNBit);
-  }
-
-  public Boolean has_z() {
-    return op_code_ == OpCode.BR;
-  }
-  
-  public Boolean z() {
-    assert op_code_ == OpCode.BR;
-    return bitword_.TestBit(kBrZBit);
-  }
-
-  public Boolean has_p() {
-    return op_code_ == OpCode.BR;
-  }
-  
-  public Boolean p() {
-    assert op_code_ == OpCode.BR;
-    return bitword_.TestBit(kBrPBit);
-  }
-
-  public Boolean has_mode_bit() {
-    return op_code_ == OpCode.AND ||
-           op_code_ == OpCode.ADD ||
-           op_code_ == OpCode.JSR_JSRR;
-  }
-  
-  public Boolean mode_bit() {
-    switch (op_code_) {
-      case ADD:
-        return bitword_.TestBit(kAddAndModeBit);
-      case AND:
-        return bitword_.TestBit(kAddAndModeBit);
-      case JSR_JSRR:
-        return bitword_.TestBit(kJsrJsrrModeBit);
-      default:
-        assert false;
-        return false;
-    }
-  }
-
-  private final BitWord bitword_;
-  private final OpCode op_code_;
-
-  // Op Code: Valid for all instructions.
-  private final int kOpCodeHighBit = 15;
-  private final int kOpCodeLowBit = 12;
-  
-  // Dr: Valid for ADD, AND, LD, LDI, LDR, LEA, NOT
-  private final int kDrHighBit = 11;
-  private final int kDrLowBit = 9;
-  
-  // Sr: Valid for NOT, ST, STI, STR
-  // NOTE: For NOT, Sr uses the bitrange of Sr1, unlike all other instructions
-  // using Sr.
-  private final int kSrHighBit = 11;
-  private final int kSrLowBit = 9;
-  
-  // Sr1: Valid for ADD, AND
-  private final int kSr1HighBit = 8;
-  private final int kSr1LowBit = 6;
-  
-  // Sr2: Valid for ADD, AND (when mode = 0)
-  private final int kSr2HighBit = 2;
-  private final int kSr2LowBit = 0;
-
-  // BaseR: Valid for JMP, JSRR, LDR, STR
-  private final int kBaseRHighBit = 8;
-  private final int kBaseRLowBit = 6;
-  
-  // Imm5: Valid for ADD, AND (when mode = 1)
-  private final int kImm5HighBit = 4;
-  private final int kImm5LowBit = 0;
-
-  // PCoffset9: Valid for BR, LD, LDI, LEA, ST, STI
-  private final int kPcOffset9HighBit = 8;
-  private final int kPcOffset9LowBit = 0;
-
-  // PCoffset11: Valid for JSR
-  private final int kPcOffset11HighBit = 10;
-  private final int kPcOffset11LowBit = 0;
-
-  // Offset6: Valid for LDR, STR
-  private final int kOffset6HighBit = 5;
-  private final int kOffset6LowBit = 0;
-
-  // Trapvect8: Valid for TRAP
-  private final int kTrapvect8HighBit = 7;
-  private final int kTrapvect8LowBit = 0;
-  
-  // Flag bits for BR
-  private final int kBrNBit = 11;
-  private final int kBrZBit = 10;
-  private final int kBrPBit = 9;
-  
-  // Mode bits to differentiate between versions of ADD, AND, and JSR/JSRR
-  private final int kAddAndModeBit = 5;
-  private final int kJsrJsrrModeBit = 11;
-}*/

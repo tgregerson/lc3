@@ -1,10 +1,58 @@
 package lc3sim.core.instructions;
 
 import lc3sim.core.BitWord;
+import lc3sim.core.ControlSet;
+import lc3sim.core.StateMachine.InstructionCycle;
 
 public class AddInstruction extends Instruction {
   public AddInstruction(BitWord bitword) {
     super(bitword);
+  }
+  
+  @Override
+  public ControlSet ControlSet(InstructionCycle cycle) {
+    switch (cycle) {
+      case kFetchInstruction1:
+        return FetchInstruction1ControlSet();
+      case kFetchInstruction2:
+        return FetchInstruction2ControlSet();
+      case kDecodeInstruction1:
+        return DecodeInstruction1ControlSet();
+      case kEvaluateAddress1:
+        // Unused
+        assert false;
+        return null;
+      case kFetchOperands1:
+        return FetchOperands1ControlSet();
+      case kExecuteOperation1:
+        return ExecuteOperation1ControlSet();
+      case kExecuteOperation2:
+        // Unused
+        assert false;
+        return null;
+    }
+    assert false;
+    return null;
+  }
+  
+  private ControlSet FetchOperands1ControlSet() {
+    ControlSet control_set = new ControlSet();
+    control_set.gpr_sr1_addr = sr1();
+    if (has_sr2()) {
+      control_set.gpr_sr2_addr = sr2();
+    }
+    return control_set;
+  }
+  
+  private ControlSet ExecuteOperation1ControlSet() {
+    ControlSet control_set = FetchOperands1ControlSet();
+    // TODO Set ALU Mode
+    if (mode_bit()) {
+      control_set.sr2_mux_select = BitWord.TRUE;
+    } else {
+      control_set.sr2_mux_select = BitWord.FALSE;
+    }
+    return control_set;
   }
 
   @Override
