@@ -35,16 +35,25 @@ public class NotInstruction extends Instruction {
     return null;
   }
   
-  private ControlSet FetchOperands1ControlSet() {
-    ControlSet control_set = new ControlSet();
+  @Override
+  protected ControlSet StateIndependentControlSet() {
+    ControlSet control_set = super.StateIndependentControlSet(); 
     control_set.gpr_dr_addr = dr();
     control_set.gpr_sr1_addr = sr();
     return control_set;
   }
+  
+  private ControlSet FetchOperands1ControlSet() {
+    return StateIndependentControlSet();
+  }
 
   private ControlSet ExecuteOperation1ControlSet() {
-    ControlSet control_set = FetchOperands1ControlSet();
-    // TODO Set ALU Mode
+    return StateIndependentControlSet();
+  }
+  
+  private ControlSet StoreResult1ControlSet() {
+    ControlSet control_set = StateIndependentControlSet();
+    control_set.gpr_dr_load = BitWord.TRUE;
     return control_set;
   }
 

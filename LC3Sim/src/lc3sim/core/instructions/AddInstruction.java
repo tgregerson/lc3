@@ -30,6 +30,8 @@ public class AddInstruction extends Instruction {
         // Unused
         assert false;
         return null;
+      case kStoreResult1:
+        return StoreResult1ControlSet();
     }
     assert false;
     return null;
@@ -49,6 +51,12 @@ public class AddInstruction extends Instruction {
   
   private ControlSet ExecuteOperation1ControlSet() {
     return StateIndependentControlSet();
+  }
+  
+  private ControlSet StoreResult1ControlSet() {
+    ControlSet control_set = StateIndependentControlSet();
+    control_set.gpr_dr_load = BitWord.TRUE;
+    return control_set;
   }
 
   @Override

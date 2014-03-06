@@ -31,11 +31,12 @@ public class StateMachine implements Listenable, Listener {
     kEvaluateAddress1(3),
     kFetchOperands1(4),
     kExecuteOperation1(5),
-    kExecuteOperation2(6);
+    kExecuteOperation2(6),
+    kStoreResult1(7);
     
     private InstructionCycle(int code) {
       code_as_int_ = code;
-      code_as_bit_word_ = BitWord.FromInt(code).Resize(kStateBits, false);
+      code_as_bit_word_ = BitWord.FromInt(code, kStateBits);
     }
     
     public int as_int() {
@@ -211,7 +212,8 @@ public class StateMachine implements Listenable, Listener {
   }
   
   private void StoreResult() {
-    
+    cycle_ = InstructionCycle.kStoreResult1;
+    clock_.Tick();
   }
   
   public void SendNotification() {

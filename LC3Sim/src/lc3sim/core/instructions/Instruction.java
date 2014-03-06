@@ -60,7 +60,7 @@ public abstract class Instruction {
     ControlSet control_set = StateIndependentControlSet();
     control_set.pc_load = BitWord.TRUE;
     control_set.pc_tri_enable = BitWord.TRUE;
-    control_set.pc_mux_select = BitWord.FromInt(0).Resize(2, false);
+    control_set.pc_mux_select = BitWord.FromInt(0, 2);
     control_set.mar_load = BitWord.TRUE;
     return control_set;
   }

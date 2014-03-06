@@ -39,16 +39,17 @@ public class JsrJsrrInstruction extends Instruction {
   protected ControlSet StateIndependentControlSet() {
     ControlSet control_set = super.StateIndependentControlSet();        
     control_set.gpr_sr1_addr = base_r();
+    control_set.gpr_dr_addr = BitWord.FromInt(7, 3);
     if (mode_bit()) {
       // PC + offset
       control_set.addr1_mux_select = BitWord.FALSE;
-      control_set.addr2_mux_select = BitWord.FromInt(3).Resize(2, false);
+      control_set.addr2_mux_select = BitWord.FromInt(3, 2);
     } else {
       // Base register
       control_set.addr1_mux_select = BitWord.TRUE;
-      control_set.addr2_mux_select = BitWord.FromInt(0).Resize(2, false);
+      control_set.addr2_mux_select = BitWord.FromInt(0, 2);
     }
-    control_set.pc_mux_select = BitWord.FromInt(1).Resize(2, false);
+    control_set.pc_mux_select = BitWord.FromInt(1, 2);
     return control_set;
   }
   
@@ -58,6 +59,14 @@ public class JsrJsrrInstruction extends Instruction {
 
   private ControlSet ExecuteOperation1ControlSet() {
     return StateIndependentControlSet();
+  }
+  
+  private ControlSet StoreResult1ControlSet() {
+    ControlSet control_set = StateIndependentControlSet();
+    control_set.pc_tri_enable = BitWord.TRUE;
+    control_set.gpr_dr_load = BitWord.TRUE;
+    control_set.pc_load = BitWord.TRUE;
+    return control_set;
   }
 
   @Override

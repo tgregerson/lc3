@@ -33,27 +33,37 @@ public class StrInstruction extends Instruction {
     return null;
   }
   
-  private ControlSet EvaluateAddress1ControlSet() {
-    ControlSet control_set = new ControlSet();
+  @Override
+  protected ControlSet StateIndependentControlSet() {
+    ControlSet control_set = super.StateIndependentControlSet(); 
     control_set.gpr_sr1_addr = base_r();
     control_set.addr1_mux_select = BitWord.TRUE;
-    control_set.addr2_mux_select = BitWord.FromInt(1).Resize(2, false);
+    control_set.addr2_mux_select = BitWord.FromInt(1, 2);
     control_set.mar_mux_select = BitWord.FALSE;
+    control_set.mdr_mux_select = BitWord.FALSE;
+    return control_set;
+  }
+  
+  private ControlSet EvaluateAddress1ControlSet() {
+    ControlSet control_set = StateIndependentControlSet();
     control_set.mar_mux_tri_enable = BitWord.TRUE;
     control_set.mar_load = BitWord.TRUE;
     return control_set;
   }
   
   private ControlSet FetchOperands1ControlSet() {
-    ControlSet control_set = new ControlSet();
-    control_set.gpr_sr1_addr = sr();
-    return control_set;
+    return StateIndependentControlSet();
   }
 
   private ControlSet ExecuteOperation1ControlSet() {
-    ControlSet control_set = FetchOperands1ControlSet();
-    control_set.mdr_mux_select = BitWord.FALSE;
+    ControlSet control_set = StateIndependentControlSet();
     control_set.mdr_load = BitWord.TRUE;
+    return control_set;
+  }
+  
+  private ControlSet StoreResult1ControlSet() {
+    ControlSet control_set = StateIndependentControlSet();
+    control_set.memory_we = BitWord.TRUE;
     return control_set;
   }
 
