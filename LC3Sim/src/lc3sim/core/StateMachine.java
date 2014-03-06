@@ -17,7 +17,7 @@ public class StateMachine implements Listenable, Listener {
     kFetchOperands,
     kExecuteOperation,
     kStoreResult,
-    kHandleInterrupt,
+    kDispatchInterrupt,
     kReturnFromInterrupt,
     kInvalid,
   }
@@ -32,7 +32,8 @@ public class StateMachine implements Listenable, Listener {
     kFetchOperands1(4),
     kExecuteOperation1(5),
     kExecuteOperation2(6),
-    kStoreResult1(7);
+    kStoreResult1(7),
+    kDispatchInterrupt1(8);
     
     private InstructionCycle(int code) {
       code_as_int_ = code;

@@ -2,6 +2,7 @@ package lc3sim.core.instructions;
 
 import lc3sim.core.BitWord;
 import lc3sim.core.ControlSet;
+import lc3sim.core.ProcessorStatusRegister;
 import lc3sim.core.StateMachine.InstructionCycle;
 
 public class BrInstruction extends Instruction {
@@ -10,8 +11,7 @@ public class BrInstruction extends Instruction {
   }
 
   @Override
-  public ControlSet ControlSet(InstructionCycle cycle) {
-    ControlSet control_set = new ControlSet();
+  public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
       case kFetchInstruction1:
         return FetchInstruction1ControlSet();
@@ -19,24 +19,15 @@ public class BrInstruction extends Instruction {
         return FetchInstruction2ControlSet();
       case kDecodeInstruction1:
         return DecodeInstruction1ControlSet();
-      case kEvaluateAddress1:
-        // Unused
-        assert false;
-        return control_set;
-      case kFetchOperands1:
-        // Unused
-        assert false;
-        return control_set;
       case kExecuteOperation1:
         return ExecuteOperation1ControlSet();
-      case kExecuteOperation2:
+      case kStoreResult1:
+        return StoreResult1ControlSet(psr);
+      default:
         // Unused
         assert false;
         return null;
-        
     }
-    assert false;
-    return null;
   }
 
   private ControlSet ExecuteOperation1ControlSet() {
@@ -47,10 +38,17 @@ public class BrInstruction extends Instruction {
     return control_set;
   }
 
-  private ControlSet StoreResult1ControlSet() {
+  private ControlSet StoreResult1ControlSet(BitWord psr) {
     ControlSet control_set = StateIndependentControlSet();
-    // TODO: This needs to depend on the psr flags
-    //control_set.pc_load = BitWord.TRUE;
+    // Note: By convention, the case where none of the flags is used in the
+    // instruction is considered to be an unconditional branch, rather than a
+    // NOP.
+    if ((psr.TestBit(ProcessorStatusRegister.kNBit) && n()) ||
+        (psr.TestBit(ProcessorStatusRegister.kZBit) && z()) ||
+        (psr.TestBit(ProcessorStatusRegister.kPBit) && p()) ||
+        (!n() && !z() && !p())){
+      control_set.pc_load = BitWord.TRUE;
+    }
     return control_set;
   }
 

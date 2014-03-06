@@ -2,6 +2,7 @@ package lc3sim.core;
 
 import lc3sim.core.StateMachine.InstructionCycle;
 import lc3sim.core.instructions.Instruction;
+import lc3sim.core.instructions.OpCode;
 
 // Outputs control data for Tristate Buffer enable, Multiplexer select,
 // register load enable, and register write enable, based on inputs from
@@ -46,8 +47,8 @@ public class ControlLogic extends AbstractPropagator {
   }
   
   private void UpdateCurrentControlSet() {
-    // TODO Special-case handling for BR, interrupt, and exception
-    current_control_set_ = instruction_.ControlSet(cycle_);
+    // TODO Special-case handling for interrupt and exception
+    current_control_set_ = instruction_.ControlSet(cycle_, psr_);
   }
   
   // AbstractPropagator methods
@@ -62,7 +63,11 @@ public class ControlLogic extends AbstractPropagator {
         break;
       case ControlInstruction:
         assert(data.num_bits() == 16);
-        instruction_ = Instruction.FromBitWord(data);
+        if (Instruction.OpCodeFromBitWord(data) == OpCode.RESERVED) {
+          // TODO: Trigger Exception
+        } else {
+          instruction_ = Instruction.FromBitWord(data);
+        }
         break;
       case ControlPsr:
         assert(data.num_bits() == 16);

@@ -10,7 +10,7 @@ public class RtiInstruction extends Instruction {
   }
 
   @Override
-  public ControlSet ControlSet(InstructionCycle cycle) {
+  public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
       case kFetchInstruction1:
         return FetchInstruction1ControlSet();
@@ -18,25 +18,28 @@ public class RtiInstruction extends Instruction {
         return FetchInstruction2ControlSet();
       case kDecodeInstruction1:
         return DecodeInstruction1ControlSet();
-      case kEvaluateAddress1:
+      case:
+        // MAR <= R6
+      case:
+        // MDR <= mem[MAR]
+        // R6 <= R6 + 1
+      case:
+        // PC <= MDR
+      case:
+        // MAR <= R6
+      case:
+        // MDR <= mem[MAR]
+        // R6 <= R6 + 1
+        // SSP.Saved <= R6 + 1
+      case:
+        // PSR <= MDR
+      case:
+        // R6 <= SSP.Saved or USP.Saved based on new privilege bit.
+      case:
+      default:
         // Unused
         assert false;
         return null;
-      case kFetchOperands1:
-        // Unused
-        assert false;
-        return null;
-      case kExecuteOperation1:
-        // Unused
-        assert false;
-        return null;
-      case kExecuteOperation2:
-        // Unused
-        assert false;
-        return null;
-        
     }
-    assert false;
-    return null;
   }
 }

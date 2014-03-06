@@ -10,7 +10,7 @@ public class AddInstruction extends Instruction {
   }
   
   @Override
-  public ControlSet ControlSet(InstructionCycle cycle) {
+  public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
       case kFetchInstruction1:
         return FetchInstruction1ControlSet();
@@ -18,23 +18,17 @@ public class AddInstruction extends Instruction {
         return FetchInstruction2ControlSet();
       case kDecodeInstruction1:
         return DecodeInstruction1ControlSet();
-      case kEvaluateAddress1:
-        // Unused
-        assert false;
-        return null;
       case kFetchOperands1:
         return FetchOperands1ControlSet();
       case kExecuteOperation1:
         return ExecuteOperation1ControlSet();
-      case kExecuteOperation2:
+      case kStoreResult1:
+        return StoreResult1ControlSet();
+      default:
         // Unused
         assert false;
         return null;
-      case kStoreResult1:
-        return StoreResult1ControlSet();
     }
-    assert false;
-    return null;
   }
   
   @Override

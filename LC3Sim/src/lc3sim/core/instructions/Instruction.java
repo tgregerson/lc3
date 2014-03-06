@@ -17,6 +17,12 @@ public abstract class Instruction {
   public OpCode op_code() {
     return op_code_;
   }
+
+  public static OpCode OpCodeFromBitWord(BitWord bitword) {
+    assert bitword.num_bits() == kNumBits;
+    return OpCode.Lookup(
+        bitword.GetBitRange(kOpCodeHighBit, kOpCodeLowBit));
+  }
   
   // Factory method to create a child instruction from a 16-bit BitWord.
   public static Instruction FromBitWord(BitWord bitword) {
@@ -43,7 +49,7 @@ public abstract class Instruction {
     }
   }
   
-  public abstract ControlSet ControlSet(InstructionCycle cycle);
+  public abstract ControlSet ControlSet(InstructionCycle cycle, BitWord psr);
   
   // Sets control values that can be safely assigned based on IR bits regardless
   // instruction or state context.
@@ -213,11 +219,6 @@ public abstract class Instruction {
     return bitword_;
   }
   
-  private static OpCode OpCodeFromBitWord(BitWord bitword) {
-    return OpCode.Lookup(
-        bitword.GetBitRange(kOpCodeHighBit, kOpCodeLowBit));
-  }
-
   private final BitWord bitword_;
   private final OpCode op_code_;
 
