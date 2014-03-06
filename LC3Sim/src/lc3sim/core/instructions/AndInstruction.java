@@ -35,26 +35,21 @@ public class AndInstruction extends Instruction {
     return null;
   }
 
-  private ControlSet FetchOperands1ControlSet() {
-    ControlSet control_set = new ControlSet();
+  @Override
+  protected ControlSet StateIndependentControlSet() {
+    ControlSet control_set = super.StateIndependentControlSet();        
     control_set.gpr_sr1_addr = sr1();
-    if (has_sr2()) {
-      control_set.gpr_sr2_addr = sr2();
-    }
+    control_set.gpr_dr_addr = dr();
     return control_set;
+  }
+
+  private ControlSet FetchOperands1ControlSet() {
+    return StateIndependentControlSet();
   }
 
   private ControlSet ExecuteOperation1ControlSet() {
-    ControlSet control_set = FetchOperands1ControlSet();
-    // TODO Set ALU Mode
-    if (mode_bit()) {
-      control_set.sr2_mux_select = BitWord.TRUE;
-    } else {
-      control_set.sr2_mux_select = BitWord.FALSE;
-    }
-    return control_set;
+    return StateIndependentControlSet();
   }
-
 
   @Override
   public Boolean has_sr1() {
@@ -73,7 +68,6 @@ public class AndInstruction extends Instruction {
   
   @Override
   public BitWord sr2() {
-    assert !mode_bit();
     return bitword().GetBitRange(kSr2HighBit, kSr2LowBit);
   }
   
@@ -94,7 +88,6 @@ public class AndInstruction extends Instruction {
   
   @Override
   public BitWord imm5() {
-    assert mode_bit();
     return bitword().GetBitRange(kImm5HighBit, kImm5LowBit);
   }
   

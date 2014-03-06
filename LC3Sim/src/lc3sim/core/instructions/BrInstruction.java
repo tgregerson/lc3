@@ -40,7 +40,7 @@ public class BrInstruction extends Instruction {
   }
 
   private ControlSet ExecuteOperation1ControlSet() {
-    ControlSet control_set = new ControlSet();
+    ControlSet control_set = StateIndependentControlSet();
     control_set.addr1_mux_select = BitWord.FALSE;
     control_set.addr2_mux_select = BitWord.FromInt(2).Resize(2, false);
     control_set.pc_mux_select = BitWord.FromInt(1).Resize(2, false);

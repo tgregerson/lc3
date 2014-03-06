@@ -35,18 +35,22 @@ public class JmpRetInstruction extends Instruction {
     return null;
   }
 
-  private ControlSet FetchOperands1ControlSet() {
-    ControlSet control_set = new ControlSet();
+  @Override
+  protected ControlSet StateIndependentControlSet() {
+    ControlSet control_set = super.StateIndependentControlSet();        
     control_set.gpr_sr1_addr = base_r();
-    return control_set;
-  }
-
-  private ControlSet ExecuteOperation1ControlSet() {
-    ControlSet control_set = FetchOperands1ControlSet();
     control_set.addr1_mux_select = BitWord.TRUE;
     control_set.addr2_mux_select = BitWord.FromInt(0).Resize(2, false);
     control_set.pc_mux_select = BitWord.FromInt(1).Resize(2, false);
     return control_set;
+  }
+
+  private ControlSet FetchOperands1ControlSet() {
+    return StateIndependentControlSet();
+  }
+
+  private ControlSet ExecuteOperation1ControlSet() {
+    return StateIndependentControlSet();
   }
 
   @Override

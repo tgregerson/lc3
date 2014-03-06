@@ -34,17 +34,11 @@ public class JsrJsrrInstruction extends Instruction {
     assert false;
     return null;
   }
-  
-  private ControlSet FetchOperands1ControlSet() {
-    ControlSet control_set = new ControlSet();
-    if (has_base_r()) {
-      control_set.gpr_sr1_addr = base_r();
-    }
-    return control_set;
-  }
 
-  private ControlSet ExecuteOperation1ControlSet() {
-    ControlSet control_set = FetchOperands1ControlSet();
+  @Override
+  protected ControlSet StateIndependentControlSet() {
+    ControlSet control_set = super.StateIndependentControlSet();        
+    control_set.gpr_sr1_addr = base_r();
     if (mode_bit()) {
       // PC + offset
       control_set.addr1_mux_select = BitWord.FALSE;
@@ -57,6 +51,14 @@ public class JsrJsrrInstruction extends Instruction {
     control_set.pc_mux_select = BitWord.FromInt(1).Resize(2, false);
     return control_set;
   }
+  
+  private ControlSet FetchOperands1ControlSet() {
+    return StateIndependentControlSet();
+  }
+
+  private ControlSet ExecuteOperation1ControlSet() {
+    return StateIndependentControlSet();
+  }
 
   @Override
   public Boolean has_base_r() {
@@ -65,7 +67,6 @@ public class JsrJsrrInstruction extends Instruction {
 
   @Override
   public BitWord base_r() {
-    assert !mode_bit();
     return bitword().GetBitRange(kBaseRHighBit, kBaseRLowBit);
   }
   
@@ -76,7 +77,6 @@ public class JsrJsrrInstruction extends Instruction {
   
   @Override
   public BitWord pcoffset11() {
-    assert mode_bit();
     return bitword().GetBitRange(kPcOffset11HighBit, kPcOffset11LowBit);
   }
 
