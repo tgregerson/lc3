@@ -6,6 +6,8 @@ import java.util.BitSet;
 // they are immutable, any operation that changes a BitWord returns a new object
 // rather than altering the state of the current BitWord.
 public class BitWord {
+  public static final BitWord TRUE = FromBoolean(true);
+  public static final BitWord FALSE = FromBoolean(false);
   
   public BitWord(int num_bits) {
     bits_ = new BitSet(num_bits);
@@ -16,16 +18,16 @@ public class BitWord {
   }
   
   public BitWord(BitWord bit_word) {
-    bits_ = (BitSet)bit_word.bit_set().clone();
+    bits_ = (BitSet)bit_word.bit_set();
   }
   
-  public Boolean TestBit(int bit_index) {
+  public boolean TestBit(int bit_index) {
     return bits_.get(bit_index);
   }
   
   // Returns true if this and 'cmp' have the same value. If 'signed', values
   // are treated as 2's complement and sign-extended.
-  public Boolean IsEqual(BitWord cmp, Boolean signed) {
+  public boolean IsEqual(BitWord cmp, Boolean signed) {
     int length = num_bits() > cmp.num_bits() ? num_bits() : cmp.num_bits();
     BitWord copy = Resize(length, signed);
     cmp = cmp.Resize(length, signed);
@@ -37,6 +39,16 @@ public class BitWord {
       }
     }
     return equal;
+  }
+  
+  // Default equals method treats comparison as unsigned.
+  @Override
+  public boolean equals(Object other) {
+    if (other != null && other instanceof BitWord) {
+      return this.IsEqual((BitWord)other, false);
+    } else {
+      return false;
+    }
   }
   
   // Add treats operands as 2's complement and sign extends, or truncates as
@@ -75,7 +87,7 @@ public class BitWord {
     return new BitWord(bit_set);
   }
   
-  public Boolean IsNegative() {
+  public boolean IsNegative() {
     return bits_.get(bits_.size() - 1);
   }
   
@@ -115,11 +127,11 @@ public class BitWord {
 
   
   public BitSet bit_set() {
-    return bits_;
+    return (BitSet)bits_.clone();
   }
   
   // Returns true if value is non-zero.
-  public Boolean ToBoolean() {
+  public boolean ToBoolean() {
     for (int i = 0; i < num_bits(); ++i) {
       if (TestBit(i)) {
         return true;
@@ -134,7 +146,7 @@ public class BitWord {
     return (int)bits_.toLongArray()[0];
   }
   
-  public static BitWord FromBoolean(Boolean bool) {
+  public static BitWord FromBoolean(boolean bool) {
     BitSet one_bit = new BitSet(1);
     one_bit.set(0, bool);
     return new BitWord(one_bit);
@@ -152,7 +164,5 @@ public class BitWord {
     return (new BitWord(bit_set)).Resize(16, false);
   }
   
-  public static BitWord TRUE = FromBoolean(true);
-  public static BitWord FALSE = FromBoolean(false);
   private BitSet bits_;
 }

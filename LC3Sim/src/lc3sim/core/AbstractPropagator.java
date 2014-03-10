@@ -59,9 +59,10 @@ public abstract class AbstractPropagator implements Listener, Listenable {
   protected void UpdateOutput(OutputId id) {
     BitWord old_output = CurrentOutput(id);
     BitWord new_output = ComputeOutput(id);
-    if (!new_output.IsEqual(old_output, false)) {
+    assert (new_output != null);
+    if (old_output == null || !old_output.IsEqual(old_output, false)) {
       SetCurrentOutput(id, new_output);
-      SendNotification(old_output, id);
+      SendNotification(new_output, id);
     }
   }
   
