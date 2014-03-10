@@ -10,7 +10,7 @@ public class NotInstruction extends Instruction {
   }
 
   @Override
-  public ControlSet ControlSet(InstructionCycle cycle) {
+  public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
       case kFetchInstruction1:
         return FetchInstruction1ControlSet();
@@ -18,33 +18,38 @@ public class NotInstruction extends Instruction {
         return FetchInstruction2ControlSet();
       case kDecodeInstruction1:
         return DecodeInstruction1ControlSet();
-      case kEvaluateAddress1:
-        // Unused
-        assert false;
-        return null;
       case kFetchOperands1:
         return FetchOperands1ControlSet();
       case kExecuteOperation1:
         return ExecuteOperation1ControlSet();
-      case kExecuteOperation2:
+      case kStoreResult1:
+        return StoreResult1ControlSet();
+      default:
         // Unused
         assert false;
         return null;
     }
-    assert false;
-    return null;
   }
   
-  private ControlSet FetchOperands1ControlSet() {
-    ControlSet control_set = new ControlSet();
+  @Override
+  protected ControlSet StateIndependentControlSet() {
+    ControlSet control_set = super.StateIndependentControlSet(); 
     control_set.gpr_dr_addr = dr();
     control_set.gpr_sr1_addr = sr();
     return control_set;
   }
+  
+  private ControlSet FetchOperands1ControlSet() {
+    return StateIndependentControlSet();
+  }
 
   private ControlSet ExecuteOperation1ControlSet() {
-    ControlSet control_set = FetchOperands1ControlSet();
-    // TODO Set ALU Mode
+    return StateIndependentControlSet();
+  }
+  
+  private ControlSet StoreResult1ControlSet() {
+    ControlSet control_set = StateIndependentControlSet();
+    control_set.gpr_dr_load = BitWord.TRUE;
     return control_set;
   }
 

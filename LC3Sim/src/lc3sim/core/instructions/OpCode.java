@@ -22,7 +22,7 @@ public enum OpCode {
   
   private OpCode(int code) {
     code_as_int_ = code;
-    code_as_bit_word_ = BitWord.FromInt(code).Resize(kOpCodeLength, false);
+    code_as_bit_word_ = BitWord.FromInt(code, kOpCodeLength);
   }
   
   public int as_int() {

@@ -18,6 +18,7 @@ public class ControlSet {
     addr1_mux_select = BitWord.FALSE;
     addr2_mux_select = new BitWord(2);
     // TODO get rid of magic numbers
+    alu_k = new BitWord(2);
     gpr_dr_addr = new BitWord(3);
     gpr_sr1_addr = new BitWord(3);
     gpr_sr2_addr = new BitWord(3);
@@ -40,6 +41,7 @@ public class ControlSet {
   public BitWord sr2_mux_select;
   public BitWord addr1_mux_select;
   public BitWord addr2_mux_select;
+  public BitWord alu_k;
   public BitWord gpr_dr_addr;
   public BitWord gpr_sr1_addr;
   public BitWord gpr_sr2_addr;

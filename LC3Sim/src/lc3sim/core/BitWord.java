@@ -158,10 +158,14 @@ public class BitWord {
     return (new BitWord(bit_set)).Resize(16, false);
   }
   
-  public static BitWord FromInt(int value) {
+  public static BitWord FromInt(int value, int num_bits) {
     long value_long[] = {value};
     BitSet bit_set = BitSet.valueOf(value_long);
-    return (new BitWord(bit_set)).Resize(16, false);
+    if (value < 0) {
+      return (new BitWord(bit_set)).Resize(num_bits, true);
+    } else {
+      return (new BitWord(bit_set)).Resize(num_bits, false);
+    }
   }
   
   private BitSet bits_;

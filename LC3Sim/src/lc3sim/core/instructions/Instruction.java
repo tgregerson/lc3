@@ -17,6 +17,12 @@ public abstract class Instruction {
   public OpCode op_code() {
     return op_code_;
   }
+
+  public static OpCode OpCodeFromBitWord(BitWord bitword) {
+    assert bitword.num_bits() == kNumBits;
+    return OpCode.Lookup(
+        bitword.GetBitRange(kOpCodeHighBit, kOpCodeLowBit));
+  }
   
   // Factory method to create a child instruction from a 16-bit BitWord.
   public static Instruction FromBitWord(BitWord bitword) {
@@ -43,28 +49,37 @@ public abstract class Instruction {
     }
   }
   
-  public abstract ControlSet ControlSet(InstructionCycle cycle);
+  public abstract ControlSet ControlSet(InstructionCycle cycle, BitWord psr);
+  
+  // Sets control values that can be safely assigned based on IR bits regardless
+  // instruction or state context.
+  protected ControlSet StateIndependentControlSet() {
+    ControlSet control_set = new ControlSet();
+    control_set.sr2_mux_select = bitword_.GetBitRange(kSr2ModeBit, kSr2ModeBit);
+    control_set.alu_k = bitword_.GetBitRange(kAluKHighBit, kAluKLowBit);
+    return control_set;
+  }
   
   // FetchInstruction1, FetchInstruction2, and DecodeInstruction1 are the same
   // for all instructions, so they are provided here.
   protected ControlSet FetchInstruction1ControlSet() {
-    ControlSet control_set = new ControlSet();
+    ControlSet control_set = StateIndependentControlSet();
     control_set.pc_load = BitWord.TRUE;
     control_set.pc_tri_enable = BitWord.TRUE;
-    control_set.pc_mux_select = BitWord.FromInt(0).Resize(2, false);
+    control_set.pc_mux_select = BitWord.FromInt(0, 2);
     control_set.mar_load = BitWord.TRUE;
     return control_set;
   }
 
   protected ControlSet FetchInstruction2ControlSet() {
-    ControlSet control_set = new ControlSet();
+    ControlSet control_set = StateIndependentControlSet();
     control_set.mdr_mux_select = BitWord.TRUE;
     control_set.mdr_load = BitWord.TRUE;
     return control_set;
   }
   
   protected ControlSet DecodeInstruction1ControlSet() {
-    ControlSet control_set = new ControlSet();
+    ControlSet control_set = StateIndependentControlSet();
     control_set.mdr_tri_enable = BitWord.TRUE;
     control_set.ir_load = BitWord.TRUE;
     return control_set;
@@ -204,15 +219,12 @@ public abstract class Instruction {
     return bitword_;
   }
   
-  private static OpCode OpCodeFromBitWord(BitWord bitword) {
-    return OpCode.Lookup(
-        bitword.GetBitRange(kOpCodeHighBit, kOpCodeLowBit));
-  }
-
   private final BitWord bitword_;
   private final OpCode op_code_;
 
   private static final int kOpCodeHighBit = 15;
   private static final int kOpCodeLowBit = 12;
-  
+  private static final int kSr2ModeBit = 5;
+  private static final int kAluKHighBit = 15;
+  private static final int kAluKLowBit = 14;
 }

@@ -4,46 +4,46 @@ package lc3sim.core;
 public class ArchitecturalState {
   public ArchitecturalState() {
     Multiplexer.AddressBinding[] pc_mux_bindings = {
-      new Multiplexer.AddressBinding(BitWord.FromInt(0), InputId.PcMuxData00),
-      new Multiplexer.AddressBinding(BitWord.FromInt(1), InputId.PcMuxData01),
-      new Multiplexer.AddressBinding(BitWord.FromInt(2), InputId.PcMuxData10)
+      new Multiplexer.AddressBinding(BitWord.FromInt(0, 2), InputId.PcMuxData00),
+      new Multiplexer.AddressBinding(BitWord.FromInt(1, 2), InputId.PcMuxData01),
+      new Multiplexer.AddressBinding(BitWord.FromInt(2, 2), InputId.PcMuxData10)
     };
     pc_mux_ = new Multiplexer(2, 16, pc_mux_bindings, InputId.PcMuxSel,
                               OutputId.PcMux);
     
     Multiplexer.AddressBinding[] mar_mux_bindings = {
-        new Multiplexer.AddressBinding(BitWord.FromInt(0), InputId.MarMuxData0 ),
-        new Multiplexer.AddressBinding(BitWord.FromInt(1), InputId.MarMuxData1),
+        new Multiplexer.AddressBinding(BitWord.FromInt(0, 1), InputId.MarMuxData0 ),
+        new Multiplexer.AddressBinding(BitWord.FromInt(1, 1), InputId.MarMuxData1),
     };
     mar_mux_ = new Multiplexer(1, 16, mar_mux_bindings, InputId.MarMuxSel,
                                OutputId.MarMux);
     
     Multiplexer.AddressBinding[] mdr_mux_bindings = {
-        new Multiplexer.AddressBinding(BitWord.FromInt(0), InputId.MdrMuxData0 ),
-        new Multiplexer.AddressBinding(BitWord.FromInt(1), InputId.MdrMuxData1),
+        new Multiplexer.AddressBinding(BitWord.FromInt(0, 1), InputId.MdrMuxData0 ),
+        new Multiplexer.AddressBinding(BitWord.FromInt(1, 1), InputId.MdrMuxData1),
     };
     mdr_mux_ = new Multiplexer(1, 16, mdr_mux_bindings, InputId.MdrMuxSel,
                                OutputId.MdrMux);
     
     Multiplexer.AddressBinding[] sr2_mux_bindings = {
-        new Multiplexer.AddressBinding(BitWord.FromInt(0), InputId.Sr2MuxData0),
-        new Multiplexer.AddressBinding(BitWord.FromInt(1), InputId.Sr2MuxData1),
+        new Multiplexer.AddressBinding(BitWord.FromInt(0, 1), InputId.Sr2MuxData0),
+        new Multiplexer.AddressBinding(BitWord.FromInt(1, 1), InputId.Sr2MuxData1),
     };
     sr2_mux_ = new Multiplexer(1, 16, sr2_mux_bindings, InputId.Sr2MuxSel,
                                OutputId.Sr2Mux);
     
     Multiplexer.AddressBinding[] addr1_mux_bindings = {
-        new Multiplexer.AddressBinding(BitWord.FromInt(0), InputId.AddrAdder1MuxData0),
-        new Multiplexer.AddressBinding(BitWord.FromInt(1), InputId.AddrAdder1MuxData1),
+        new Multiplexer.AddressBinding(BitWord.FromInt(0, 1), InputId.AddrAdder1MuxData0),
+        new Multiplexer.AddressBinding(BitWord.FromInt(1, 1), InputId.AddrAdder1MuxData1),
     };
     addr1_mux_ = new Multiplexer(1, 16, addr1_mux_bindings, InputId.AddrAdder1MuxSel,
                                  OutputId.Addr1Mux);
     
     Multiplexer.AddressBinding[] addr2_mux_bindings = {
-        new Multiplexer.AddressBinding(BitWord.FromInt(0), InputId.AddrAdder2MuxData00),
-        new Multiplexer.AddressBinding(BitWord.FromInt(1), InputId.AddrAdder2MuxData01),
-        new Multiplexer.AddressBinding(BitWord.FromInt(2), InputId.AddrAdder2MuxData10),
-        new Multiplexer.AddressBinding(BitWord.FromInt(3), InputId.AddrAdder2MuxData11),
+        new Multiplexer.AddressBinding(BitWord.FromInt(0, 2), InputId.AddrAdder2MuxData00),
+        new Multiplexer.AddressBinding(BitWord.FromInt(1, 2), InputId.AddrAdder2MuxData01),
+        new Multiplexer.AddressBinding(BitWord.FromInt(2, 2), InputId.AddrAdder2MuxData10),
+        new Multiplexer.AddressBinding(BitWord.FromInt(3, 2), InputId.AddrAdder2MuxData11),
     };
     addr2_mux_ = new Multiplexer(2, 16, addr2_mux_bindings, InputId.AddrAdder2MuxSel,
                                  OutputId.Addr2Mux);

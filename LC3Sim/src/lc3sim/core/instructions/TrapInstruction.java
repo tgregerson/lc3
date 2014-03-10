@@ -10,7 +10,7 @@ public class TrapInstruction extends Instruction{
   }
 
   @Override
-  public ControlSet ControlSet(InstructionCycle cycle) {
+  public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
       case kFetchInstruction1:
         return FetchInstruction1ControlSet();
@@ -24,36 +24,47 @@ public class TrapInstruction extends Instruction{
         return FetchOperands1ControlSet();
       case kExecuteOperation1:
         return ExecuteOperation1ControlSet();
-      case kExecuteOperation2:
+      case kStoreResult1:
+        return StoreResult1ControlSet();
+      default:
         // Unused
         assert false;
         return null;
     }
-    assert false;
-    return null;
+  }
+  
+  @Override
+  protected ControlSet StateIndependentControlSet() {
+    ControlSet control_set = super.StateIndependentControlSet(); 
+    control_set.gpr_dr_addr = BitWord.FromInt(7, 3);
+    control_set.mar_mux_select = BitWord.TRUE;
+    control_set.mdr_mux_select = BitWord.TRUE;
+    return control_set;
   }
 
   private ControlSet EvaluateAddress1ControlSet() {
-    ControlSet control_set = new ControlSet();
-    control_set.mar_mux_select = BitWord.TRUE;
+    ControlSet control_set = StateIndependentControlSet();
     control_set.mar_mux_tri_enable = BitWord.TRUE;
     control_set.mar_load = BitWord.TRUE;
     return control_set;
   }
 
   private ControlSet FetchOperands1ControlSet() {
-    ControlSet control_set = new ControlSet();
-    control_set.gpr_dr_addr = BitWord.FromInt(7).Resize(3, false);
-    control_set.mdr_mux_select = BitWord.TRUE;
+    ControlSet control_set = StateIndependentControlSet();
     control_set.mdr_load = BitWord.TRUE;
     return control_set;
   }
 
   private ControlSet ExecuteOperation1ControlSet() {
-    ControlSet control_set = new ControlSet();
-    control_set.gpr_dr_addr = BitWord.FromInt(7).Resize(3, false);
+    ControlSet control_set = StateIndependentControlSet();
     control_set.mdr_tri_enable = BitWord.TRUE;
-    control_set.pc_mux_select = BitWord.FromInt(2).Resize(2, false);
+    control_set.pc_mux_select = BitWord.FromInt(2, 2);
+    return control_set;
+  }
+  
+  private ControlSet StoreResult1ControlSet() {
+    ControlSet control_set = StateIndependentControlSet();
+    control_set.pc_load = BitWord.TRUE;
     return control_set;
   }
   
