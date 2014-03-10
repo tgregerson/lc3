@@ -21,6 +21,21 @@ public class BitWord {
     bits_ = (BitSet)bit_word.bit_set();
   }
   
+  public String toString() {
+    String ret = "";
+    for (int i = 0; i < bits_.length(); ++i) {
+      if (i != 0 && i % 4 == 0) {
+        ret = "_".concat(ret);
+      }
+      if (bits_.get(i)) {
+        ret = "1".concat(ret);
+      } else {
+        ret = "0".concat(ret);
+      }
+    }
+    return "[" + ret + "]";
+  }
+  
   public boolean TestBit(int bit_index) {
     return bits_.get(bit_index);
   }
@@ -28,6 +43,9 @@ public class BitWord {
   // Returns true if this and 'cmp' have the same value. If 'signed', values
   // are treated as 2's complement and sign-extended.
   public boolean IsEqual(BitWord cmp, Boolean signed) {
+    if (cmp == null) {
+      return false;
+    }
     int length = num_bits() > cmp.num_bits() ? num_bits() : cmp.num_bits();
     BitWord copy = Resize(length, signed);
     cmp = cmp.Resize(length, signed);
@@ -100,6 +118,7 @@ public class BitWord {
     return bits_.size();
   }
   
+  // TODO Test that this works; seeing leading zeroes cut off in some tests.
   public BitWord Resize(int new_num_bits, Boolean sign_extend) {
     if (new_num_bits == num_bits()) {
       return this;

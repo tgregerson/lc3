@@ -59,8 +59,13 @@ public abstract class AbstractPropagator implements Listener, Listenable {
   protected void UpdateOutput(OutputId id) {
     BitWord old_output = CurrentOutput(id);
     BitWord new_output = ComputeOutput(id);
-    assert (new_output != null);
-    if (old_output == null || !old_output.IsEqual(old_output, false)) {
+    String new_string = (new_output == null) ? "null" : new_output.toString();
+    String old_string = (old_output == null) ? "null" : old_output.toString();
+    System.out.println("New: " + new_string + " Old: " + old_string);
+    if (old_output == null || !old_output.IsEqual(new_output, false)) {
+      System.out.println("Sending notification");
+      String data_string = (new_output == null) ? "null" : new_output.toString();
+      System.out.println("Data: " + data_string);
       SetCurrentOutput(id, new_output);
       SendNotification(new_output, id);
     }

@@ -19,8 +19,10 @@ public class TriStateBuffer extends AbstractPropagator {
                      Object arg) {
     boolean prev_enable_ = enable_;
     if (receiver == data_id_) {
+      System.out.println("Processing data update");
       data_ = data;
     } else if (receiver == enable_id_) {
+      System.out.println("Processing enable update");
       enable_ = data.ToBoolean();
     }
     // Update output if enable is set or on negative enable edge.
@@ -31,8 +33,10 @@ public class TriStateBuffer extends AbstractPropagator {
   
   public BitWord ComputeOutput(OutputId unused) {
     if (enable_) {
+      System.out.println("Computing enabled data");
       return data_;
     } else {
+      System.out.println("Computing non-enabled null data");
       // Tristate buffer sends null as its output data to indicate high impedance.
       return null;
     }

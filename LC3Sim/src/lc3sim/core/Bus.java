@@ -2,7 +2,7 @@ package lc3sim.core;
 
 public class Bus extends AbstractPropagator {
   public Bus() {
-    data_ = new BitWord(bitwidth_);
+    data_ = null;
   }
   
   // AbstractPropagator methods
