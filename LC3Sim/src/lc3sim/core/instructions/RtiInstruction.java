@@ -18,24 +18,24 @@ public class RtiInstruction extends Instruction {
         return FetchInstruction2ControlSet();
       case kDecodeInstruction1:
         return DecodeInstruction1ControlSet();
-      case:
+      //case:
         // MAR <= R6
-      case:
+      //case:
         // MDR <= mem[MAR]
         // R6 <= R6 + 1
-      case:
+      //case:
         // PC <= MDR
-      case:
+      //case:
         // MAR <= R6
-      case:
+      //case:
         // MDR <= mem[MAR]
         // R6 <= R6 + 1
         // SSP.Saved <= R6 + 1
-      case:
+      //case:
         // PSR <= MDR
-      case:
+      //case:
         // R6 <= SSP.Saved or USP.Saved based on new privilege bit.
-      case:
+      //case:
       default:
         // Unused
         assert false;

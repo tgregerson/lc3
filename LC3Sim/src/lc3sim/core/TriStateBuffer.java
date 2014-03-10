@@ -17,18 +17,25 @@ public class TriStateBuffer extends AbstractPropagator {
   // AbstractPropagator methods
   public void Notify(BitWord data, OutputId sender, InputId receiver,
                      Object arg) {
+    boolean prev_enable_ = enable_;
     if (receiver == data_id_) {
       data_ = data;
     } else if (receiver == enable_id_) {
       enable_ = data.ToBoolean();
     }
-    if (enable_) {
+    // Update output if enable is set or on negative enable edge.
+    if (enable_ || prev_enable_) {
       UpdateOutput(output_id_);
     }
   }
   
   public BitWord ComputeOutput(OutputId unused) {
-    return data_;
+    if (enable_) {
+      return data_;
+    } else {
+      // Tristate buffer sends null as its output data to indicate high impedance.
+      return null;
+    }
   }
   
   private Boolean enable_;

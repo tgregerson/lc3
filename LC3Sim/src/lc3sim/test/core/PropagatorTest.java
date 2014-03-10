@@ -30,7 +30,7 @@ public class PropagatorTest {
         test_listener_.GetCallback(propagator_output1, null));
     
     // Notify propagator of new value
-    BitWord new_value = BitWord.FromInt(12345);
+    BitWord new_value = BitWord.FromInt(12345, 32);
     assertFalse(new_value == test_propagator_initial_value_);
     assertFalse(new_value == test_listener_.last_bitword);
     test_propagator_.Notify(
@@ -44,7 +44,7 @@ public class PropagatorTest {
     
     // Unregister prevents future notifications
     test_propagator_.UnregisterListener(test_listener_);
-    BitWord another_value = BitWord.FromInt(90210);
+    BitWord another_value = BitWord.FromInt(90210, 32);
     test_propagator_.Notify(
         another_value, propagator_output1, other_input_id_, null);
     assertEquals("Value not propagated after callback unregistered",
@@ -61,7 +61,7 @@ public class PropagatorTest {
         test_listener_.GetCallback(propagator_output1, null));
     
     // Notify propagator of new value
-    BitWord new_value = BitWord.FromInt(12345);
+    BitWord new_value = BitWord.FromInt(12345, 32);
     assertFalse(new_value == test_propagator_initial_value_);
     assertFalse(new_value == test_listener_.last_bitword);
     test_propagator_.Notify(
@@ -108,7 +108,7 @@ public class PropagatorTest {
     test_propagator_.RegisterListenerCallback(
         test_listener2.GetCallback(propagator_output2, null));
     
-    BitWord new_value1 = BitWord.FromInt(12345);
+    BitWord new_value1 = BitWord.FromInt(12345, 32);
     test_propagator_.Notify(
         new_value1, propagator_output1, other_input_id_, null);
     
@@ -118,7 +118,7 @@ public class PropagatorTest {
     assertFalse("Value should not have propagated to listener2",
                  new_value1 == test_listener2.last_bitword);
 
-    BitWord new_value2 = BitWord.FromInt(67890);
+    BitWord new_value2 = BitWord.FromInt(67890, 32);
     test_propagator_.Notify(
         new_value2, propagator_output2, other_input_id_, null);
 
