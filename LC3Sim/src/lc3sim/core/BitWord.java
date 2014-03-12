@@ -127,7 +127,7 @@ public class BitWord {
       boolean[] bits = new boolean[new_num_bits];
       boolean extend_val = sign_extend ? IsNegative() : false;
       for (int i = 0; i < new_num_bits; ++i) {
-        if (i <= bits_.length) {
+        if (i < bits_.length) {
           bits[i] = bits_[i];
         } else {
           bits[i] = extend_val;

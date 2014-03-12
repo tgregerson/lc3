@@ -67,7 +67,7 @@ public class RegisterFile extends AbstractPropagator implements Synchronized {
   }
   
   // Used by external UI to force updates to register state.
-  public class RegisterStateUpdate {
+  public static class RegisterStateUpdate {
     public RegisterStateUpdate(int reg_num, BitWord val) {
       register_number = reg_num;
       value = val;
