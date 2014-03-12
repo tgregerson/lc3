@@ -2,7 +2,7 @@ package lc3sim.core;
 
 public class Bus extends AbstractPropagator {
   public Bus() {
-    data_ = new BitWord(bitwidth_);
+    data_ = null;
   }
   
   // AbstractPropagator methods
@@ -10,8 +10,14 @@ public class Bus extends AbstractPropagator {
                      Object arg) {
     assert receiver == InputId.Bus;
     assert data.num_bits() == bitwidth_;
-    data_ = data;
-    UpdateOutput(OutputId.Bus);
+    
+    // Bus may store null data. This occurs if the previous driver sends null
+    // data. This indicates the state of the bus is high impedance.
+    if (sender == last_driver_ || data != null) {
+      data_ = data;
+      last_driver_ = sender;
+      UpdateOutput(OutputId.Bus);
+    }
   }
   
   public BitWord ComputeOutput(OutputId unused) {
@@ -19,6 +25,7 @@ public class Bus extends AbstractPropagator {
   }
   
   private BitWord data_;
+  private OutputId last_driver_;
   
   private final int bitwidth_ = 16;
 }

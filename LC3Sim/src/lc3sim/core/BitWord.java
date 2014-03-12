@@ -1,35 +1,56 @@
 package lc3sim.core;
 
-import java.util.BitSet;
-
 // BitWords are immutable data words that support bit-level operations. Because
 // they are immutable, any operation that changes a BitWord returns a new object
 // rather than altering the state of the current BitWord.
 public class BitWord {
+  public static final BitWord TRUE = FromBoolean(true);
+  public static final BitWord FALSE = FromBoolean(false);
   
   public BitWord(int num_bits) {
-    bits_ = new BitSet(num_bits);
+    bits_ = new boolean[num_bits];
   }
   
-  public BitWord(BitSet bit_set) {
-    bits_ = (BitSet)bit_set.clone();
+  public BitWord(boolean bits[]) {
+    bits_ = java.util.Arrays.copyOf(bits, bits.length);
   }
   
   public BitWord(BitWord bit_word) {
-    bits_ = (BitSet)bit_word.bit_set().clone();
+    bits_ = bit_word.bits();
   }
   
-  public Boolean TestBit(int bit_index) {
-    return bits_.get(bit_index);
+  public String toString() {
+    assert bits_ != null;
+    String ret = "";
+    for (int i = 0; i < bits_.length; ++i) {
+      if (i != 0 && i % 4 == 0) {
+        ret = "_".concat(ret);
+      }
+      if (bits_[i]) {
+        ret = "1".concat(ret);
+      } else {
+        ret = "0".concat(ret);
+      }
+    }
+    return "[" + ret + "]";
+  }
+  
+  public boolean TestBit(int bit_index) {
+    assert (bit_index < bits_.length);
+    return bits_[bit_index];
   }
   
   // Returns true if this and 'cmp' have the same value. If 'signed', values
   // are treated as 2's complement and sign-extended.
-  public Boolean IsEqual(BitWord cmp, Boolean signed) {
-    int length = num_bits() > cmp.num_bits() ? num_bits() : cmp.num_bits();
+  public boolean IsEqual(BitWord cmp, boolean signed) {
+    if (cmp == null) {
+      return false;
+    }
+    int length = this.num_bits() > cmp.num_bits() ?
+                 this.num_bits() : cmp.num_bits();
     BitWord copy = Resize(length, signed);
     cmp = cmp.Resize(length, signed);
-    Boolean equal = true;
+    boolean equal = true;
     for (int i = 0; i < length; ++i) {
       if (copy.TestBit(i) != cmp.TestBit(i)) {
         equal = false;
@@ -39,6 +60,16 @@ public class BitWord {
     return equal;
   }
   
+  // Default equals method treats comparison as unsigned.
+  @Override
+  public boolean equals(Object other) {
+    if (other != null && other instanceof BitWord) {
+      return this.IsEqual((BitWord)other, false);
+    } else {
+      return false;
+    }
+  }
+  
   // Add treats operands as 2's complement and sign extends, or truncates as
   // necessary, and stores the results using the specified number of bits.
   public BitWord AddFixedWidth(BitWord other, int num_bits) {
@@ -46,11 +77,11 @@ public class BitWord {
     // converting to intermediate int/long types.
     BitWord op1 = this.Resize(num_bits, true);
     BitWord op2 = other.Resize(num_bits, true);
-    BitSet sum = new BitSet(num_bits);
-    Boolean carry = false;
+    boolean[] sum = new boolean[num_bits];
+    boolean carry = false;
     for (int i = 0; i < num_bits; ++ i) {
-      Boolean bit_sum = op1.TestBit(i) ^ op2.TestBit(i) ^ carry;
-      sum.set(i, bit_sum);
+      boolean bit_sum = op1.TestBit(i) ^ op2.TestBit(i) ^ carry;
+      sum[i] = bit_sum;
       carry = (op1.TestBit(i) && op2.TestBit(i)) ||
               (op1.TestBit(i) && carry) ||
               (op2.TestBit(i) && carry);
@@ -62,64 +93,67 @@ public class BitWord {
   public BitWord AndFixedWidth(BitWord other, int num_bits) {
     BitWord op1 = this.Resize(num_bits, true);
     BitWord op2 = other.Resize(num_bits, true);
-    BitSet result = new BitSet(num_bits);
+    boolean[] result = new boolean[num_bits];
     for (int i = 0; i < num_bits; ++ i) {
-      result.set(i, op1.TestBit(i) & op2.TestBit(i));
+      result[i] = op1.TestBit(i) && op2.TestBit(i);
     }
     return new BitWord(result);
   }
   
-  public BitWord SetBit(int bit_index, Boolean value) {
-    BitSet bit_set = (BitSet)bits_.clone();
-    bit_set.set(bit_index, value);
-    return new BitWord(bit_set);
+  public BitWord SetBit(int bit_index, boolean value) {
+    assert bit_index < bits_.length;
+    boolean[] modified = new boolean[bits_.length];
+    modified[bit_index] = value;
+    return new BitWord(modified);
   }
   
-  public Boolean IsNegative() {
-    return bits_.get(bits_.size() - 1);
+  public boolean IsNegative() {
+    assert bits_.length > 0;
+    return bits_[bits_.length - 1];
   }
   
   public BitWord GetBitRange(int high_bit, int low_bit) {
-    BitSet bit_set = bits_.get(low_bit, high_bit + 1);
-    return new BitWord(bit_set);
+    return new BitWord(java.util.Arrays.copyOfRange(bits_, low_bit, high_bit));
   }
   
   public int num_bits() {
-    return bits_.size();
+    return bits_.length;
   }
   
   public BitWord Resize(int new_num_bits, Boolean sign_extend) {
-    if (new_num_bits == num_bits()) {
+    if (new_num_bits == bits_.length) {
       return this;
-    } else if (new_num_bits > num_bits()) {
-      BitSet bit_set = new BitSet(new_num_bits);
-      Boolean extend_val = sign_extend ? IsNegative() : false;
-      for (int i = 0; i < bit_set.size(); ++i) {
-        if (i <= num_bits()) {
-          bit_set.set(i, bits_.get(i));
+    } else if (new_num_bits > bits_.length) {
+      boolean[] bits = new boolean[new_num_bits];
+      boolean extend_val = sign_extend ? IsNegative() : false;
+      for (int i = 0; i < new_num_bits; ++i) {
+        if (i < bits_.length) {
+          bits[i] = bits_[i];
         } else {
-          bit_set.set(i, extend_val);
+          bits[i] = extend_val;
         }
       }
-      return new BitWord(bit_set);
+      return new BitWord(bits);
     } else {
       return GetBitRange(new_num_bits - 1, 0);
     }
   }
   
   public BitWord Invert() {
-    BitSet bit_set = (BitSet)bits_.clone();
-    bit_set.flip(0, bit_set.size() - 1);
-    return new BitWord(bit_set);
+    boolean[] bits = new boolean[bits_.length];
+    for (int i = 0; i < bits.length; ++i) {
+      bits[i] = !bits[i];
+    }
+    return new BitWord(bits);
   }
 
   
-  public BitSet bit_set() {
-    return bits_;
+  public boolean[] bits() {
+    return java.util.Arrays.copyOf(bits_, bits_.length);
   }
   
   // Returns true if value is non-zero.
-  public Boolean ToBoolean() {
+  public boolean ToBoolean() {
     for (int i = 0; i < num_bits(); ++i) {
       if (TestBit(i)) {
         return true;
@@ -131,32 +165,29 @@ public class BitWord {
   // Does not sign extend BitWords < 32 bits.
   // Truncates BitWords > 32 bits.
   public int ToInt() {
-    return (int)bits_.toLongArray()[0];
+    assert bits_.length <= 32;
+    int residual = 0;
+    for (int i = 0; i < num_bits(); ++i) {
+      if (bits_[i]) {
+        residual += (1 << i);
+      }
+    }
+    return residual;
   }
   
-  public static BitWord FromBoolean(Boolean bool) {
-    BitSet one_bit = new BitSet(1);
-    one_bit.set(0, bool);
-    return new BitWord(one_bit);
-  }
-  
-  public static BitWord FromShort(short value) {
-    long value_long[] = {value};
-    BitSet bit_set = BitSet.valueOf(value_long);
-    return (new BitWord(bit_set)).Resize(16, false);
+  public static BitWord FromBoolean(boolean bool) {
+    boolean bit[] = {bool};
+    return new BitWord(bit);
   }
   
   public static BitWord FromInt(int value, int num_bits) {
-    long value_long[] = {value};
-    BitSet bit_set = BitSet.valueOf(value_long);
-    if (value < 0) {
-      return (new BitWord(bit_set)).Resize(num_bits, true);
-    } else {
-      return (new BitWord(bit_set)).Resize(num_bits, false);
+    boolean[] bits = new boolean[num_bits];
+    for (int i = 0; i < bits.length; ++i) {
+      bits[i] = value % 2 != 0;
+      value = value >> 1;
     }
+    return new BitWord(bits);
   }
   
-  public static BitWord TRUE = FromBoolean(true);
-  public static BitWord FALSE = FromBoolean(false);
-  private BitSet bits_;
+  private boolean[] bits_;
 }

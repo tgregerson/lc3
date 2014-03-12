@@ -27,32 +27,29 @@ public class InterruptInstruction extends Instruction {
         return FetchInstruction2ControlSet();
       case kDecodeInstruction1:
         return DecodeInstruction1ControlSet();
-      case:
+      //case:
         // Load MAR with R6
         // Load Saved.USP or Saved.SSP with R6, based on privilege bit.
-        break;
-      case:
+      //case:
         // Load MDR with PSR
         // Set PSR privilege bit to 0.
         // Load PSR priority bits
-        break;
-      case:
+      //case:
         // Write memory
         // R6 = R6 - 1
-      case:
+      //case:
         // Load MAR with R6
-      case:
+      //case:
         // Load MDR with PC
-      case:
+      //case:
         // Write memory
         // R6 = R6 - 1
-      case:
+      //case:
         // PC = Interrupt vector + 256.
       default:
         assert false;
         return null;
     }
-    return null;
   }
 
 }

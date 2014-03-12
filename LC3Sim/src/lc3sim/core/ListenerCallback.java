@@ -2,11 +2,20 @@ package lc3sim.core;
 
 public class ListenerCallback {
   // Create a callback, binding 'sender' to 'receiver', and optionally
-  // providing additional data through 'arg', which may be set to
-  // NULL if unused.
+  // providing additional data through 'arg'.
   //
-  // 'listener' must be capable of servicing the notification, and is
-  // typically the owner of 'receiver'. 
+  // 'sender', 'receiver', and 'arg' will be passed to the listener's Notify()
+  // method when the callback is executed.
+  //
+  // 'sender' indicates the specific output's whose changes should trigger the
+  // callback.
+  //
+  // 'receiver' may be used to indicate to the Notify() method which of a
+  // Listener's inputs the notification is directed towards.
+  //
+  // 'arg' may be NULL if no additional data is needed. 'arg' is stored as a
+  // reference, and is therefore mutable after the creation of the callback via
+  // the original object.
   public ListenerCallback(Listener listener, OutputId sender,
 		                      InputId receiver, Object arg) {
     listener_ = listener;
