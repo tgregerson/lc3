@@ -14,9 +14,13 @@ public enum OutputId {
 	GprSr1,
 	GprSr2,
 	Memory,
+	SavedUsp,
+	SavedSsp,
 	
 	// Outputs of Combinational logic
-	PcIncrement,
+	PcIncrementer,
+	BusIncrementer,
+	BusDecrementer,
 	AddrAdder,
 	Alu,
 	IrSext5,
@@ -30,6 +34,7 @@ public enum OutputId {
 	Sr2Mux,
 	Addr1Mux,
 	Addr2Mux,
+	SavedSpMux,
 	NzpLogic,
 	
 	// Tristate Buffers
@@ -37,6 +42,9 @@ public enum OutputId {
 	PcTri,
 	MdrTri,
 	AluTri,
+	BusIncrementerTri,
+	BusDecrementerTri,
+	SavedSpMuxTri,
 
 	// Control drivers
 	ControlState,
@@ -48,6 +56,8 @@ public enum OutputId {
 	ControlMdrLoad,
 	ControlPsrLoad,
 	ControlGprDrLoad,
+	ControlUspLoad,
+	ControlSspLoad,
 	ControlGprDrAddr,
 	ControlGprSr1Addr,
 	ControlGprSr2Addr,
@@ -58,10 +68,14 @@ public enum OutputId {
 	ControlSr2MuxSelect,
 	ControlAddr1MuxSelect,
 	ControlAddr2MuxSelect,
+	ControlSavedSpMuxSelect,
 	ControlPcTriEnable,
 	ControlMarMuxTriEnable,
 	ControlMdrTriEnable,
 	ControlAluTriEnable,
+	ControlBusIncrementerTriEnable,
+	ControlBusDecrementerTriEnable,
+	ControlSavedSpMuxTriEnable,
 	
 	// Reserved for UI
 	External,

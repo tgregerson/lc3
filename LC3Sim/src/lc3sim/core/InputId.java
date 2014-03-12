@@ -27,13 +27,19 @@ public enum InputId {
   MemoryData,
   MemoryAddr,
   MemoryWriteEnable,
+  SavedUsp,
+  SavedUspLoad,
+  SavedSsp,
+  SavedSspLoad,
   
   // Combinational logic inputs
   AluA,
   AluB,
   AddrAdderA,
   AddrAdderB,
-  PcIncrement,
+  PcIncrementer,
+  BusIncrementer,
+  BusDecrementer,
   IrSext5,
   IrSext6,
   IrSext9,
@@ -63,6 +69,9 @@ public enum InputId {
   AddrAdder2MuxData10,
   AddrAdder2MuxData11,
   AddrAdder2MuxSel,
+  SavedSpMuxData0,
+  SavedSpMuxData1,
+  SavedSpMuxSel,
   
   // Tristate Buffers
   PcTriData,
@@ -73,6 +82,12 @@ public enum InputId {
   MdrTriEnable,
   AluTriData,
   AluTriEnable,
+  BusIncrementerTriEnable,
+  BusIncrementerTriData,
+  BusDecrementerTriEnable,
+  BusDecrementerTriData,
+  SavedSpMuxTriData,
+  SavedSpMuxTriEnable,
   
   // Control Logic
   ControlState,

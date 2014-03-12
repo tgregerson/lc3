@@ -3,7 +3,8 @@ package lc3sim.core;
 import lc3sim.core.instructions.OpCode;
 
 public class ALU extends AbstractPropagator {
-  // ALU Interface
+  public static final int kNumModeBits = 2;
+
   public ALU() {
     Init();
   }
@@ -43,7 +44,7 @@ public class ALU extends AbstractPropagator {
   // Buffered inputs
   private BitWord op_a_; // From register file
   private BitWord op_b_; // From register file or immediate
-  // TODO: This should get a select signal rather than the whole op code.
+  // TODO: This should get aluK signal rather than the whole op code.
   private BitWord op_code_;
 
   private final int bitwidth_ = 16;

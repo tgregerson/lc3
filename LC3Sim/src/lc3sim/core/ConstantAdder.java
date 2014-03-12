@@ -1,8 +1,13 @@
 package lc3sim.core;
 
-public class Incrementer extends AbstractPropagator {
-  public Incrementer(OutputId out_id, int bitwidth) {
-    bitwidth_ = bitwidth;
+// Adds a constant to the connected input. Input is assumed to be in
+// 2's complement format.
+public class ConstantAdder extends AbstractPropagator {
+  public ConstantAdder(OutputId out_id, int constant,
+                       int output_bitwidth) {
+    assert output_bitwidth <= 32;
+    bitwidth_ = output_bitwidth;
+    constant_ = constant;
     out_id_ = out_id;
     Init();
   }
@@ -21,13 +26,15 @@ public class Incrementer extends AbstractPropagator {
   
   @Override
   protected BitWord ComputeOutput(OutputId unused) {
-    return input_buffer_.AddFixedWidth(
-        BitWord.FromBoolean(true).Resize(2, false), bitwidth_);
+    int new_value =
+        input_buffer_.Resize(bitwidth_, true).ToInt() + constant_;
+    return BitWord.FromInt(new_value, bitwidth_);
   }
   
   // Buffered inputs
   private BitWord input_buffer_;
 
   private final int bitwidth_;
+  private final int constant_;
   private final OutputId out_id_;
 }

@@ -2,51 +2,100 @@ package lc3sim.core;
 
 // Encapsulates the architectural state of the LC3 processor
 public class ArchitecturalState {
+  public static final int kWordSize = 16;
+  
+  // Integer address values for multiplexer inputs
+  public static final int kData0Addr = 0;
+  public static final int kData1Addr = 1;
+  public static final int kData00Addr = 0;
+  public static final int kData01Addr = 1;
+  public static final int kData10Addr = 2;
+  public static final int kData11Addr = 3;
+  
+  // PC Mux
+  public static final int kNumPcMuxSelectBits = 2;
+  
+  // Mar Mux
+  public static final int kNumMarMuxSelectBits = 1;
+  
+  // Mdr Mux
+  public static final int kNumMdrMuxSelectBits = 1;
+  
+  // Sr2 Mux
+  public static final int kNumSr2MuxSelectBits = 1;
+  
+  // Addr1 Mux
+  public static final int kNumAddr1MuxSelectBits = 1;
+  
+  // Addr2 Mux
+  public static final int kNumAddr2MuxSelectBits = 2;
+  
   public ArchitecturalState() {
     Multiplexer.AddressBinding[] pc_mux_bindings = {
-      new Multiplexer.AddressBinding(BitWord.FromInt(0, 2), InputId.PcMuxData00),
-      new Multiplexer.AddressBinding(BitWord.FromInt(1, 2), InputId.PcMuxData01),
-      new Multiplexer.AddressBinding(BitWord.FromInt(2, 2), InputId.PcMuxData10)
+      new Multiplexer.AddressBinding(
+          BitWord.FromInt(kData00Addr, kNumPcMuxSelectBits), InputId.PcMuxData00),
+      new Multiplexer.AddressBinding(
+          BitWord.FromInt(kData01Addr, kNumPcMuxSelectBits), InputId.PcMuxData01),
+      new Multiplexer.AddressBinding(
+          BitWord.FromInt(kData10Addr, kNumPcMuxSelectBits), InputId.PcMuxData10)
     };
-    pc_mux_ = new Multiplexer(2, 16, pc_mux_bindings, InputId.PcMuxSel,
-                              OutputId.PcMux);
+    pc_mux_ = new Multiplexer(
+        kNumPcMuxSelectBits, kWordSize, pc_mux_bindings, InputId.PcMuxSel,
+        OutputId.PcMux);
     
     Multiplexer.AddressBinding[] mar_mux_bindings = {
-        new Multiplexer.AddressBinding(BitWord.FromInt(0, 1), InputId.MarMuxData0 ),
-        new Multiplexer.AddressBinding(BitWord.FromInt(1, 1), InputId.MarMuxData1),
+        new Multiplexer.AddressBinding(
+            BitWord.FromInt(kData0Addr, kNumMarMuxSelectBits), InputId.MarMuxData0),
+        new Multiplexer.AddressBinding(
+            BitWord.FromInt(kData1Addr, kNumMarMuxSelectBits), InputId.MarMuxData1),
     };
-    mar_mux_ = new Multiplexer(1, 16, mar_mux_bindings, InputId.MarMuxSel,
-                               OutputId.MarMux);
+    mar_mux_ = new Multiplexer(
+        kNumMarMuxSelectBits, kWordSize, mar_mux_bindings, InputId.MarMuxSel,
+        OutputId.MarMux);
     
     Multiplexer.AddressBinding[] mdr_mux_bindings = {
-        new Multiplexer.AddressBinding(BitWord.FromInt(0, 1), InputId.MdrMuxData0 ),
-        new Multiplexer.AddressBinding(BitWord.FromInt(1, 1), InputId.MdrMuxData1),
+        new Multiplexer.AddressBinding(
+            BitWord.FromInt(kData0Addr, kNumMdrMuxSelectBits), InputId.MdrMuxData0),
+        new Multiplexer.AddressBinding(
+            BitWord.FromInt(kData1Addr, kNumMdrMuxSelectBits), InputId.MdrMuxData1),
     };
-    mdr_mux_ = new Multiplexer(1, 16, mdr_mux_bindings, InputId.MdrMuxSel,
-                               OutputId.MdrMux);
+    mdr_mux_ = new Multiplexer(
+        kNumMdrMuxSelectBits, kWordSize, mdr_mux_bindings, InputId.MdrMuxSel,
+        OutputId.MdrMux);
     
     Multiplexer.AddressBinding[] sr2_mux_bindings = {
-        new Multiplexer.AddressBinding(BitWord.FromInt(0, 1), InputId.Sr2MuxData0),
-        new Multiplexer.AddressBinding(BitWord.FromInt(1, 1), InputId.Sr2MuxData1),
+        new Multiplexer.AddressBinding(
+            BitWord.FromInt(kData0Addr, kNumSr2MuxSelectBits), InputId.Sr2MuxData0),
+        new Multiplexer.AddressBinding(
+            BitWord.FromInt(kData1Addr, kNumSr2MuxSelectBits), InputId.Sr2MuxData1),
     };
-    sr2_mux_ = new Multiplexer(1, 16, sr2_mux_bindings, InputId.Sr2MuxSel,
-                               OutputId.Sr2Mux);
+    sr2_mux_ = new Multiplexer(
+        kNumSr2MuxSelectBits, kWordSize, sr2_mux_bindings, InputId.Sr2MuxSel,
+        OutputId.Sr2Mux);
     
     Multiplexer.AddressBinding[] addr1_mux_bindings = {
-        new Multiplexer.AddressBinding(BitWord.FromInt(0, 1), InputId.AddrAdder1MuxData0),
-        new Multiplexer.AddressBinding(BitWord.FromInt(1, 1), InputId.AddrAdder1MuxData1),
+        new Multiplexer.AddressBinding(
+            BitWord.FromInt(kData0Addr, kNumAddr1MuxSelectBits), InputId.AddrAdder1MuxData0),
+        new Multiplexer.AddressBinding(
+            BitWord.FromInt(kData1Addr, kNumAddr1MuxSelectBits), InputId.AddrAdder1MuxData1),
     };
-    addr1_mux_ = new Multiplexer(1, 16, addr1_mux_bindings, InputId.AddrAdder1MuxSel,
-                                 OutputId.Addr1Mux);
+    addr1_mux_ = new Multiplexer(
+        kNumAddr1MuxSelectBits, kWordSize, addr1_mux_bindings, InputId.AddrAdder1MuxSel,
+        OutputId.Addr1Mux);
     
     Multiplexer.AddressBinding[] addr2_mux_bindings = {
-        new Multiplexer.AddressBinding(BitWord.FromInt(0, 2), InputId.AddrAdder2MuxData00),
-        new Multiplexer.AddressBinding(BitWord.FromInt(1, 2), InputId.AddrAdder2MuxData01),
-        new Multiplexer.AddressBinding(BitWord.FromInt(2, 2), InputId.AddrAdder2MuxData10),
-        new Multiplexer.AddressBinding(BitWord.FromInt(3, 2), InputId.AddrAdder2MuxData11),
+        new Multiplexer.AddressBinding(
+            BitWord.FromInt(kData00Addr, kNumAddr2MuxSelectBits), InputId.AddrAdder2MuxData00),
+        new Multiplexer.AddressBinding(
+            BitWord.FromInt(kData01Addr, kNumAddr2MuxSelectBits), InputId.AddrAdder2MuxData01),
+        new Multiplexer.AddressBinding(
+            BitWord.FromInt(kData10Addr, kNumAddr2MuxSelectBits), InputId.AddrAdder2MuxData10),
+        new Multiplexer.AddressBinding(
+            BitWord.FromInt(kData11Addr, kNumAddr2MuxSelectBits), InputId.AddrAdder2MuxData11),
     };
-    addr2_mux_ = new Multiplexer(2, 16, addr2_mux_bindings, InputId.AddrAdder2MuxSel,
-                                 OutputId.Addr2Mux);
+    addr2_mux_ = new Multiplexer(
+        kNumAddr2MuxSelectBits, kWordSize, addr2_mux_bindings, InputId.AddrAdder2MuxSel,
+        OutputId.Addr2Mux);
   }
   
   public void Init() {
@@ -86,7 +135,7 @@ public class ArchitecturalState {
   public void AddAllListenerBindings() {
     // Architectural connections
     pc_.RegisterListenerCallback(new ListenerCallback(
-        pc_incrementer_, OutputId.Pc, InputId.PcIncrement, null));
+        pc_incrementer_, OutputId.Pc, InputId.PcIncrementer, null));
     pc_.RegisterListenerCallback(new ListenerCallback(
         addr1_mux_, OutputId.Pc, InputId.AddrAdder1MuxData0, null));
     pc_.RegisterListenerCallback(new ListenerCallback(
@@ -111,7 +160,7 @@ public class ArchitecturalState {
     mdr_.RegisterListenerCallback(new ListenerCallback(
         mdr_tri_, OutputId.Mdr, InputId.MdrTriData, null));
     
-    // TODO PSR
+    // TODO PSR, Branch logic, USP, SSP, SP_Mux, SP_Mux_tri
     
     gpr_.RegisterListenerCallback(new ListenerCallback(
         alu_, OutputId.GprSr1, InputId.AluA, null));
@@ -132,7 +181,12 @@ public class ArchitecturalState {
         pc_mux_, OutputId.AddrAdder, InputId.PcMuxData01, null));
     
     pc_incrementer_.RegisterListenerCallback(new ListenerCallback(
-        pc_mux_, OutputId.PcIncrement, InputId.PcMuxData00, null));
+        pc_mux_, OutputId.PcIncrementer, InputId.PcMuxData00, null));
+    
+    bus_incrementer_.RegisterListenerCallback(new ListenerCallback(
+        bus_increment_tri_, OutputId.BusIncrementer, InputId.Bus, null));
+    bus_incrementer_.RegisterListenerCallback(new ListenerCallback(
+        bus_decrement_tri_, OutputId.BusIncrementer, InputId.Bus, null));
     
     sign_extend_11_.RegisterListenerCallback(new ListenerCallback(
         addr2_mux_, OutputId.IrSext11, InputId.AddrAdder2MuxData11, null));
@@ -176,9 +230,21 @@ public class ArchitecturalState {
         bus_, OutputId.AluTri, InputId.Bus, null));
     
     bus_.RegisterListenerCallback(new ListenerCallback(
+        gpr_, OutputId.Bus, InputId.GprDrData, null));
+    bus_.RegisterListenerCallback(new ListenerCallback(
         mar_, OutputId.Bus, InputId.Mar, null));
     bus_.RegisterListenerCallback(new ListenerCallback(
+        ir_, OutputId.Bus, InputId.Ir, null));
+    bus_.RegisterListenerCallback(new ListenerCallback(
         branch_flag_logic_, OutputId.Bus, InputId.NzpLogic, null));
+    bus_.RegisterListenerCallback(new ListenerCallback(
+        pc_mux_, OutputId.Bus, InputId.PcMuxData10, null));
+    bus_.RegisterListenerCallback(new ListenerCallback(
+        mdr_mux_, OutputId.Bus, InputId.MdrMuxData0, null));
+    bus_.RegisterListenerCallback(new ListenerCallback(
+        bus_incrementer_, OutputId.Bus, InputId.BusIncrementer, null));
+    bus_.RegisterListenerCallback(new ListenerCallback(
+        bus_decrementer_, OutputId.Bus, InputId.BusDecrementer, null));
   }
   
   public int ExecuteInstruction() {
@@ -196,13 +262,13 @@ public class ArchitecturalState {
   
   // Individual registers
   private final Register pc_ =
-      new Register(16, InputId.Pc, InputId.PcLoad, OutputId.Pc);
+      new Register(kWordSize, InputId.Pc, InputId.PcLoad, OutputId.Pc);
   private final Register ir_ =
-      new Register(16, InputId.Ir, InputId.IrLoad, OutputId.Ir);
+      new Register(kWordSize, InputId.Ir, InputId.IrLoad, OutputId.Ir);
   private final Register mar_ =
-      new Register(16, InputId.Mar, InputId.MarLoad, OutputId.Mar);
+      new Register(kWordSize, InputId.Mar, InputId.MarLoad, OutputId.Mar);
   private final Register mdr_ =
-      new Register(16, InputId.Mdr, InputId.MdrLoad, OutputId.Mdr);
+      new Register(kWordSize, InputId.Mdr, InputId.MdrLoad, OutputId.Mdr);
   private final ProcessorStatusRegister psr_ =
       new ProcessorStatusRegister();
   
@@ -216,19 +282,23 @@ public class ArchitecturalState {
   private final ALU alu_ = new ALU();
   private final Adder addr_adder_ =
       new Adder(InputId.AddrAdder1MuxData0, InputId.AddrAdder1MuxData1,
-                OutputId.AddrAdder, 16);
-  private final Incrementer pc_incrementer_ =
-      new Incrementer(OutputId.PcIncrement, 16);
+                OutputId.AddrAdder, kWordSize);
+  private final ConstantAdder pc_incrementer_ =
+      new ConstantAdder(OutputId.PcIncrementer, 1, kWordSize);
+  private final ConstantAdder bus_incrementer_ =
+      new ConstantAdder(OutputId.BusIncrementer, 1, kWordSize);
+  private final ConstantAdder bus_decrementer_ =
+      new ConstantAdder(OutputId.BusDecrementer, -1, kWordSize);
   private final BitExtender sign_extend_11_ =
-      new BitExtender(OutputId.IrSext11, 11, 16, true);
+      new BitExtender(OutputId.IrSext11, 11, kWordSize, true);
   private final BitExtender sign_extend_9_ =
-      new BitExtender(OutputId.IrSext9, 9, 16, true);
+      new BitExtender(OutputId.IrSext9, 9, kWordSize, true);
   private final BitExtender sign_extend_6_ =
-      new BitExtender(OutputId.IrSext6, 6, 16, true);
+      new BitExtender(OutputId.IrSext6, 6, kWordSize, true);
   private final BitExtender sign_extend_5_ =
-      new BitExtender(OutputId.IrSext5, 5, 16, true);
+      new BitExtender(OutputId.IrSext5, 5, kWordSize, true);
   private final BitExtender zero_extend_8_ =
-      new BitExtender(OutputId.IrZext8, 8, 16, true);
+      new BitExtender(OutputId.IrZext8, 8, kWordSize, true);
   
   // Multiplexers - Initialized in constructor
   private final Multiplexer pc_mux_;
@@ -250,6 +320,12 @@ public class ArchitecturalState {
       OutputId.MdrTri, InputId.MdrTriData, InputId.MdrTriEnable);
   private final TriStateBuffer alu_tri_ = new TriStateBuffer(
       OutputId.AluTri, InputId.AluTriData, InputId.AluTriEnable);
+  private final TriStateBuffer bus_increment_tri_ = new TriStateBuffer(
+      OutputId.BusIncrementerTri, InputId.BusIncrementerTriData,
+      InputId.BusIncrementerTriEnable);
+  private final TriStateBuffer bus_decrement_tri_ = new TriStateBuffer(
+      OutputId.BusDecrementerTri, InputId.BusDecrementerTriData,
+      InputId.BusDecrementerTriEnable);
   
   // Shared Bus
   private final Bus bus_ = new Bus();
