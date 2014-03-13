@@ -27,8 +27,8 @@ public class TriStateBufferTest {
 
   @Test
   public void PropagateOutputTest() {
-    BitWord value1 = BitWord.FromInt(12345, 16);
-    BitWord value2 = BitWord.FromInt(54321, 16);
+    BitWord value1 = BitWord.FromInt(12345, kWordSize);
+    BitWord value2 = BitWord.FromInt(54321, kWordSize);
     
     // Propagate input to listener on positive enable edge.
     tristate_.Notify(value1, OutputId.External, tri_data_id_, null);
@@ -58,5 +58,5 @@ public class TriStateBufferTest {
   private final OutputId tri_output_id_ = OutputId.AluTri;
   private final InputId tri_data_id_ = InputId.AluTriData;
   private final InputId tri_enable_id_ = InputId.AluTriEnable;
-
+  private final int kWordSize = 16;
 }

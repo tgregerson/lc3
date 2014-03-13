@@ -25,8 +25,8 @@ public class RegisterTest {
 
   @Test
   public void PropagateOnPostClockTest() {
-    BitWord value1 = BitWord.FromInt(512, 16);
-    BitWord value2 = BitWord.FromInt(7800, 16);
+    BitWord value1 = BitWord.FromInt(512, kWordSize);
+    BitWord value2 = BitWord.FromInt(7800, kWordSize);
     
 
     // Output does not get propagated until a clock tick.
@@ -51,8 +51,8 @@ public class RegisterTest {
 
   @Test
   public void ClockToQTest() {
-    BitWord value1 = BitWord.FromInt(512, 16);
-    BitWord value2 = BitWord.FromInt(7800, 16);
+    BitWord value1 = BitWord.FromInt(512, kWordSize);
+    BitWord value2 = BitWord.FromInt(7800, kWordSize);
 
     // Output does not get propagated until a clock tick.
     register_.Notify(value1, int_id_, reg_data_input_id_, null);
@@ -72,9 +72,9 @@ public class RegisterTest {
 
   @Test
   public void ExternalForceValueTest() {
-    BitWord value1 = BitWord.FromInt(512, 16);
-    BitWord value2 = BitWord.FromInt(7800, 16);
-    BitWord value3 = BitWord.FromInt(5555, 16);
+    BitWord value1 = BitWord.FromInt(512, kWordSize);
+    BitWord value2 = BitWord.FromInt(7800, kWordSize);
+    BitWord value3 = BitWord.FromInt(5555, kWordSize);
 
     // External ID forced update without needing clock tick.
     register_.Notify(value1, int_id_, reg_data_input_id_, null);
@@ -105,4 +105,5 @@ public class RegisterTest {
   private final InputId reg_enable_input_id_ = InputId.MarLoad;
   private final OutputId int_id_ = OutputId.Alu;
   private final OutputId ext_id_ = OutputId.External;
+  private final int kWordSize = 16;
 }

@@ -27,11 +27,11 @@ public class RegisterFileTest {
 
   @Test
   public void PropagateOnPostClockTest() {
-    BitWord value1 = BitWord.FromInt(64, 16);
-    BitWord value2 = BitWord.FromInt(511, 16);
+    BitWord value1 = BitWord.FromInt(64, RegisterFile.kWordSize);
+    BitWord value2 = BitWord.FromInt(511, RegisterFile.kWordSize);
     
-    BitWord addr1 = BitWord.FromInt(4, 3);
-    BitWord addr2 = BitWord.FromInt(1, 3);
+    BitWord addr1 = BitWord.FromInt(4, RegisterFile.kNumAddrBits);
+    BitWord addr2 = BitWord.FromInt(1, RegisterFile.kNumAddrBits);
 
     OutputId int_sender = OutputId.Bus;
 
@@ -67,7 +67,7 @@ public class RegisterFileTest {
 
   @Test
   public void ExternalForceValueTest() {
-    BitWord value1 = BitWord.FromInt(512, 16);
+    BitWord value1 = BitWord.FromInt(512, ArchitecturalState.kWordSize);
     
     OutputId int_sender = OutputId.Bus;
     OutputId ext_sender = OutputId.External;
@@ -78,7 +78,8 @@ public class RegisterFileTest {
         new RegisterFile.RegisterStateUpdate(7, value1);
     register_file_.Notify(null, ext_sender, InputId.GprDrData, update);
     register_file_.Notify(
-        BitWord.FromInt(7, 3), int_sender, InputId.GprSr1Addr, null);
+        BitWord.FromInt(7, RegisterFile.kNumAddrBits), int_sender,
+                        InputId.GprSr1Addr, null);
     assertEquals(sr1_listener_.last_bitword, value1);
   }
 

@@ -3,6 +3,7 @@ package lc3sim.core;
 // A register file with 8 entries, two read ports, and one write port.
 public class RegisterFile extends AbstractPropagator implements Synchronized {
   public static final int kNumAddrBits = 3;
+  public static final int kWordSize = ArchitecturalState.kWordSize;
   
   public RegisterFile() {
     Init();
@@ -11,11 +12,11 @@ public class RegisterFile extends AbstractPropagator implements Synchronized {
   public void Init() {
     regs_ = new BitWord[num_entries_];
     for (int i = 0; i < num_entries_; ++i) {
-      regs_[i] = new BitWord(ArchitecturalState.kWordSize);
+      regs_[i] = new BitWord(kWordSize);
     }
     sr1_addr_ = sr2_addr_ = dr_addr_ = new BitWord(kNumAddrBits);
     dr_load_enable_ = false;
-    dr_in_ = new BitWord(ArchitecturalState.kWordSize);
+    dr_in_ = new BitWord(kWordSize);
   }
   
   // Basic Propagator interface
@@ -45,16 +46,16 @@ public class RegisterFile extends AbstractPropagator implements Synchronized {
       // Change to one of the inputs.
       switch (receiver) {
         case GprSr1Addr:
-          sr1_addr_ = data.Resize(ArchitecturalState.kWordSize, false);
+          sr1_addr_ = data.Resize(kWordSize, false);
           break;
         case GprSr2Addr:
-          sr2_addr_ = data.Resize(ArchitecturalState.kWordSize, false);
+          sr2_addr_ = data.Resize(kWordSize, false);
           break;
         case GprDrAddr:
-          dr_addr_ = data.Resize(ArchitecturalState.kWordSize, false);
+          dr_addr_ = data.Resize(kWordSize, false);
           break;
         case GprDrData:
-          dr_in_ = data.Resize(ArchitecturalState.kWordSize, false);
+          dr_in_ = data.Resize(kWordSize, false);
           break;
         case GprDrLoad:
           dr_load_enable_ = data.ToBoolean();
