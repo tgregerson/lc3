@@ -39,6 +39,7 @@ public class Multiplexer extends AbstractPropagator {
           data.Resize(num_data_bits_, false); 
     } else if (receiver == select_id_){
       address_buffer_ = data.Resize(num_addr_bits_, false);
+      assert address_buffer_.ToInt() < input_buffers_.length;
     } else {
       assert false;
     }
