@@ -2,6 +2,9 @@ package lc3sim.core;
 
 // A memory with 64K entries and 16-bit word size.
 public class Memory extends AbstractPropagator implements Synchronized {
+  public static final int kWordSize = ArchitecturalState.kWordSize;
+  public static final int kNumAddrBits = kWordSize;
+
   public Memory() {
     Init();
   }
@@ -9,11 +12,11 @@ public class Memory extends AbstractPropagator implements Synchronized {
   public void Init() {
     data_ = new BitWord[num_entries_];
     for (int i = 0; i < num_entries_; ++i) {
-      data_[i] = new BitWord(word_size_);
+      data_[i] = new BitWord(kWordSize);
     }
-    addr_buffer_ = new BitWord(addr_size_);
+    addr_buffer_ = new BitWord(kNumAddrBits);
     write_enable_buffer_ = false;
-    data_in_buffer_ = new BitWord(word_size_);
+    data_in_buffer_ = new BitWord(kWordSize);
   }
   
   // Basic Propagator interface
@@ -30,15 +33,17 @@ public class Memory extends AbstractPropagator implements Synchronized {
       int address = ((MemoryStateUpdate)arg).address.ToInt();
       assert address < num_entries_;
       data_[address] =
-          ((MemoryStateUpdate)arg).value.Resize(word_size_, false);
+          ((MemoryStateUpdate)arg).value.Resize(kWordSize, false);
+      UpdateOutput(OutputId.Memory);
     } else {
       // Change to one of the inputs.
       switch (receiver) {
         case MemoryData:
-          data_in_buffer_ = data.Resize(word_size_, false);
+          data_in_buffer_ = data.Resize(kWordSize, false);
           break;
         case MemoryAddr:
-          addr_buffer_ = data.Resize(addr_size_, false);
+          addr_buffer_ = data.Resize(kNumAddrBits, false);
+          UpdateOutput(OutputId.Memory);
           break;
         case MemoryWriteEnable:
           write_enable_buffer_ = data.ToBoolean();
@@ -47,11 +52,10 @@ public class Memory extends AbstractPropagator implements Synchronized {
           assert false;
       }
     }
-    UpdateOutput(OutputId.Memory);
   }
   
   // Used by external UI to force updates to register state.
-  public class MemoryStateUpdate {
+  public static class MemoryStateUpdate {
     public MemoryStateUpdate(BitWord addr, BitWord val) {
       address = addr;
       value = val;
@@ -68,7 +72,9 @@ public class Memory extends AbstractPropagator implements Synchronized {
   }
   
   public void PostClock() {
-    UpdateOutput(OutputId.Memory);
+    if (write_enable_buffer_) {
+      UpdateOutput(OutputId.Memory);
+    }
   }
 
   // Input signal buffers
@@ -77,7 +83,5 @@ public class Memory extends AbstractPropagator implements Synchronized {
   private Boolean write_enable_buffer_;
    
   private BitWord[] data_;
-  private final int word_size_ = 16;
-  private final int addr_size_ = 16;
-  private static final int num_entries_ = 65536;
+  private static final int num_entries_ = 1 << kNumAddrBits;
 }
