@@ -16,8 +16,8 @@ public class RtiInstruction extends Instruction {
         return FetchInstruction1ControlSet();
       case kFetchInstruction2:
         return FetchInstruction2ControlSet();
-      case kDecodeInstruction1:
-        return DecodeInstruction1ControlSet();
+      case kFetchInstruction3:
+        return FetchInstruction3ControlSet();
       //case:
         // MAR <= R6
       //case:

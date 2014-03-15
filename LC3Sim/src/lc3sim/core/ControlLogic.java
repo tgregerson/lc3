@@ -65,6 +65,7 @@ public class ControlLogic extends AbstractPropagator {
         assert(data.num_bits() == 16);
         if (Instruction.OpCodeFromBitWord(data) == OpCode.RESERVED) {
           // TODO: Trigger Exception
+          assert false;
         } else {
           instruction_ = Instruction.FromBitWord(data);
         }

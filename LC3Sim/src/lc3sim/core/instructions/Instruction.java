@@ -78,7 +78,7 @@ public abstract class Instruction {
     return control_set;
   }
   
-  protected ControlSet DecodeInstruction1ControlSet() {
+  protected ControlSet FetchInstruction3ControlSet() {
     ControlSet control_set = StateIndependentControlSet();
     control_set.mdr_tri_enable = BitWord.TRUE;
     control_set.ir_load = BitWord.TRUE;

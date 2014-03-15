@@ -25,8 +25,8 @@ public class InterruptInstruction extends Instruction {
         return FetchInstruction1ControlSet();
       case kFetchInstruction2:
         return FetchInstruction2ControlSet();
-      case kDecodeInstruction1:
-        return DecodeInstruction1ControlSet();
+      case kFetchInstruction3:
+        return FetchInstruction3ControlSet();
       //case:
         // Load MAR with R6
         // Load Saved.USP or Saved.SSP with R6, based on privilege bit.

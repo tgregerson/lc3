@@ -17,10 +17,8 @@ public class BrInstruction extends Instruction {
         return FetchInstruction1ControlSet();
       case kFetchInstruction2:
         return FetchInstruction2ControlSet();
-      case kDecodeInstruction1:
-        return DecodeInstruction1ControlSet();
-      case kExecuteOperation1:
-        return ExecuteOperation1ControlSet();
+      case kFetchInstruction3:
+        return FetchInstruction3ControlSet();
       case kStoreResult1:
         return StoreResult1ControlSet(psr);
       default:
@@ -30,16 +28,11 @@ public class BrInstruction extends Instruction {
     }
   }
 
-  private ControlSet ExecuteOperation1ControlSet() {
+  private ControlSet StoreResult1ControlSet(BitWord psr) {
     ControlSet control_set = StateIndependentControlSet();
     control_set.addr1_mux_select = BitWord.FALSE;
     control_set.addr2_mux_select = BitWord.FromInt(2, 2);
     control_set.pc_mux_select = BitWord.FromInt(1, 2);
-    return control_set;
-  }
-
-  private ControlSet StoreResult1ControlSet(BitWord psr) {
-    ControlSet control_set = StateIndependentControlSet();
     // Note: By convention, the case where none of the flags is used in the
     // instruction is considered to be an unconditional branch, rather than a
     // NOP.

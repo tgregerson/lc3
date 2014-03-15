@@ -17,7 +17,6 @@ public class ControlSet {
     sr2_mux_select = new BitWord(ArchitecturalState.kNumSr2MuxSelectBits);
     addr1_mux_select = new BitWord(ArchitecturalState.kNumAddr1MuxSelectBits);
     addr2_mux_select = new BitWord(ArchitecturalState.kNumAddr2MuxSelectBits);
-    // TODO get rid of magic numbers
     alu_k = new BitWord(ALU.kNumModeBits);
     gpr_dr_addr = new BitWord(RegisterFile.kNumAddrBits);
     gpr_sr1_addr = new BitWord(RegisterFile.kNumAddrBits);

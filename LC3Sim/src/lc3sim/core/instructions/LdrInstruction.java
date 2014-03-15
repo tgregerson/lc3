@@ -16,8 +16,8 @@ public class LdrInstruction extends Instruction {
         return FetchInstruction1ControlSet();
       case kFetchInstruction2:
         return FetchInstruction2ControlSet();
-      case kDecodeInstruction1:
-        return DecodeInstruction1ControlSet();
+      case kFetchInstruction3:
+        return FetchInstruction3ControlSet();
       case kEvaluateAddress1:
         return EvaluateAddress1ControlSet();
       case kFetchOperands1:

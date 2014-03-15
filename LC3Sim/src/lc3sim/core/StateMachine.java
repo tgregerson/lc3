@@ -12,7 +12,6 @@ public class StateMachine implements Listenable, Listener {
   // clock cycles in the LC3 architecture.
   public enum InstructionPhase {
     kFetchInstruction,
-    kDecodeInstruction,
     kEvaluateAddress,
     kFetchOperands,
     kExecuteOperation,
@@ -27,7 +26,7 @@ public class StateMachine implements Listenable, Listener {
   public enum InstructionCycle {
     kFetchInstruction1(0),
     kFetchInstruction2(1),
-    kDecodeInstruction1(2),
+    kFetchInstruction3(2),
     kEvaluateAddress1(3),
     kFetchOperands1(4),
     kExecuteOperation1(5),
@@ -87,9 +86,6 @@ public class StateMachine implements Listenable, Listener {
       case kFetchInstruction:
         FetchInstruction();
         break;
-      case kDecodeInstruction:
-        DecodeInstruction();
-        break;
       case kEvaluateAddress:
         EvaluateAddress();
         break;
@@ -120,25 +116,22 @@ public class StateMachine implements Listenable, Listener {
   private InstructionPhase NextPhase() {
     switch (phase_) {
       case kFetchInstruction:
-        return InstructionPhase.kDecodeInstruction;
-      case kDecodeInstruction:
-        // Ops that do not access memory can skip ahead to FetchOperands.
-        // All others go to EvaluateAddress.
+        // Instructions that do not access memory can skip phases.
         switch (instruction_.op_code()) {
           case ADD:
-            return InstructionPhase.kFetchOperands;
+            return InstructionPhase.kStoreResult;
           case AND:
-            return InstructionPhase.kFetchOperands;
+            return InstructionPhase.kStoreResult;
           case BR:
-            return InstructionPhase.kFetchOperands;
+            return InstructionPhase.kStoreResult;
           case JMP_RET:
-            return InstructionPhase.kFetchOperands;
+            return InstructionPhase.kStoreResult;
           case JSR_JSRR:
-            return InstructionPhase.kFetchOperands;
+            return InstructionPhase.kStoreResult;
           case LEA:
-            return InstructionPhase.kFetchOperands;
+            return InstructionPhase.kStoreResult;
           case NOT:
-            return InstructionPhase.kFetchOperands;
+            return InstructionPhase.kStoreResult;
           case RTI:
             return InstructionPhase.kReturnFromInterrupt;
           default:
@@ -173,13 +166,11 @@ public class StateMachine implements Listenable, Listener {
     // MdrLoad <= 1
     cycle_ = InstructionCycle.kFetchInstruction2;
     clock_.Tick();
-  }
-  
-  private void DecodeInstruction() {
+
     // IR <= MDR
     // MdrTri <= 1
     // IrLoad <= 1
-    cycle_ = InstructionCycle.kDecodeInstruction1;
+    cycle_ = InstructionCycle.kFetchInstruction3;
     clock_.Tick();
   }
   
@@ -192,27 +183,24 @@ public class StateMachine implements Listenable, Listener {
   private void FetchOperands() {
     // For instructions that read memory:
     // MDR <= mem[MAR]
-    //
-    // For instructions that only read registers, this phase is not really
-    // necessary, since the register file has asynchronous read. For now, set
-    // the source register addresses appropriately anyway to be consistent with
-    // the description of the Fetch Operands phase in textbooks.
     cycle_ = InstructionCycle.kFetchOperands1;
     clock_.Tick();
   }
   
   private void ExecuteOperation() {
+    // Used by instructions that write memory, or do indirect reads.
     cycle_ = InstructionCycle.kExecuteOperation1;
     clock_.Tick();
     
-    if (instruction_.op_code() == OpCode.LDR ||
-        instruction_.op_code() == OpCode.STR) {
+    if (instruction_.op_code() == OpCode.LDI ||
+        instruction_.op_code() == OpCode.STI) {
       cycle_ = InstructionCycle.kExecuteOperation2;
       clock_.Tick();
     }
   }
   
   private void StoreResult() {
+    // Write to memory, write to the register file, or write to the PC.
     cycle_ = InstructionCycle.kStoreResult1;
     clock_.Tick();
   }

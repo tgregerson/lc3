@@ -16,12 +16,8 @@ public class JsrJsrrInstruction extends Instruction {
         return FetchInstruction1ControlSet();
       case kFetchInstruction2:
         return FetchInstruction2ControlSet();
-      case kDecodeInstruction1:
-        return DecodeInstruction1ControlSet();
-      case kFetchOperands1:
-        return FetchOperands1ControlSet();
-      case kExecuteOperation1:
-        return ExecuteOperation1ControlSet();
+      case kFetchInstruction3:
+        return FetchInstruction3ControlSet();
       case kStoreResult1:
         return StoreResult1ControlSet();
       default:
@@ -47,14 +43,6 @@ public class JsrJsrrInstruction extends Instruction {
     }
     control_set.pc_mux_select = BitWord.FromInt(1, 2);
     return control_set;
-  }
-  
-  private ControlSet FetchOperands1ControlSet() {
-    return StateIndependentControlSet();
-  }
-
-  private ControlSet ExecuteOperation1ControlSet() {
-    return StateIndependentControlSet();
   }
   
   private ControlSet StoreResult1ControlSet() {

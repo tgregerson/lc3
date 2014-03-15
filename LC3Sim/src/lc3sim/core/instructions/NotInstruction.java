@@ -16,12 +16,8 @@ public class NotInstruction extends Instruction {
         return FetchInstruction1ControlSet();
       case kFetchInstruction2:
         return FetchInstruction2ControlSet();
-      case kDecodeInstruction1:
-        return DecodeInstruction1ControlSet();
-      case kFetchOperands1:
-        return FetchOperands1ControlSet();
-      case kExecuteOperation1:
-        return ExecuteOperation1ControlSet();
+      case kFetchInstruction3:
+        return FetchInstruction3ControlSet();
       case kStoreResult1:
         return StoreResult1ControlSet();
       default:
@@ -37,14 +33,6 @@ public class NotInstruction extends Instruction {
     control_set.gpr_dr_addr = dr();
     control_set.gpr_sr1_addr = sr();
     return control_set;
-  }
-  
-  private ControlSet FetchOperands1ControlSet() {
-    return StateIndependentControlSet();
-  }
-
-  private ControlSet ExecuteOperation1ControlSet() {
-    return StateIndependentControlSet();
   }
   
   private ControlSet StoreResult1ControlSet() {

@@ -16,12 +16,8 @@ public class JmpRetInstruction extends Instruction {
         return FetchInstruction1ControlSet();
       case kFetchInstruction2:
         return FetchInstruction2ControlSet();
-      case kDecodeInstruction1:
-        return DecodeInstruction1ControlSet();
-      case kFetchOperands1:
-        return FetchOperands1ControlSet();
-      case kExecuteOperation1:
-        return ExecuteOperation1ControlSet();
+      case kFetchInstruction3:
+        return FetchInstruction3ControlSet();
       case kStoreResult1:
         return StoreResult1ControlSet();
       default:
@@ -41,14 +37,6 @@ public class JmpRetInstruction extends Instruction {
     return control_set;
   }
 
-  private ControlSet FetchOperands1ControlSet() {
-    return StateIndependentControlSet();
-  }
-
-  private ControlSet ExecuteOperation1ControlSet() {
-    return StateIndependentControlSet();
-  }
-  
   private ControlSet StoreResult1ControlSet() {
     ControlSet control_set = StateIndependentControlSet();
     control_set.pc_load = BitWord.TRUE;
