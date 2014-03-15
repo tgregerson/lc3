@@ -1,12 +1,14 @@
 package lc3sim.core;
 
-import java.util.Vector;
+import java.util.HashSet;
 
 public class CycleClock {
   public void Init() {
     RemoveAllElements();
   }
   
+  // Elements are stored in a set, so adding the same element more than once
+  // does nothing.
   public void AddSynchronizedElement(Synchronized s) {
     elements_.add(s);
   }
@@ -24,5 +26,5 @@ public class CycleClock {
     }
   }
 
-  private Vector<Synchronized> elements_;
+  private HashSet<Synchronized> elements_;
 }

@@ -47,7 +47,7 @@ public enum OutputId {
 	SavedSpMuxTri,
 
 	// Control drivers
-	ControlState,
+	StateMachineCycle,
 
 	// Control signals
 	ControlPcLoad,

@@ -19,7 +19,6 @@ public class InterruptInstruction extends Instruction {
   }
 
   public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
-    ControlSet control_set = new ControlSet();
     switch (cycle) {
       case kFetchInstruction1:
         return FetchInstruction1ControlSet();
