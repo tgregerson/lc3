@@ -2,6 +2,10 @@ package lc3sim.core;
 
 public class Bus extends AbstractPropagator {
   public Bus() {
+    Init();
+  }
+  
+  public void Init() {
     data_ = null;
   }
   

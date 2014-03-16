@@ -41,6 +41,10 @@ public abstract class Instruction {
     }
   }
 
+  public BitWord bitword() {
+    return bitword_;
+  }
+
   public OpCode op_code() {
     return op_code_;
   }
@@ -109,10 +113,6 @@ public abstract class Instruction {
     control_set.mdr_tri_enable = BitWord.TRUE;
     control_set.ir_load = BitWord.TRUE;
     return control_set;
-  }
-  
-  protected BitWord bitword() {
-    return bitword_;
   }
   
   private final BitWord bitword_;

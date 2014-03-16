@@ -53,6 +53,11 @@ public abstract class AbstractPropagator implements Listener, Listenable {
       if (cb.sender() == sender_id) {
         String data_string = (bit_word != null) ? bit_word.toString() : "null";
         System.out.println("Sending " + data_string + " from OutputId." + sender_id.name() + " to InputId." + cb.receiver().name());
+        // TODO remove
+        if (OutputId.ControlAddr2MuxSelect == sender_id) {
+          BitWord bad_value = BitWord.FromInt(2, 2);
+          assert !BitWord.Identical(bad_value, bit_word);
+        }
         cb.Run(bit_word);
       }
     }
@@ -64,7 +69,7 @@ public abstract class AbstractPropagator implements Listener, Listenable {
     String new_string = (new_output == null) ? "null" : new_output.toString();
     String old_string = (old_output == null) ? "null" : old_output.toString();
     System.out.println("Update to OutputId." + id.name() + " New data: " + new_string + " Old data: " + old_string);
-    if (old_output == null || !old_output.IsEqual(new_output, false)) {
+    if (!BitWord.Identical(old_output, new_output)) {
       SetCurrentOutput(id, new_output);
       SendNotification(new_output, id);
     }

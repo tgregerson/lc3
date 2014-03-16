@@ -49,28 +49,37 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
 
   // Synchronized
   public void PreClock() {
-    instruction_ = instruction_buffer_;
+    cycle_buffer_ = instruction_.NextCycle(cycle_);
   }
 
   public void PostClock() {
     // TODO Add interrupt and exception check?
-    cycle_ = instruction_.NextCycle(cycle_);
+    cycle_ = cycle_buffer_;
     UpdateOutput(OutputId.StateMachineCycle);
   }
   
   // AbstractPropagator
   public void Notify(BitWord data, OutputId sender, InputId receiver,
                      Object arg) {
+    // TODO create an input id instead. This is bad for test mode.
     assert sender == OutputId.Ir;
-    instruction_buffer_ = Instruction.FromBitWord(data);
+    instruction_ = Instruction.FromBitWord(data);
+    UpdateOutput(OutputId.StateMachineInstruction);
   }
   
-  public BitWord ComputeOutput(OutputId unused) {
-    return cycle_.as_BitWord();
+  public BitWord ComputeOutput(OutputId id) {
+    if (id == OutputId.StateMachineCycle) {
+      return cycle_.as_BitWord();
+    } else if (id == OutputId.StateMachineInstruction) {
+      return instruction_.bitword();
+    } else {
+      assert false;
+      return null;
+    }
   }
   
   private CycleClock clock_;
   private InstructionCycle cycle_;
+  private InstructionCycle cycle_buffer_;  // For Synchronized
   private Instruction instruction_;
-  private Instruction instruction_buffer_;  // For implementing Synchronized
 }

@@ -40,8 +40,8 @@ public class BitWord {
     return bits_[bit_index];
   }
   
-  // Returns true if this and 'cmp' have the same value. If 'signed', values
-  // are treated as 2's complement and sign-extended.
+  // Returns true if this and 'cmp' have the same value even if they have
+  // different lengths. If 'signed', values are treated as 2's complement.
   public boolean IsEqual(BitWord cmp, boolean signed) {
     if (cmp == null) {
       return false;
@@ -58,6 +58,16 @@ public class BitWord {
       }
     }
     return equal;
+  }
+  
+  // Checks if both value and number of bits are the same. Is not a check
+  // on address.
+  public boolean IsIdentical(BitWord cmp) {
+    if (cmp == null) {
+      return false;
+    } else {
+      return (num_bits() == cmp.num_bits()) && IsEqual(cmp, false);
+    }
   }
   
   // Default equals method treats comparison as unsigned.
@@ -113,7 +123,8 @@ public class BitWord {
   }
   
   public BitWord GetBitRange(int high_bit, int low_bit) {
-    return new BitWord(java.util.Arrays.copyOfRange(bits_, low_bit, high_bit));
+    return new BitWord(
+        java.util.Arrays.copyOfRange(bits_, low_bit, high_bit + 1));
   }
   
   public int num_bits() {
@@ -173,6 +184,16 @@ public class BitWord {
       }
     }
     return residual;
+  }
+  
+  // Convenience method for avoiding null-checking when comparing two BitWords
+  // where either could be null.
+  public static boolean Identical(BitWord a, BitWord b) {
+    if (a == null) {
+      return b == null;
+    } else {
+      return a.IsIdentical(b);
+    }
   }
   
   public static BitWord FromBoolean(boolean bool) {

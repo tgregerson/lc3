@@ -48,6 +48,7 @@ public enum OutputId {
 
 	// Control drivers
 	StateMachineCycle,
+	StateMachineInstruction,
 
 	// Control signals
 	ControlAddr1MuxSelect,

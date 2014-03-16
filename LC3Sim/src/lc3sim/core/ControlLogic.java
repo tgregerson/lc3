@@ -68,7 +68,7 @@ public class ControlLogic extends AbstractPropagator {
         assert cycle_ != null;
         break;
       case ControlInstruction:
-        assert(data.num_bits() == 16);
+        assert(data.num_bits() == Instruction.kNumBits);
         if (Instruction.OpCodeFromBitWord(data) == OpCode.RESERVED) {
           // TODO: Trigger Exception
           assert false;
@@ -77,7 +77,7 @@ public class ControlLogic extends AbstractPropagator {
         }
         break;
       case ControlPsr:
-        assert(data.num_bits() == 16);
+        assert(data.num_bits() == ProcessorStatusRegister.kNumBits);
         psr_ = data;
         break;
       default:

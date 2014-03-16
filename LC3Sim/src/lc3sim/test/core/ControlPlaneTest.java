@@ -29,13 +29,20 @@ public class ControlPlaneTest {
     for (ListenerCallback cb : control_set_callbacks) {
       control_logic_.RegisterListenerCallback(cb);
     }
+    control_logic_.Notify(psr_.Read(), OutputId.Psr, InputId.ControlPsr, null);
     
     state_machine_.RegisterListenerCallback(
         new ListenerCallback(control_logic_, OutputId.StateMachineCycle,
                              InputId.ControlState, null));
     state_machine_.RegisterListenerCallback(
+        new ListenerCallback(control_logic_, OutputId.StateMachineInstruction,
+                             InputId.ControlInstruction, null));
+    state_machine_.RegisterListenerCallback(
         cycle_listener_.GetCallback(OutputId.StateMachineCycle, null));
     state_machine_.Reset();
+
+    state_machine_.Notify(
+        prior_instruction_.bitword(), OutputId.Ir, null, null);
   }
 
   @After
@@ -44,23 +51,84 @@ public class ControlPlaneTest {
 
   @Test
   public void AddInstructionTest() {
-    assertTrue(cycle_listener_.CheckSequence().isEmpty());
-    LinkedList<BitWord> check_sequence = new LinkedList<BitWord>();
-    check_sequence.add(InstructionCycle.kFetchInstruction1.as_BitWord());
-    check_sequence.add(InstructionCycle.kFetchInstruction2.as_BitWord());
-    check_sequence.add(InstructionCycle.kFetchInstruction3.as_BitWord());
-    cycle_listener_.AppendCheckSequence(check_sequence);
-
     // DR = 3, SR1 = 1, SR2 = 2
     BitWord bits = BitWord.FromInt(0x1642, kWordSize);
     Instruction instruction = Instruction.FromBitWord(bits);
     assertEquals(OpCode.ADD, instruction.op_code());
     assertTrue(instruction instanceof AddInstruction);
-    state_machine_.Notify(bits, OutputId.Ir, null, null);
-    
-    TestFetchInstruction();
 
     assertTrue(cycle_listener_.CheckSequence().isEmpty());
+    cycle_listener_.AppendCheckSequence(
+        GetCycleCheckSequence(instruction.op_code()));
+
+    TestAllInstructionCycles(instruction);
+
+    assertTrue(cycle_listener_.CheckSequence().isEmpty());
+  }
+  
+  private List<BitWord> GetCycleCheckSequence(OpCode op_code) {
+    LinkedList<BitWord> check_sequence = new LinkedList<BitWord>();
+    check_sequence.add(InstructionCycle.kFetchInstruction1.as_BitWord());
+    check_sequence.add(InstructionCycle.kFetchInstruction2.as_BitWord());
+    check_sequence.add(InstructionCycle.kFetchInstruction3.as_BitWord());
+    // TODO RESERVED should go directly to interrupt at this point.
+    switch (op_code) {
+      case LD:    // Fallthrough intended.
+      case LDR:   // Fallthrough intended.
+      case ST:    // Fallthrough intended.
+      case STR:   // Fallthrough intended.
+      case TRAP:
+        check_sequence.add(InstructionCycle.kEvaluateAddress1.as_BitWord());
+        check_sequence.add(InstructionCycle.kFetchOperands1.as_BitWord());
+        check_sequence.add(InstructionCycle.kExecuteOperation1.as_BitWord());
+        break;
+      case LDI:   // Fallthrough intended.
+      case STI:
+        check_sequence.add(InstructionCycle.kEvaluateAddress1.as_BitWord());
+        check_sequence.add(InstructionCycle.kFetchOperands1.as_BitWord());
+        check_sequence.add(InstructionCycle.kExecuteOperation1.as_BitWord());
+        check_sequence.add(InstructionCycle.kExecuteOperation2.as_BitWord());
+        break;
+      case RESERVED:
+        assert false;
+      case RTI:
+        assert false;
+      default:
+        break;
+    }
+    check_sequence.add(InstructionCycle.kStoreResult1.as_BitWord());
+    return check_sequence;
+  }
+
+  private void TestAllInstructionCycles(Instruction instruction) {
+    TestFetchInstruction();
+
+    // Give the state machine the new instruction that should be loaded from
+    // FetchInstruction.
+    state_machine_.Notify(instruction.bitword(), OutputId.Ir,
+                          InputId.DontCare, null);
+
+    // TODO RESERVED should go directly to interrupt at this point.
+    switch (instruction.op_code()) {
+      case LD:    // Fallthrough intended.
+      case LDI:   // Fallthrough intended.
+      case LDR:   // Fallthrough intended.
+      case ST:    // Fallthrough intended.
+      case STI:   // Fallthrough intended.
+      case STR:   // Fallthrough intended.
+      case TRAP:
+        TestEvaluateAddress(instruction);
+        TestFetchOperands(instruction);
+        TestExecuteOperation(instruction);
+        break;
+      case RTI:
+      case RESERVED:
+        assert false;
+      default:
+        break;
+    }
+    TestStoreResult(instruction);
+    prior_instruction_ = instruction;
   }
   
   private void TestFetchInstruction() {
@@ -85,6 +153,7 @@ public class ControlPlaneTest {
     control_set_listener_.CurrentControlSet().AssertEquals(
         prior_instruction_.ControlSet(
             InstructionCycle.kFetchInstruction3, psr_.Read()));
+
   }
   
   private void TestEvaluateAddress(Instruction current_instruction) {
@@ -120,6 +189,15 @@ public class ControlPlaneTest {
           current_instruction.ControlSet(
               InstructionCycle.kExecuteOperation2, psr_.Read()));
     }
+  }
+
+  private void TestStoreResult(Instruction current_instruction) {
+    assertEquals(true, state_machine_.IsRunning());
+    // Go to FetchOperands1
+    state_machine_.ExecuteCurrentCycle();
+    control_set_listener_.CurrentControlSet().AssertEquals(
+        current_instruction.ControlSet(
+            InstructionCycle.kStoreResult1, psr_.Read()));
   }
   
   private CycleClock cycle_clock_;
