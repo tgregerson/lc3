@@ -11,6 +11,12 @@ public class ProcessorStatusRegister extends Register {
     super(kNumBits, InputId.DontCare, InputId.PsrLoad, OutputId.Psr);
   }
   
+  public void Init() {
+    q_ = (new BitWord(kNumBits)).SetBit(kZBit, true);
+    d_ = q_;
+    UpdateOutput(OutputId.Psr);
+  }
+  
   public void Notify(BitWord data, OutputId sender, InputId receiver,
                      Object arg) {
     if (sender == OutputId.External) {
@@ -25,11 +31,6 @@ public class ProcessorStatusRegister extends Register {
                   SetBit(kZBit, data.TestBit(kZBit)).
                   SetBit(kPBit, data.TestBit(kPBit));
           break;
-        case Pc:
-          // Set the privilege bit to 0 when in kernel memory regions:
-          // 0x0000 ~ 0x3000.
-          Boolean user_region = data.ToInt() >= 0x03000;
-          d_ = d_.SetBit(kPrivilegeBit, user_region);
         // TODO: Add load enable
         default:
           assert false;

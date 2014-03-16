@@ -3,6 +3,10 @@ package lc3sim.core;
 import java.util.HashSet;
 
 public class CycleClock {
+  public CycleClock() {
+    elements_ = new HashSet<Synchronized>();
+  }
+
   public void Init() {
     RemoveAllElements();
   }

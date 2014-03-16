@@ -9,6 +9,7 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
   // States for the phase state machine. These states may last for multiple
   // clock cycles in the LC3 architecture.
   public enum InstructionPhase {
+    kReset,
     kFetchInstruction,
     kEvaluateAddress,
     kFetchOperands,
@@ -22,15 +23,16 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
   // States for the cycle state machine. These states represent one clock cycle
   // in the LC3 architecture.
   public enum InstructionCycle {
-    kFetchInstruction1(0),
-    kFetchInstruction2(1),
-    kFetchInstruction3(2),
-    kEvaluateAddress1(3),
-    kFetchOperands1(4),
-    kExecuteOperation1(5),
-    kExecuteOperation2(6),
-    kStoreResult1(7),
-    kDispatchInterrupt1(8);
+    kReset(0),
+    kFetchInstruction1(1),
+    kFetchInstruction2(2),
+    kFetchInstruction3(3),
+    kEvaluateAddress1(4),
+    kFetchOperands1(5),
+    kExecuteOperation1(6),
+    kExecuteOperation2(7),
+    kStoreResult1(8),
+    kDispatchInterrupt1(9);
     
     private InstructionCycle(int code) {
       code_as_int_ = code;
@@ -75,17 +77,36 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
   }
   
   public void Init() {
-    phase_ = InstructionPhase.kFetchInstruction;
-    cycle_ = InstructionCycle.kFetchInstruction1;
+    Reset();
     instruction_ = Instruction.FromBitWord(new BitWord(Instruction.kNumBits));
     // TODO Check on whether additional mechanism are necessary to ensure the
     // system initializes properly regardless of order of construction and
     // adding of listeners.
   }
   
+  public boolean IsRunning() {
+    return InstructionCycle.kReset != cycle_;
+  }
+  
+  public void Start() {
+    assert !(IsRunning());
+    phase_ = InstructionPhase.kFetchInstruction;
+    cycle_ = InstructionCycle.kFetchInstruction1;
+    UpdateOutput(OutputId.StateMachineCycle);
+  }
+  
+  public void Reset() {
+    phase_ = InstructionPhase.kReset;
+    cycle_ = InstructionCycle.kReset;
+    UpdateOutput(OutputId.StateMachineCycle);
+  }
+  
   // Executes the phase in 'phase_' and advances it to the next phase.
   public void ExecuteCurrentPhase() {
     switch (phase_) {
+      case kReset:
+        assert false;
+        break;
       case kFetchInstruction:
         FetchInstruction();
         break;
@@ -118,6 +139,8 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
   
   private InstructionPhase NextPhase() {
     switch (phase_) {
+      case kReset:
+        return InstructionPhase.kReset;
       case kFetchInstruction:
         // Instructions that do not access memory can skip phases.
         switch (instruction_.op_code()) {
@@ -155,6 +178,9 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
   }
 
   private InstructionCycle NextCycle() {
+    if (cycle_ != null) {
+      System.out.println(cycle_.name());
+    }
     switch (cycle_) {
       case kFetchInstruction1:
         return InstructionCycle.kFetchInstruction2;

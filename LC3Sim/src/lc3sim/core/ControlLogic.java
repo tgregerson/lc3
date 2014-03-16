@@ -17,7 +17,7 @@ public class ControlLogic extends AbstractPropagator {
   }
   
   public void Init() {
-    cycle_ = InstructionCycle.kFetchInstruction1;
+    cycle_ = InstructionCycle.kReset;
     instruction_ = Instruction.FromBitWord(new BitWord(Instruction.kNumBits));
     psr_ = new BitWord(ProcessorStatusRegister.kNumBits);
     current_control_set_ = new ControlSet();
@@ -26,6 +26,10 @@ public class ControlLogic extends AbstractPropagator {
   public void UpdateAllOutputs() {
     UpdateOutput(OutputId.ControlAddr1MuxSelect);
     UpdateOutput(OutputId.ControlAddr2MuxSelect);
+    UpdateOutput(OutputId.ControlAluTriEnable);
+    UpdateOutput(OutputId.ControlAluK);
+    UpdateOutput(OutputId.ControlBusDecrementerTriEnable);
+    UpdateOutput(OutputId.ControlBusIncrementerTriEnable);
     UpdateOutput(OutputId.ControlGprDrLoad);
     UpdateOutput(OutputId.ControlGprDrAddr);
     UpdateOutput(OutputId.ControlGprSr1Addr);
@@ -33,17 +37,20 @@ public class ControlLogic extends AbstractPropagator {
     UpdateOutput(OutputId.ControlIrLoad);
     UpdateOutput(OutputId.ControlMarLoad);
     UpdateOutput(OutputId.ControlMarMuxSelect);
+    UpdateOutput(OutputId.ControlMarMuxTriEnable);
     UpdateOutput(OutputId.ControlMdrLoad);
     UpdateOutput(OutputId.ControlMdrMuxSelect);
+    UpdateOutput(OutputId.ControlMdrTriEnable);
     UpdateOutput(OutputId.ControlMemoryWriteEnable);
     UpdateOutput(OutputId.ControlPcLoad);
+    UpdateOutput(OutputId.ControlPcTriEnable);
     UpdateOutput(OutputId.ControlPcMuxSelect);
     UpdateOutput(OutputId.ControlPsrLoad);
+    UpdateOutput(OutputId.ControlSavedSpMuxSelect);
+    UpdateOutput(OutputId.ControlSavedSpMuxTriEnable);
+    UpdateOutput(OutputId.ControlSavedSspLoad);
+    UpdateOutput(OutputId.ControlSavedUspLoad);
     UpdateOutput(OutputId.ControlSr2MuxSelect);
-    UpdateOutput(OutputId.ControlPcTriEnable);
-    UpdateOutput(OutputId.ControlMarMuxTriEnable);
-    UpdateOutput(OutputId.ControlMdrTriEnable);
-    UpdateOutput(OutputId.ControlAluTriEnable);
   }
   
   private void UpdateCurrentControlSet() {
@@ -77,32 +84,41 @@ public class ControlLogic extends AbstractPropagator {
       default:
         assert false;
     }
-    UpdateCurrentControlSet();
-    UpdateAllOutputs();
+    if (cycle_ != InstructionCycle.kReset) {
+      UpdateCurrentControlSet();
+      UpdateAllOutputs();
+    }
   }
   
   public BitWord ComputeOutput(OutputId output_id) {
     switch (output_id) {
-      case ControlPcLoad: return current_control_set_.pc_load;
-      case ControlIrLoad: return current_control_set_.ir_load;
-      case ControlMarLoad: return current_control_set_.mar_load;    
-      case ControlMdrLoad: return current_control_set_.mdr_load;
-      case ControlPsrLoad: return current_control_set_.psr_load;
+      case ControlAluK: return current_control_set_.alu_k;
+      case ControlAluTriEnable: return current_control_set_.alu_tri_enable;
+      case ControlAddr1MuxSelect: return current_control_set_.addr1_mux_select;
+      case ControlAddr2MuxSelect: return current_control_set_.addr2_mux_select;
+      case ControlBusDecrementerTriEnable: return current_control_set_.bus_decrementer_tri_enable;
+      case ControlBusIncrementerTriEnable: return current_control_set_.bus_incrementer_tri_enable;
       case ControlGprDrLoad: return current_control_set_.gpr_dr_load;
       case ControlGprDrAddr: return current_control_set_.gpr_dr_addr;
       case ControlGprSr1Addr: return current_control_set_.gpr_sr1_addr;
       case ControlGprSr2Addr: return current_control_set_.gpr_sr2_addr;
+      case ControlIrLoad: return current_control_set_.ir_load;
+      case ControlPcLoad: return current_control_set_.pc_load;
+      case ControlMarLoad: return current_control_set_.mar_load;    
+      case ControlMdrLoad: return current_control_set_.mdr_load;
+      case ControlMarMuxSelect: return current_control_set_.mar_mux_select;
+      case ControlMarMuxTriEnable: return current_control_set_.mar_mux_tri_enable;
+      case ControlMdrMuxSelect: return current_control_set_.mdr_mux_select;
+      case ControlMdrTriEnable: return current_control_set_.mdr_tri_enable;
       case ControlMemoryWriteEnable: return current_control_set_.memory_we;
       case ControlPcMuxSelect: return current_control_set_.pc_mux_select;
-      case ControlMarMuxSelect: return current_control_set_.mar_mux_select;
-      case ControlMdrMuxSelect: return current_control_set_.mdr_mux_select;
-      case ControlSr2MuxSelect: return current_control_set_.sr2_mux_select;
-      case ControlAddr1MuxSelect: return current_control_set_.addr1_mux_select;
-      case ControlAddr2MuxSelect: return current_control_set_.addr2_mux_select;
       case ControlPcTriEnable: return current_control_set_.pc_tri_enable;
-      case ControlMarMuxTriEnable: return current_control_set_.mar_mux_tri_enable;
-      case ControlMdrTriEnable: return current_control_set_.mdr_tri_enable;
-      case ControlAluTriEnable: return current_control_set_.alu_tri_enable;
+      case ControlPsrLoad: return current_control_set_.psr_load;
+      case ControlSavedSpMuxSelect: return current_control_set_.saved_sp_mux_select;
+      case ControlSavedSpMuxTriEnable: return current_control_set_.saved_sp_mux_tri_enable;
+      case ControlSavedSspLoad: return current_control_set_.saved_ssp_load;
+      case ControlSavedUspLoad: return current_control_set_.saved_usp_load;
+      case ControlSr2MuxSelect: return current_control_set_.sr2_mux_select;
       default:
         assert false;
         return null;
