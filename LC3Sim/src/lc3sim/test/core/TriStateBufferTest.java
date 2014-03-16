@@ -31,25 +31,25 @@ public class TriStateBufferTest {
     
     // Propagate input to listener on positive enable edge.
     tristate_.Notify(value1, OutputId.External, tri_data_id_, null);
-    assertFalse(listener_.last_bitword == value1);
+    assertFalse(value1.IsEqual(listener_.last_bitword, false));
     tristate_.Notify(BitWord.TRUE, OutputId.External, tri_enable_id_, null);
     assertEquals(listener_.last_bitword, value1);
     
     // Negative edge of enable updates listener to high impedance (null)
     tristate_.Notify(BitWord.FALSE, OutputId.External, tri_enable_id_, null);
-    assertTrue(listener_.last_bitword == null);
+    assertEquals(BitWord.EMPTY, listener_.last_bitword);
     
     // Change while enable is off is not propagated.
     tristate_.Notify(value2, OutputId.External, tri_data_id_, null);
-    assertTrue(listener_.last_bitword == null);
+    assertEquals(BitWord.EMPTY, listener_.last_bitword);
     
     // Turning on enable reflects the data change.
     tristate_.Notify(BitWord.TRUE, OutputId.External, tri_enable_id_, null);
-    assertEquals(listener_.last_bitword, value2);
+    assertEquals(value2, listener_.last_bitword);
     
     // Change of input while enabled is reflected immediately.
     tristate_.Notify(value1, OutputId.External, tri_data_id_, null);
-    assertEquals(listener_.last_bitword, value1);
+    assertEquals(value1, listener_.last_bitword);
   }
   
   private TriStateBuffer tristate_;

@@ -21,7 +21,7 @@ public class ControlPlaneTest {
     control_logic_ = new ControlLogic();
     cycle_listener_ = new TestListener(InputId.DontCare);
     control_set_listener_ = new TestControlSetListener();
-    prior_instruction_ = Instruction.FromBitWord(new BitWord(kWordSize));
+    prior_instruction_ = Instruction.FromBitWord(BitWord.Zeroes(kWordSize));
     psr_ = new ProcessorStatusRegister();
 
     List<ListenerCallback> control_set_callbacks =
@@ -90,9 +90,8 @@ public class ControlPlaneTest {
         check_sequence.add(InstructionCycle.kExecuteOperation2.as_BitWord());
         break;
       case RESERVED:
-        assert false;
       case RTI:
-        assert false;
+        assert false : op_code;
       default:
         break;
     }

@@ -4,14 +4,15 @@ package lc3sim.core;
 // they are immutable, any operation that changes a BitWord returns a new object
 // rather than altering the state of the current BitWord.
 public class BitWord {
-  public static final BitWord TRUE = FromBoolean(true);
-  public static final BitWord FALSE = FromBoolean(false);
+  public static final BitWord TRUE = new BitWord(new boolean[]{true});
+  public static final BitWord FALSE = new BitWord(new boolean[]{false});
+  public static final BitWord EMPTY = new BitWord(new boolean[]{});
   
-  public BitWord(int num_bits) {
+  private BitWord(int num_bits) {
     bits_ = new boolean[num_bits];
   }
   
-  public BitWord(boolean bits[]) {
+  private BitWord(boolean bits[]) {
     bits_ = java.util.Arrays.copyOf(bits, bits.length);
   }
   
@@ -45,6 +46,9 @@ public class BitWord {
   public boolean IsEqual(BitWord cmp, boolean signed) {
     if (cmp == null) {
       return false;
+    }
+    if (num_bits() == 0 || cmp.num_bits() == 0) {
+      return num_bits() == cmp.num_bits();
     }
     int length = this.num_bits() > cmp.num_bits() ?
                  this.num_bits() : cmp.num_bits();
@@ -96,7 +100,7 @@ public class BitWord {
               (op1.TestBit(i) && carry) ||
               (op2.TestBit(i) && carry);
     }
-    return new BitWord(sum);
+    return FromBooleanArray(sum);
   }
   
   // Sign extends operands to 'num_bits' and returns their bitwise logic AND.
@@ -107,23 +111,26 @@ public class BitWord {
     for (int i = 0; i < num_bits; ++ i) {
       result[i] = op1.TestBit(i) && op2.TestBit(i);
     }
-    return new BitWord(result);
+    return FromBooleanArray(result);
   }
   
   public BitWord SetBit(int bit_index, boolean value) {
     assert bit_index < bits_.length;
     boolean[] modified = new boolean[bits_.length];
     modified[bit_index] = value;
-    return new BitWord(modified);
+    return FromBooleanArray(modified);
   }
   
   public boolean IsNegative() {
-    assert bits_.length > 0;
-    return bits_[bits_.length - 1];
+    if (bits_.length == 0) {
+      return false;
+    } else {
+      return bits_[bits_.length - 1];
+    }
   }
   
   public BitWord GetBitRange(int high_bit, int low_bit) {
-    return new BitWord(
+    return FromBooleanArray(
         java.util.Arrays.copyOfRange(bits_, low_bit, high_bit + 1));
   }
   
@@ -144,7 +151,7 @@ public class BitWord {
           bits[i] = extend_val;
         }
       }
-      return new BitWord(bits);
+      return FromBooleanArray(bits);
     } else {
       return GetBitRange(new_num_bits - 1, 0);
     }
@@ -155,7 +162,7 @@ public class BitWord {
     for (int i = 0; i < bits.length; ++i) {
       bits[i] = !bits[i];
     }
-    return new BitWord(bits);
+    return FromBooleanArray(bits);
   }
 
   
@@ -196,9 +203,39 @@ public class BitWord {
     }
   }
   
+  // Returns a bitword with the specified number of bits, set to all zero.
+  public static BitWord Zeroes(int num_bits) {
+    if (num_bits == 0) {
+      return BitWord.EMPTY;
+    } else if (num_bits == 1) {
+      return BitWord.FALSE;
+    } else {
+      return new BitWord(num_bits);
+    }
+  }
+  
+  // Like the boolean[] constructor, but returns static instances for TRUE,
+  // FALSE, and EMPTY.
+  public static BitWord FromBooleanArray(boolean[] bools) {
+    if (bools.length == 0) {
+      return BitWord.EMPTY;
+    } else if (bools.length == 1) {
+      if (bools[0]) {
+        return BitWord.TRUE;
+      } else {
+        return BitWord.FALSE;
+      }
+    } else {
+      return new BitWord(bools);
+    }
+  }
+  
   public static BitWord FromBoolean(boolean bool) {
-    boolean bit[] = {bool};
-    return new BitWord(bit);
+    if (bool) {
+      return BitWord.TRUE;
+    } else {
+      return BitWord.FALSE;
+    }
   }
   
   public static BitWord FromInt(int value, int num_bits) {
@@ -207,7 +244,7 @@ public class BitWord {
       bits[i] = value % 2 != 0;
       value = value >> 1;
     }
-    return new BitWord(bits);
+    return FromBooleanArray(bits);
   }
   
   private boolean[] bits_;

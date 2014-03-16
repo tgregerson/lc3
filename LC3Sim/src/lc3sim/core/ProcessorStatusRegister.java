@@ -12,7 +12,7 @@ public class ProcessorStatusRegister extends Register {
   }
   
   public void Init() {
-    q_ = (new BitWord(kNumBits)).SetBit(kZBit, true);
+    q_ = BitWord.Zeroes(kNumBits).SetBit(kZBit, true);
     d_ = q_;
     UpdateOutput(OutputId.Psr);
   }

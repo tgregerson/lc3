@@ -42,7 +42,7 @@ public class MemoryTest {
 
     // Writes are synchronous
     memory_.Notify(BitWord.TRUE, int_sender, InputId.MemoryWriteEnable, null);
-    assertFalse(listener_.last_bitword == value1);
+    assertFalse(value1.IsEqual(listener_.last_bitword, false));
     memory_.PreClock();
     memory_.PostClock();
     assertEquals(value1, listener_.last_bitword);

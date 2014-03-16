@@ -31,8 +31,8 @@ public class PropagatorTest {
     
     // Notify propagator of new value
     BitWord new_value = BitWord.FromInt(12345, 32);
-    assertFalse(new_value == test_propagator_initial_value_);
-    assertFalse(new_value == test_listener_.last_bitword);
+    assertFalse(new_value.equals(test_propagator_initial_value_));
+    assertFalse(new_value.equals(test_listener_.last_bitword));
     test_propagator_.Notify(
         new_value, propagator_output1, other_input_id_, null);
     
@@ -62,8 +62,8 @@ public class PropagatorTest {
     
     // Notify propagator of new value
     BitWord new_value = BitWord.FromInt(12345, 32);
-    assertFalse(new_value == test_propagator_initial_value_);
-    assertFalse(new_value == test_listener_.last_bitword);
+    assertFalse(new_value.equals(test_propagator_initial_value_));
+    assertFalse(new_value.equals(test_listener_.last_bitword));
     test_propagator_.Notify(
         new_value, propagator_output1, other_input_id_, null);
     
@@ -116,7 +116,7 @@ public class PropagatorTest {
     assertEquals("Value should have propagated to listener1",
                  new_value1, test_listener1.last_bitword);
     assertFalse("Value should not have propagated to listener2",
-                 new_value1 == test_listener2.last_bitword);
+                 new_value1.equals(test_listener2.last_bitword));
 
     BitWord new_value2 = BitWord.FromInt(67890, 32);
     test_propagator_.Notify(

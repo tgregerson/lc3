@@ -13,7 +13,7 @@ public class ConstantAdder extends AbstractPropagator {
   }
   
   public void Init() {
-    input_buffer_ = new BitWord(bitwidth_);
+    input_buffer_ = BitWord.Zeroes(bitwidth_);
     UpdateOutput(out_id_);
   }
   

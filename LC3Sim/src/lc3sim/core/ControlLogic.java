@@ -17,8 +17,8 @@ public class ControlLogic extends AbstractPropagator {
   
   public void Init() {
     cycle_ = InstructionCycle.kReset;
-    instruction_ = Instruction.FromBitWord(new BitWord(Instruction.kNumBits));
-    psr_ = new BitWord(ProcessorStatusRegister.kNumBits);
+    instruction_ = Instruction.FromBitWord(BitWord.Zeroes(Instruction.kNumBits));
+    psr_ = BitWord.Zeroes(ProcessorStatusRegister.kNumBits);
     current_control_set_ = new ControlSet();
   }
   

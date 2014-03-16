@@ -15,7 +15,7 @@ public class InterruptInstruction extends Instruction {
   }
   
   public InterruptInstruction(InterruptType type) {  
-    super (new BitWord(Instruction.kNumBits));
+    super (BitWord.Zeroes(Instruction.kNumBits));
   }
 
   public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {

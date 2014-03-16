@@ -4,33 +4,33 @@ package lc3sim.core;
 public class ControlSet {
   // All control lines are set to zero.
   public ControlSet() {
-    addr1_mux_select = new BitWord(ArchitecturalState.kNumAddr1MuxSelectBits);
-    addr2_mux_select = new BitWord(ArchitecturalState.kNumAddr2MuxSelectBits);
-    alu_k = new BitWord(ALU.kNumModeBits);
+    addr1_mux_select = BitWord.Zeroes(ArchitecturalState.kNumAddr1MuxSelectBits);
+    addr2_mux_select = BitWord.Zeroes(ArchitecturalState.kNumAddr2MuxSelectBits);
+    alu_k = BitWord.Zeroes(ALU.kNumModeBits);
     bus_decrementer_tri_enable = BitWord.FALSE;
     bus_incrementer_tri_enable = BitWord.FALSE;
     alu_tri_enable = BitWord.FALSE;
-    gpr_dr_addr = new BitWord(RegisterFile.kNumAddrBits);
+    gpr_dr_addr = BitWord.Zeroes(RegisterFile.kNumAddrBits);
     gpr_dr_load = BitWord.FALSE;
-    gpr_sr1_addr = new BitWord(RegisterFile.kNumAddrBits);
-    gpr_sr2_addr = new BitWord(RegisterFile.kNumAddrBits);
+    gpr_sr1_addr = BitWord.Zeroes(RegisterFile.kNumAddrBits);
+    gpr_sr2_addr = BitWord.Zeroes(RegisterFile.kNumAddrBits);
     ir_load = BitWord.FALSE;
     mar_load = BitWord.FALSE;
-    mar_mux_select = new BitWord(ArchitecturalState.kNumMarMuxSelectBits);
+    mar_mux_select = BitWord.Zeroes(ArchitecturalState.kNumMarMuxSelectBits);
     mar_mux_tri_enable = BitWord.FALSE;
     mdr_load = BitWord.FALSE;
-    mdr_mux_select = new BitWord(ArchitecturalState.kNumMdrMuxSelectBits);
+    mdr_mux_select = BitWord.Zeroes(ArchitecturalState.kNumMdrMuxSelectBits);
     mdr_tri_enable = BitWord.FALSE;
     memory_we = BitWord.FALSE;
     pc_load = BitWord.FALSE;
-    pc_mux_select = new BitWord(ArchitecturalState.kNumPcMuxSelectBits);
+    pc_mux_select = BitWord.Zeroes(ArchitecturalState.kNumPcMuxSelectBits);
     pc_tri_enable = BitWord.FALSE;
     psr_load = BitWord.FALSE;
     saved_sp_mux_select = BitWord.FALSE;
     saved_sp_mux_tri_enable = BitWord.FALSE;
     saved_ssp_load = BitWord.FALSE;
     saved_usp_load = BitWord.FALSE;
-    sr2_mux_select = new BitWord(ArchitecturalState.kNumSr2MuxSelectBits);
+    sr2_mux_select = BitWord.Zeroes(ArchitecturalState.kNumSr2MuxSelectBits);
   }
   
   @Override

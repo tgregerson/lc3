@@ -10,10 +10,10 @@ public class ALU extends AbstractPropagator {
   }
   
   public void Init() {
-    op_a_ = new BitWord(bitwidth_);
-    op_b_ = new BitWord(bitwidth_);
-    op_code_ = new BitWord(op_code_width_);
-    SetCurrentOutput(out_id_, new BitWord(bitwidth_));
+    op_a_ = BitWord.Zeroes(bitwidth_);
+    op_b_ = BitWord.Zeroes(bitwidth_);
+    op_code_ = BitWord.Zeroes(op_code_width_);
+    SetCurrentOutput(out_id_, BitWord.Zeroes(bitwidth_));
   }
   
   @Override

@@ -12,11 +12,11 @@ public class Memory extends AbstractPropagator implements Synchronized {
   public void Init() {
     data_ = new BitWord[num_entries_];
     for (int i = 0; i < num_entries_; ++i) {
-      data_[i] = new BitWord(kWordSize);
+      data_[i] = BitWord.Zeroes(kWordSize);
     }
-    addr_buffer_ = new BitWord(kNumAddrBits);
+    addr_buffer_ = BitWord.Zeroes(kNumAddrBits);
     write_enable_buffer_ = false;
-    data_in_buffer_ = new BitWord(kWordSize);
+    data_in_buffer_ = BitWord.Zeroes(kWordSize);
   }
   
   // Basic Propagator interface

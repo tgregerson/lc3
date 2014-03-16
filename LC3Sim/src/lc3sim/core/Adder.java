@@ -10,8 +10,8 @@ public class Adder extends AbstractPropagator {
   }
   
   public void Init() {
-    op_a_ = new BitWord(bitwidth_);
-    op_b_ = new BitWord(bitwidth_);
+    op_a_ = BitWord.Zeroes(bitwidth_);
+    op_b_ = BitWord.Zeroes(bitwidth_);
     UpdateOutput(out_id_);
   }
   

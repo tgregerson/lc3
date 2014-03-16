@@ -14,7 +14,7 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
   
   public void Init() {
     Reset();
-    instruction_ = Instruction.FromBitWord(new BitWord(Instruction.kNumBits));
+    instruction_ = Instruction.FromBitWord(BitWord.Zeroes(Instruction.kNumBits));
     // TODO Check on whether additional mechanism are necessary to ensure the
     // system initializes properly regardless of order of construction and
     // adding of listeners.

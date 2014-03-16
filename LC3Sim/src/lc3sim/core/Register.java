@@ -13,7 +13,7 @@ public class Register extends AbstractPropagator
   }
   
   public void Init() {
-    d_ = q_ = new BitWord(num_bits_);
+    d_ = q_ = BitWord.Zeroes(num_bits_);
     en_ = false;
     UpdateOutput(out_id_);
   }

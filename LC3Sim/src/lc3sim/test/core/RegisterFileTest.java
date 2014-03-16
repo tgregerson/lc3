@@ -42,11 +42,11 @@ public class RegisterFileTest {
     register_file_.Notify(addr1, int_sender, InputId.GprSr1Addr, null);
     register_file_.PreClock();
     register_file_.PostClock();
-    assertFalse(sr1_listener_.last_bitword == value1);
+    assertFalse(value1.equals(sr1_listener_.last_bitword));
 
     // Writes are synchronous
     register_file_.Notify(BitWord.TRUE, int_sender, InputId.GprDrLoad, null);
-    assertFalse(sr1_listener_.last_bitword == value1);
+    assertFalse(value1.equals(sr1_listener_.last_bitword));
     register_file_.PreClock();
     register_file_.PostClock();
     assertEquals(value1, sr1_listener_.last_bitword);

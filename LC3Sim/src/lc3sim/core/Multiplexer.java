@@ -24,10 +24,10 @@ public class Multiplexer extends AbstractPropagator {
   }
   
   public void Init() {
-    address_buffer_ = new BitWord(num_addr_bits_);
+    address_buffer_ = BitWord.Zeroes(num_addr_bits_);
     input_buffers_ = new BitWord[num_inputs_];
     for (int i = 0; i < num_inputs_; ++i) {
-      input_buffers_[i] = new BitWord(num_data_bits_);
+      input_buffers_[i] = BitWord.Zeroes(num_data_bits_);
     }
   }
   

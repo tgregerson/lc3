@@ -17,7 +17,7 @@ public class BitExtender extends AbstractPropagator {
   }
   
   public void Init() {
-    input_buffer_ = new BitWord(output_bits_);
+    input_buffer_ = BitWord.Zeroes(output_bits_);
     UpdateOutput(out_id_);
   }
   

@@ -26,7 +26,7 @@ public class BranchFlagLogic extends AbstractPropagator{
   }
   
   public BitWord ComputeOutput(OutputId unused) {
-    BitWord out = new BitWord(3);
+    BitWord out = BitWord.Zeroes(3);
     out = out.SetBit(n_index_, n_);
     out = out.SetBit(z_index_, z_);
     out = out.SetBit(p_index_, p_);

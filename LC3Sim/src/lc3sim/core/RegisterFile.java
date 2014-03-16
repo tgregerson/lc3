@@ -12,11 +12,11 @@ public class RegisterFile extends AbstractPropagator implements Synchronized {
   public void Init() {
     regs_ = new BitWord[num_entries_];
     for (int i = 0; i < num_entries_; ++i) {
-      regs_[i] = new BitWord(kWordSize);
+      regs_[i] = BitWord.Zeroes(kWordSize);
     }
-    sr1_addr_ = sr2_addr_ = dr_addr_ = new BitWord(kNumAddrBits);
+    sr1_addr_ = sr2_addr_ = dr_addr_ = BitWord.Zeroes(kNumAddrBits);
     dr_load_enable_ = false;
-    dr_in_ = new BitWord(kWordSize);
+    dr_in_ = BitWord.Zeroes(kWordSize);
   }
   
   // Basic Propagator interface
