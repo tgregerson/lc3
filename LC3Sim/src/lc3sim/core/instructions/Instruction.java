@@ -2,28 +2,20 @@ package lc3sim.core.instructions;
 
 import lc3sim.core.BitWord;
 import lc3sim.core.ControlSet;
-import lc3sim.core.StateMachine.InstructionCycle;;
+import lc3sim.core.InstructionCycle;;
 
+// Instructions are an abstraction for state machine logic based on the
+// contents of the instruction register. Their purpose is to simplify and
+// modularize the logic for determining the next state and the output of the
+// control signals.
+//
+// Children of Instruction must implement methods for determining the next state
+// based on the current state and for generating a control set based on the
+// current state.
 public abstract class Instruction {
   public static final int kNumBits = 16;
 
-  protected Instruction(BitWord bitword) {
-    assert bitword.num_bits() == kNumBits;
-    bitword_ = bitword;
-    op_code_ = OpCodeFromBitWord(bitword);
-    assert op_code_ != null;
-  }
-  
-  public OpCode op_code() {
-    return op_code_;
-  }
-
-  public static OpCode OpCodeFromBitWord(BitWord bitword) {
-    assert bitword.num_bits() == kNumBits;
-    return OpCode.Lookup(
-        bitword.GetBitRange(kOpCodeHighBit, kOpCodeLowBit));
-  }
-  
+  // Public methods
   // Factory method to create a child instruction from a 16-bit BitWord.
   public static Instruction FromBitWord(BitWord bitword) {
     OpCode op_code = OpCodeFromBitWord(bitword);
@@ -48,8 +40,42 @@ public abstract class Instruction {
         return null;
     }
   }
-  
-  public abstract ControlSet ControlSet(InstructionCycle cycle, BitWord psr);
+
+  public OpCode op_code() {
+    return op_code_;
+  }
+
+  public static OpCode OpCodeFromBitWord(BitWord bitword) {
+    assert bitword.num_bits() == kNumBits;
+    return OpCode.Lookup(
+        bitword.GetBitRange(kOpCodeHighBit, kOpCodeLowBit));
+  }
+
+  public abstract InstructionCycle NextCycle(
+      InstructionCycle current_cycle);
+
+  // Children should override to handle non-fetch states.
+  public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
+    switch (cycle) {
+      case kFetchInstruction1:
+        return FetchInstruction1ControlSet();
+      case kFetchInstruction2:
+        return FetchInstruction2ControlSet();
+      case kFetchInstruction3:
+        return FetchInstruction3ControlSet();
+      default:
+        // Unused
+        assert false;
+        return null;
+    }
+  }
+
+  protected Instruction(BitWord bitword) {
+    assert bitword.num_bits() == kNumBits;
+    bitword_ = bitword;
+    op_code_ = OpCodeFromBitWord(bitword);
+    assert op_code_ != null;
+  }
   
   // Sets control values that can be safely assigned based on IR bits regardless
   // instruction or state context.
@@ -83,136 +109,6 @@ public abstract class Instruction {
     control_set.mdr_tri_enable = BitWord.TRUE;
     control_set.ir_load = BitWord.TRUE;
     return control_set;
-  }
-  
-  // Below are convenience methods for accessing named fields from the LC3 ISA.
-  // A given instruction only has access to some named fields. If a child
-  // instruction class has the field, it should override the corresponding
-  // methods in its implementation.
-  public Boolean has_sr1() {
-    return false;
-  }
-  
-  public BitWord sr1() {
-    assert false;
-    return null;
-  }
-  
-  public Boolean has_sr2() {
-    return false;
-  }
-  
-  public BitWord sr2() {
-    assert false;
-    return null;
-  }
-  
-  public Boolean has_sr() {
-    return false;
-  }
-  
-  public BitWord sr() {
-    assert false;
-    return null;
-  }
-  
-  public Boolean has_base_r() {
-    return false;
-  }
-
-  public BitWord base_r() {
-    assert false;
-    return null;
-  }
-  
-  public Boolean has_dr() {
-    return false;
-  }
-  
-  public BitWord dr() {
-    assert false;
-    return null;
-  }
-  
-  public Boolean has_imm5() {
-    return false;
-  }
-  
-  public BitWord imm5() {
-    assert false;
-    return null;
-  }
-  
-  public Boolean has_pcoffset9() {
-    return false;
-  }
-  
-  public BitWord pcoffset9() {
-    assert false;
-    return null;
-  }
-
-  public Boolean has_pcoffset11() {
-    return false;
-  }
-  
-  public BitWord pcoffset11() {
-    assert false;
-    return null;
-  }
-
-  public Boolean has_offset6() {
-    return false;
-  }
-  
-  public BitWord offset6() {
-    assert false;
-    return null;
-  }
-
-  public Boolean has_trapvect8() {
-    return false;
-  }
-  
-  public BitWord trapvect8() {
-    assert false;
-    return null;
-  }
-  
-  public Boolean has_n() {
-    return false;
-  }
-  
-  public Boolean n() {
-    assert false;
-    return false;
-  }
-
-  public Boolean has_z() {
-    return false;
-  }
-  
-  public Boolean z() {
-    assert false;
-    return false;
-  }
-
-  public Boolean has_p() {
-    return false;
-  }
-  
-  public Boolean p() {
-    assert false;
-    return false;
-  }
-
-  public Boolean has_mode_bit() {
-    return false;
-  }
-  
-  public Boolean mode_bit() {
-    assert false;
-    return null;
   }
   
   protected BitWord bitword() {

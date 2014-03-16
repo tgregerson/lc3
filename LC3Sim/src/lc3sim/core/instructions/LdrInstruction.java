@@ -2,7 +2,7 @@ package lc3sim.core.instructions;
 
 import lc3sim.core.BitWord;
 import lc3sim.core.ControlSet;
-import lc3sim.core.StateMachine.InstructionCycle;
+import lc3sim.core.InstructionCycle;
 
 public class LdrInstruction extends Instruction {
   public LdrInstruction(BitWord bitword) {
@@ -12,22 +12,25 @@ public class LdrInstruction extends Instruction {
   @Override
   public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
-      case kFetchInstruction1:
-        return FetchInstruction1ControlSet();
-      case kFetchInstruction2:
-        return FetchInstruction2ControlSet();
-      case kFetchInstruction3:
-        return FetchInstruction3ControlSet();
-      case kEvaluateAddress1:
-        return EvaluateAddress1ControlSet();
-      case kFetchOperands1:
-        return FetchOperands1ControlSet();
-      case kExecuteOperation1:
-        return ExecuteOperation1ControlSet();
-      case kStoreResult1:
-        return StoreResult1ControlSet();
+      case kEvaluateAddress1: return EvaluateAddress1ControlSet();
+      case kFetchOperands1: return FetchOperands1ControlSet();
+      case kExecuteOperation1: return ExecuteOperation1ControlSet();
+      case kStoreResult1: return StoreResult1ControlSet();
+      default: return super.ControlSet(cycle, psr);
+    }
+  }
+
+  @Override
+  public InstructionCycle NextCycle(InstructionCycle current_cycle) {
+    switch (current_cycle) {
+      case kFetchInstruction1: return InstructionCycle.kFetchInstruction2;
+      case kFetchInstruction2: return InstructionCycle.kFetchInstruction3;
+      case kFetchInstruction3: return InstructionCycle.kEvaluateAddress1;
+      case kEvaluateAddress1: return InstructionCycle.kFetchOperands1;
+      case kFetchOperands1: return InstructionCycle.kExecuteOperation1;
+      case kExecuteOperation1: return InstructionCycle.kStoreResult1;
+      case kStoreResult1: return InstructionCycle.kFetchInstruction1;
       default:
-        // Unused
         assert false;
         return null;
     }
@@ -71,32 +74,14 @@ public class LdrInstruction extends Instruction {
     return control_set;
   }
 
-  @Override
-  public Boolean has_base_r() {
-    return true;
-  }
-
-  @Override
   public BitWord base_r() {
     return bitword().GetBitRange(kBaseRHighBit, kBaseRLowBit);
   }
   
-  @Override
-  public Boolean has_dr() {
-    return true;
-  }
-  
-  @Override
   public BitWord dr() {
     return bitword().GetBitRange(kDrHighBit, kDrLowBit);
   }
   
-  @Override
-  public Boolean has_offset6() {
-    return true;
-  }
-  
-  @Override
   public BitWord offset6() {
     return bitword().GetBitRange(kOffset6HighBit, kOffset6LowBit);
   }

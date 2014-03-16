@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.LinkedList;
 
 import lc3sim.core.*;
-import lc3sim.core.StateMachine.InstructionCycle;
 import lc3sim.core.instructions.*;
 
 public class ControlPlaneTest {
@@ -69,23 +68,58 @@ public class ControlPlaneTest {
     if (!state_machine_.IsRunning()) {
       state_machine_.Start();
     } else {
-      cycle_clock_.Tick();
+      state_machine_.ExecuteCurrentCycle();
     }
     control_set_listener_.CurrentControlSet().AssertEquals(
         prior_instruction_.ControlSet(
             InstructionCycle.kFetchInstruction1, psr_.Read()));
 
     // Go to FetchInstruction2
-    cycle_clock_.Tick();
+    state_machine_.ExecuteCurrentCycle();
     control_set_listener_.CurrentControlSet().AssertEquals(
         prior_instruction_.ControlSet(
             InstructionCycle.kFetchInstruction2, psr_.Read()));
 
     // Go to FetchInstruction3
-    cycle_clock_.Tick();
+    state_machine_.ExecuteCurrentCycle();
     control_set_listener_.CurrentControlSet().AssertEquals(
         prior_instruction_.ControlSet(
             InstructionCycle.kFetchInstruction3, psr_.Read()));
+  }
+  
+  private void TestEvaluateAddress(Instruction current_instruction) {
+    assertEquals(true, state_machine_.IsRunning());
+    // Go to EvaluateAddress1
+    state_machine_.ExecuteCurrentCycle();
+    control_set_listener_.CurrentControlSet().AssertEquals(
+        current_instruction.ControlSet(
+            InstructionCycle.kEvaluateAddress1, psr_.Read()));
+  }
+
+  private void TestFetchOperands(Instruction current_instruction) {
+    assertEquals(true, state_machine_.IsRunning());
+    // Go to FetchOperands1
+    state_machine_.ExecuteCurrentCycle();
+    control_set_listener_.CurrentControlSet().AssertEquals(
+        current_instruction.ControlSet(
+            InstructionCycle.kFetchOperands1, psr_.Read()));
+  }
+
+  private void TestExecuteOperation(Instruction current_instruction) {
+    assertEquals(true, state_machine_.IsRunning());
+    // Go to ExecuteOperation1
+    state_machine_.ExecuteCurrentCycle();
+    control_set_listener_.CurrentControlSet().AssertEquals(
+        current_instruction.ControlSet(
+            InstructionCycle.kExecuteOperation1, psr_.Read()));
+    if (current_instruction.op_code() == OpCode.LDI ||
+        current_instruction.op_code() == OpCode.STI) {
+      // Go to ExecuteOperation2
+      cycle_clock_.Tick();
+      control_set_listener_.CurrentControlSet().AssertEquals(
+          current_instruction.ControlSet(
+              InstructionCycle.kExecuteOperation2, psr_.Read()));
+    }
   }
   
   private CycleClock cycle_clock_;

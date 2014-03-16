@@ -2,7 +2,7 @@ package lc3sim.core.instructions;
 
 import lc3sim.core.BitWord;
 import lc3sim.core.ControlSet;
-import lc3sim.core.StateMachine.InstructionCycle;
+import lc3sim.core.InstructionCycle;
 
 // Class that manages the steps of executing an interrupt or exception.
 // Interrupts and exceptions are not real instructions, however they
@@ -51,4 +51,9 @@ public class InterruptInstruction extends Instruction {
     }
   }
 
+  @Override
+  public InstructionCycle NextCycle(InstructionCycle current_cycle) {
+    assert false;
+    return null;
+  }
 }

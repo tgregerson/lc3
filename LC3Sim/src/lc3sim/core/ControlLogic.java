@@ -1,6 +1,5 @@
 package lc3sim.core;
 
-import lc3sim.core.StateMachine.InstructionCycle;
 import lc3sim.core.instructions.Instruction;
 import lc3sim.core.instructions.OpCode;
 

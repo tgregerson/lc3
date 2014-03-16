@@ -2,7 +2,7 @@ package lc3sim.core.instructions;
 
 import lc3sim.core.BitWord;
 import lc3sim.core.ControlSet;
-import lc3sim.core.StateMachine.InstructionCycle;
+import lc3sim.core.InstructionCycle;
 
 public class JsrJsrrInstruction extends Instruction {
   public JsrJsrrInstruction(BitWord bitword) {
@@ -12,16 +12,19 @@ public class JsrJsrrInstruction extends Instruction {
   @Override
   public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
-      case kFetchInstruction1:
-        return FetchInstruction1ControlSet();
-      case kFetchInstruction2:
-        return FetchInstruction2ControlSet();
-      case kFetchInstruction3:
-        return FetchInstruction3ControlSet();
-      case kStoreResult1:
-        return StoreResult1ControlSet();
+      case kStoreResult1: return StoreResult1ControlSet();
+      default: return super.ControlSet(cycle, psr);
+    }
+  }
+
+  @Override
+  public InstructionCycle NextCycle(InstructionCycle current_cycle) {
+    switch (current_cycle) {
+      case kFetchInstruction1: return InstructionCycle.kFetchInstruction2;
+      case kFetchInstruction2: return InstructionCycle.kFetchInstruction3;
+      case kFetchInstruction3: return InstructionCycle.kStoreResult1;
+      case kStoreResult1: return InstructionCycle.kFetchInstruction1;
       default:
-        // Unused
         assert false;
         return null;
     }
@@ -53,32 +56,22 @@ public class JsrJsrrInstruction extends Instruction {
     return control_set;
   }
 
-  @Override
   public Boolean has_base_r() {
     return !mode_bit();
   }
 
-  @Override
   public BitWord base_r() {
     return bitword().GetBitRange(kBaseRHighBit, kBaseRLowBit);
   }
   
-  @Override
   public Boolean has_pcoffset11() {
     return mode_bit();
   }
   
-  @Override
   public BitWord pcoffset11() {
     return bitword().GetBitRange(kPcOffset11HighBit, kPcOffset11LowBit);
   }
 
-  @Override
-  public Boolean has_mode_bit() {
-    return true;
-  }
-  
-  @Override
   public Boolean mode_bit() {
     return bitword().TestBit(kModeBit);
   }

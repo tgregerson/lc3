@@ -2,7 +2,7 @@ package lc3sim.core.instructions;
 
 import lc3sim.core.BitWord;
 import lc3sim.core.ControlSet;
-import lc3sim.core.StateMachine.InstructionCycle;
+import lc3sim.core.InstructionCycle;
 
 public class RtiInstruction extends Instruction {
   public RtiInstruction(BitWord bitword) {
@@ -41,5 +41,11 @@ public class RtiInstruction extends Instruction {
         assert false;
         return null;
     }
+  }
+
+  @Override
+  public InstructionCycle NextCycle(InstructionCycle current_cycle) {
+    assert false;
+    return null;
   }
 }

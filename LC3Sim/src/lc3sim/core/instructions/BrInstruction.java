@@ -3,7 +3,7 @@ package lc3sim.core.instructions;
 import lc3sim.core.BitWord;
 import lc3sim.core.ControlSet;
 import lc3sim.core.ProcessorStatusRegister;
-import lc3sim.core.StateMachine.InstructionCycle;
+import lc3sim.core.InstructionCycle;
 
 public class BrInstruction extends Instruction {
   public BrInstruction(BitWord bitword) {
@@ -13,16 +13,19 @@ public class BrInstruction extends Instruction {
   @Override
   public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
-      case kFetchInstruction1:
-        return FetchInstruction1ControlSet();
-      case kFetchInstruction2:
-        return FetchInstruction2ControlSet();
-      case kFetchInstruction3:
-        return FetchInstruction3ControlSet();
-      case kStoreResult1:
-        return StoreResult1ControlSet(psr);
+      case kStoreResult1: return StoreResult1ControlSet(psr);
+      default: return super.ControlSet(cycle, psr);
+    }
+  }
+
+  @Override
+  public InstructionCycle NextCycle(InstructionCycle current_cycle) {
+    switch (current_cycle) {
+      case kFetchInstruction1: return InstructionCycle.kFetchInstruction2;
+      case kFetchInstruction2: return InstructionCycle.kFetchInstruction3;
+      case kFetchInstruction3: return InstructionCycle.kStoreResult1;
+      case kStoreResult1: return InstructionCycle.kFetchInstruction1;
       default:
-        // Unused
         assert false;
         return null;
     }
@@ -45,42 +48,18 @@ public class BrInstruction extends Instruction {
     return control_set;
   }
 
-  @Override
-  public Boolean has_pcoffset9() {
-    return true;
-  }
-  
-  @Override
   public BitWord pcoffset9() {
     return bitword().GetBitRange(kPcOffset9HighBit, kPcOffset9LowBit);
   }
   
-  @Override
-  public Boolean has_n() {
-    return true;
-  }
-  
-  @Override
   public Boolean n() {
     return bitword().TestBit(kBrNBit);
   }
 
-  @Override
-  public Boolean has_z() {
-    return true;
-  }
-  
-  @Override
   public Boolean z() {
     return bitword().TestBit(kBrZBit);
   }
 
-  @Override
-  public Boolean has_p() {
-    return true;
-  }
-  
-  @Override
   public Boolean p() {
     return bitword().TestBit(kBrPBit);
   }
