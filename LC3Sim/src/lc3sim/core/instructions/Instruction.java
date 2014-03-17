@@ -50,7 +50,7 @@ public abstract class Instruction {
   }
 
   public static OpCode OpCodeFromBitWord(BitWord bitword) {
-    assert bitword.num_bits() == kNumBits;
+    assert bitword.num_bits() == kNumBits : bitword.num_bits();
     return OpCode.Lookup(
         bitword.GetBitRange(kOpCodeHighBit, kOpCodeLowBit));
   }

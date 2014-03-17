@@ -6,11 +6,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.LinkedList;
 
 import lc3sim.core.*;
 import lc3sim.core.instructions.*;
+import lc3sim.test.core.instructions.*;
 
 public class ControlPlaneTest {
 
@@ -51,7 +53,6 @@ public class ControlPlaneTest {
 
   @Test
   public void AddInstructionTest() {
-    // DR = 3, SR1 = 1, SR2 = 2
     BitWord bits = BitWord.FromInt(0x1642, kWordSize);
     Instruction instruction = Instruction.FromBitWord(bits);
     assertEquals(OpCode.ADD, instruction.op_code());
@@ -64,6 +65,24 @@ public class ControlPlaneTest {
     TestAllInstructionCycles(instruction);
 
     assertTrue(cycle_listener_.CheckSequence().isEmpty());
+  }
+  
+  @Test
+  public void RandomInstructionStream() {
+    final int kRandomInstructionIterations = 1000;
+    assertTrue(cycle_listener_.CheckSequence().isEmpty());
+    HashSet<OpCode> blacklist = new HashSet<OpCode>();
+    blacklist.add(OpCode.RESERVED);
+    blacklist.add(OpCode.RTI);  // TODO remove from blacklist when ready.
+    for (int i = 0; i < kRandomInstructionIterations; ++i) {
+      Instruction instruction = 
+          InstructionTestUtil.RandomInstructionWithBlacklist(blacklist);
+      System.out.println("Testing " + instruction.op_code().name());
+      cycle_listener_.AppendCheckSequence(
+          GetCycleCheckSequence(instruction.op_code()));
+      TestAllInstructionCycles(instruction);
+      assertTrue(cycle_listener_.CheckSequence().isEmpty());
+    }
   }
   
   private List<BitWord> GetCycleCheckSequence(OpCode op_code) {

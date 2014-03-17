@@ -48,6 +48,10 @@ public class JsrJsrrInstruction extends Instruction {
     return control_set;
   }
   
+  // TODO According to the ISA, R7 should be loaded with the PC prior to
+  // loading the PC rather than in parallel as done here. This could be
+  // accomplished by adding an execute state and moving the dr_load and
+  // pc_tri_enable signals there.
   private ControlSet StoreResult1ControlSet() {
     ControlSet control_set = StateIndependentControlSet();
     control_set.pc_tri_enable = BitWord.TRUE;

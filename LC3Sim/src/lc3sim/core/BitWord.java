@@ -1,5 +1,7 @@
 package lc3sim.core;
 
+import java.util.Arrays;
+
 // BitWords are immutable data words that support bit-level operations. Because
 // they are immutable, any operation that changes a BitWord returns a new object
 // rather than altering the state of the current BitWord.
@@ -138,6 +140,14 @@ public class BitWord {
     return bits_.length;
   }
   
+  public BitWord Append(BitWord suffix) {
+    boolean[] new_bits = Arrays.copyOf(
+        bits_, bits_.length + suffix.bits().length);
+    System.arraycopy(
+        suffix.bits(), 0, new_bits, bits_.length, suffix.bits().length);
+    return FromBooleanArray(new_bits);
+  }
+  
   public BitWord Resize(int new_num_bits, Boolean sign_extend) {
     if (new_num_bits == bits_.length) {
       return this;
@@ -246,6 +256,21 @@ public class BitWord {
     }
     return FromBooleanArray(bits);
   }
+
+  public static BitWord Concatenate(BitWord[] bitwords) {
+    if (bitwords.length == 0) {
+      return BitWord.EMPTY;
+    } else if (bitwords.length == 1) {
+      return bitwords[0];
+    } else {
+      BitWord concatenated = bitwords[0];
+      for (int i = 1; i < bitwords.length; ++i) {
+        concatenated = concatenated.Append(bitwords[i]);
+      }
+      return concatenated;
+    }
+  }
+  
   
   private boolean[] bits_;
 }

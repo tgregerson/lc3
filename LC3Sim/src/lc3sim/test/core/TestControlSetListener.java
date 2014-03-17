@@ -15,6 +15,7 @@ public class TestControlSetListener extends TestListener {
     ArrayList<ListenerCallback> callbacks = new ArrayList<ListenerCallback>();
     callbacks.add(super.GetCallback(OutputId.ControlAddr1MuxSelect));
     callbacks.add(super.GetCallback(OutputId.ControlAddr2MuxSelect));
+    callbacks.add(super.GetCallback(OutputId.ControlAluK));
     callbacks.add(super.GetCallback(OutputId.ControlAluTriEnable));
     callbacks.add(super.GetCallback(OutputId.ControlBusDecrementerTriEnable));
     callbacks.add(super.GetCallback(OutputId.ControlBusIncrementerTriEnable));

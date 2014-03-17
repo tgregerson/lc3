@@ -4,7 +4,7 @@ import lc3sim.core.BitWord;
 
 public enum OpCode {
   ADD(1),
-  AND(3),
+  AND(5),
   BR(0),
   JMP_RET(12),
   JSR_JSRR(4),
@@ -19,10 +19,12 @@ public enum OpCode {
   STR(7),
   TRAP(15),
   RESERVED(13);
+
+  public static final int kNumBits = 4;
   
   private OpCode(int code) {
     code_as_int_ = code;
-    code_as_bit_word_ = BitWord.FromInt(code, kOpCodeLength);
+    code_as_bit_word_ = BitWord.FromInt(code, kNumBits);
   }
   
   public int as_int() {
@@ -48,10 +50,10 @@ public enum OpCode {
         return op_code;
       }
     }
+    assert false : code;
     return null;
   }
   
   private final int code_as_int_;
   private final BitWord code_as_bit_word_;
-  private final int kOpCodeLength = 4;
 }

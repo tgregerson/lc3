@@ -25,8 +25,8 @@ public class ControlLogic extends AbstractPropagator {
   public void UpdateAllOutputs() {
     UpdateOutput(OutputId.ControlAddr1MuxSelect);
     UpdateOutput(OutputId.ControlAddr2MuxSelect);
-    UpdateOutput(OutputId.ControlAluTriEnable);
     UpdateOutput(OutputId.ControlAluK);
+    UpdateOutput(OutputId.ControlAluTriEnable);
     UpdateOutput(OutputId.ControlBusDecrementerTriEnable);
     UpdateOutput(OutputId.ControlBusIncrementerTriEnable);
     UpdateOutput(OutputId.ControlGprDrLoad);
@@ -91,10 +91,10 @@ public class ControlLogic extends AbstractPropagator {
   
   public BitWord ComputeOutput(OutputId output_id) {
     switch (output_id) {
-      case ControlAluK: return current_control_set_.alu_k;
-      case ControlAluTriEnable: return current_control_set_.alu_tri_enable;
       case ControlAddr1MuxSelect: return current_control_set_.addr1_mux_select;
       case ControlAddr2MuxSelect: return current_control_set_.addr2_mux_select;
+      case ControlAluK: return current_control_set_.alu_k;
+      case ControlAluTriEnable: return current_control_set_.alu_tri_enable;
       case ControlBusDecrementerTriEnable: return current_control_set_.bus_decrementer_tri_enable;
       case ControlBusIncrementerTriEnable: return current_control_set_.bus_incrementer_tri_enable;
       case ControlGprDrLoad: return current_control_set_.gpr_dr_load;
