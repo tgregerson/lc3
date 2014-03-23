@@ -76,7 +76,7 @@ public class RegisterFileTest {
     register_file_.Notify(BitWord.FALSE, int_sender, InputId.GprDrLoad, null);
     RegisterFile.RegisterStateUpdate update =
         new RegisterFile.RegisterStateUpdate(7, value1);
-    register_file_.Notify(null, ext_sender, InputId.GprDrData, update);
+    register_file_.Notify(null, ext_sender, null, update);
     register_file_.Notify(
         BitWord.FromInt(7, RegisterFile.kNumAddrBits), int_sender,
                         InputId.GprSr1Addr, null);

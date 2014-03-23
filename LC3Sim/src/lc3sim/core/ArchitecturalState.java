@@ -31,6 +31,8 @@ public class ArchitecturalState {
   public static final int kNumAddr2MuxSelectBits = 2;
   
   public ArchitecturalState() {
+    // Multipliers require more complex initialization. All other elements
+    // are initialized as they are declared.
     Multiplexer.AddressBinding[] pc_mux_bindings = {
       new Multiplexer.AddressBinding(
           BitWord.FromInt(kData00Addr, kNumPcMuxSelectBits), InputId.PcMuxData00),
@@ -102,6 +104,48 @@ public class ArchitecturalState {
     RemoveAllListenerBindings();
     AddAllListenerBindings();
   }
+  
+  // Methods for setting internal state. All setting methods take input as an
+  // ints. values should be treated as unsigned.
+  public void SetPc(int val) {
+    pc_.Notify(BitWord.FromInt(val, kWordSize), OutputId.External, InputId.Pc,
+               null);
+  }
+
+  public void SetIr(int val) {
+    ir_.Notify(BitWord.FromInt(val, kWordSize), OutputId.External, InputId.Ir,
+               null);
+  }
+
+  public void SetMar(int val) {
+    mar_.Notify(BitWord.FromInt(val, kWordSize), OutputId.External, InputId.Mar,
+                null);
+  }
+
+  public void SetMdr(int val) {
+    mdr_.Notify(BitWord.FromInt(val, kWordSize), OutputId.External, InputId.Mdr,
+                null);
+  }
+
+  public void SetPsr(int val) {
+    assert (val == 1 || val == 2 || val == 4);
+    psr_.Notify(BitWord.FromInt(val, kWordSize), OutputId.External, InputId.Psr,
+                null);
+  }
+
+  public void SetGpr(int reg_num, int val) {
+    RegisterFile.RegisterStateUpdate update =
+        new RegisterFile.RegisterStateUpdate(
+            reg_num, BitWord.FromInt(val, kWordSize));
+    gpr_.Notify(null, OutputId.External, null, update);
+  }
+  
+  public void SetMemory(int address, int val) {
+    Memory.MemoryStateUpdate update = new Memory.MemoryStateUpdate(
+        BitWord.FromInt(address, kWordSize), BitWord.FromInt(val, kWordSize));
+    memory_.Notify(null, OutputId.External, null, update);
+  }
+
   
   public void RemoveAllListenerBindings() {
     state_machine_.UnregisterAllListenerCallbacks();
@@ -223,7 +267,7 @@ public class ArchitecturalState {
     // TODO USP, SSP, SP_Mux, SP_Mux_tri
 
     branch_flag_logic_.RegisterListenerCallback(
-        new ListenerCallback(psr_, OutputId.NzpLogic, InputId.PsrData, null));
+        new ListenerCallback(psr_, OutputId.NzpLogic, InputId.Psr, null));
     
     psr_.RegisterListenerCallback(new ListenerCallback(
         control_logic_, OutputId.Psr, InputId.ControlPsr, null));

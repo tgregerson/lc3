@@ -30,6 +30,11 @@ public class ProcessorStatusRegister extends Register {
           d_ = d_.SetBit(kNBit, data.TestBit(kNBit)).
                   SetBit(kZBit, data.TestBit(kZBit)).
                   SetBit(kPBit, data.TestBit(kPBit));
+          int set_count = 0;
+          if (d_.TestBit(kNBit)) set_count++;
+          if (d_.TestBit(kZBit)) set_count++;
+          if (d_.TestBit(kPBit)) set_count++;
+          assert set_count == 1;
           break;
         // TODO: Add load enable
         default:
