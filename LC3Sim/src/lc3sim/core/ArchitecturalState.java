@@ -1,5 +1,7 @@
 package lc3sim.core;
 
+import java.util.Set;
+
 // Encapsulates the architectural state of the LC3 processor
 public class ArchitecturalState {
   public static final int kWordSize = 16;
@@ -30,7 +32,11 @@ public class ArchitecturalState {
   // Addr2 Mux
   public static final int kNumAddr2MuxSelectBits = 2;
   
-  public ArchitecturalState() {
+  public ArchitecturalState(Listener external_listener,
+                            Set<OutputId> listenable_outputs) {
+    external_listener_ = external_listener;
+    external_listener_bindings_ = listenable_outputs;
+
     // Multipliers require more complex initialization. All other elements
     // are initialized as they are declared.
     Multiplexer.AddressBinding[] pc_mux_bindings = {
@@ -179,6 +185,8 @@ public class ArchitecturalState {
   }
   
   public void AddAllListenerBindings() {
+    AddExternalListenerBindings();
+
     // Architectural connections
     state_machine_.RegisterListenerCallback(new ListenerCallback(
         control_logic_, OutputId.StateMachineCycle, InputId.ControlState,
@@ -364,6 +372,349 @@ public class ArchitecturalState {
         */
   }
   
+  private void AddExternalListenerBindings() {
+    for (OutputId binding : external_listener_bindings_) {
+      switch (binding) {
+        case Addr1Mux:
+          addr1_mux_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.Addr1Mux,
+                                   InputId.External, null));
+          break;
+        case Addr2Mux:
+          addr2_mux_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.Addr2Mux,
+                                   InputId.External, null));
+          break;
+        case AddrAdder:
+          addr_adder_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.AddrAdder,
+                                   InputId.External, null));
+          break;
+        case Alu:
+          alu_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.Alu,
+                                   InputId.External, null));
+          break;
+        case AluTri:
+          alu_tri_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.AluTri,
+                                   InputId.External, null));
+          break;
+        case Bus:
+          bus_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.Bus,
+                                   InputId.External, null));
+          break;
+          /*
+        case BusDecrementer:
+          .RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId,
+                                   InputId.External, null));
+          break;
+        case BusDecrementerTri:
+          .RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId,
+                                   InputId.External, null));
+          break;
+        case BusIncrementer:
+          .RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId,
+                                   InputId.External, null));
+          break;
+        case BusIncrementerTri:
+          .RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId,
+                                   InputId.External, null));
+          break;
+          */
+        case ControlAddr1MuxSelect:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlAddr1MuxSelect,
+                                   InputId.External, null));
+          break;
+        case ControlAddr2MuxSelect:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlAddr2MuxSelect,
+                                   InputId.External, null));
+          break;
+        case ControlAluK:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlAluK,
+                                   InputId.External, null));
+          break;
+        case ControlAluTriEnable:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlAluTriEnable,
+                                   InputId.External, null));
+          break;
+          /*
+        case ControlBusDecrementerTriEnable:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId,
+                                   InputId.External, null));
+          break;
+        case ControlBusIncrementerTriEnable:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId,
+                                   InputId.External, null));
+          break;
+          */
+        case ControlGprDrAddr:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlGprDrAddr,
+                                   InputId.External, null));
+          break;
+        case ControlGprDrLoad:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlGprDrLoad,
+                                   InputId.External, null));
+          break;
+        case ControlGprSr1Addr:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlGprSr1Addr,
+                                   InputId.External, null));
+          break;
+        case ControlGprSr2Addr:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlGprSr2Addr,
+                                   InputId.External, null));
+          break;
+        case ControlIrLoad:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlIrLoad,
+                                   InputId.External, null));
+          break;
+        case ControlMarLoad:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlMarLoad,
+                                   InputId.External, null));
+          break;
+        case ControlMarMuxSelect:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlMarMuxSelect,
+                                   InputId.External, null));
+          break;
+        case ControlMarMuxTriEnable:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlMarMuxTriEnable,
+                                   InputId.External, null));
+          break;
+        case ControlMdrLoad:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlMdrLoad,
+                                   InputId.External, null));
+          break;
+        case ControlMdrMuxSelect:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlMdrMuxSelect,
+                                   InputId.External, null));
+          break;
+        case ControlMdrTriEnable:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlMdrTriEnable,
+                                   InputId.External, null));
+          break;
+        case ControlMemoryWriteEnable:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlMemoryWriteEnable,
+                                   InputId.External, null));
+          break;
+        case ControlPcLoad:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlPcLoad,
+                                   InputId.External, null));
+          break;
+        case ControlPcMuxSelect:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlPcMuxSelect,
+                                   InputId.External, null));
+          break;
+        case ControlPcTriEnable:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlPcTriEnable,
+                                   InputId.External, null));
+          break;
+        case ControlPsrLoad:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlPsrLoad,
+                                   InputId.External, null));
+          break;
+          /*
+        case ControlSavedSpMuxSelect:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId,
+                                   InputId.External, null));
+          break;
+        case ControlSavedSpMuxTriEnable:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId,
+                                   InputId.External, null));
+          break;
+        case ControlSavedSspLoad:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId,
+                                   InputId.External, null));
+          break;
+        case ControlSavedUspLoad:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId,
+                                   InputId.External, null));
+          break;
+          */
+        case ControlSr2MuxSelect:
+          control_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.ControlSr2MuxSelect,
+                                   InputId.External, null));
+          break;
+        case GprSr1:
+          gpr_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.GprSr1,
+                                   InputId.External, null));
+          break;
+        case GprSr2:
+          gpr_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.GprSr2,
+                                   InputId.External, null));
+          break;
+        case Ir:
+          ir_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.Ir,
+                                   InputId.External, null));
+          break;
+        case IrSext11:
+          sign_extend_11_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.IrSext11,
+                                   InputId.External, null));
+          break;
+        case IrSext5:
+          sign_extend_5_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.IrSext5,
+                                   InputId.External, null));
+          break;
+        case IrSext6:
+          sign_extend_6_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.IrSext6,
+                                   InputId.External, null));
+          break;
+        case IrSext9:
+          sign_extend_9_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.IrSext9,
+                                   InputId.External, null));
+          break;
+        case IrZext8:
+          zero_extend_8_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.IrZext8,
+                                   InputId.External, null));
+          break;
+        case Mar:
+          mar_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.Mar,
+                                   InputId.External, null));
+          break;
+        case MarMux:
+          mar_mux_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.MarMux,
+                                   InputId.External, null));
+          break;
+        case MarMuxTri:
+          mar_mux_tri_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.MarMuxTri,
+                                   InputId.External, null));
+          break;
+        case Mdr:
+          mdr_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.Mdr,
+                                   InputId.External, null));
+          break;
+        case MdrMux:
+          mdr_mux_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.MdrMux,
+                                   InputId.External, null));
+          break;
+        case MdrTri:
+          mdr_tri_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.MdrTri,
+                                   InputId.External, null));
+          break;
+        case Memory:
+          memory_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.Memory,
+                                   InputId.External, null));
+          break;
+        case NzpLogic:
+          branch_flag_logic_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.NzpLogic,
+                                   InputId.External, null));
+          break;
+        case Pc:
+          pc_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.Pc,
+                                   InputId.External, null));
+          break;
+        case PcIncrementer:
+          pc_incrementer_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.PcIncrementer,
+                                   InputId.External, null));
+          break;
+        case PcMux:
+          pc_mux_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.PcMux,
+                                   InputId.External, null));
+          break;
+        case PcTri:
+          pc_tri_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.PcTri,
+                                   InputId.External, null));
+          break;
+        case Psr:
+          psr_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.Psr,
+                                   InputId.External, null));
+          break;
+          /*
+        case SavedSpMux:
+          .RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId,
+                                   InputId.External, null));
+          break;
+        case SavedSpMuxTri:
+          .RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId,
+                                   InputId.External, null));
+          break;
+        case SavedSsp:
+          .RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId,
+                                   InputId.External, null));
+          break;
+        case SavedUsp:
+          .RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId,
+                                   InputId.External, null));
+          break;
+          */
+        case Sr2Mux:
+          sr2_mux_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.Sr2Mux,
+                                   InputId.External, null));
+          break;
+        case StateMachineCycle:
+          state_machine_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.StateMachineCycle,
+                                   InputId.External, null));
+          break;
+        case StateMachineInstruction:
+          state_machine_.RegisterListenerCallback(
+              new ListenerCallback(external_listener_, OutputId.StateMachineInstruction,
+                                   InputId.External, null));
+          break;
+        default:
+          assert false;
+          break;
+      }
+    }
+  }
+  
   public int ExecuteInstruction() {
     state_machine_.ExecuteInstruction();
     return pc();
@@ -372,6 +723,9 @@ public class ArchitecturalState {
   public int pc() {
     return pc_.Read().ToInt();
   }
+  
+  private final Listener external_listener_;
+  private final Set<OutputId> external_listener_bindings_;
   
   // Control Plane
   private final CycleClock cycle_clock_ = new CycleClock();
@@ -452,5 +806,4 @@ public class ArchitecturalState {
   
   // Shared Bus
   private final Bus bus_ = new Bus();
-
 }
