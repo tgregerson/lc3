@@ -19,10 +19,8 @@ public class TriStateBuffer extends AbstractPropagator {
                      Object arg) {
     boolean prev_enable_ = enable_;
     if (receiver == data_id_) {
-      System.out.println("Processing data update");
       data_ = data;
     } else if (receiver == enable_id_) {
-      System.out.println("Processing enable update");
       enable_ = data.ToBoolean();
     }
     // Update output if enable is set or on negative enable edge.
