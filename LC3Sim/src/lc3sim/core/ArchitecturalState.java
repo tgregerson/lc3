@@ -104,6 +104,8 @@ public class ArchitecturalState {
   }
   
   public void RemoveAllListenerBindings() {
+    state_machine_.UnregisterAllListenerCallbacks();
+    control_logic_.UnregisterAllListenerCallbacks();
     pc_.UnregisterAllListenerCallbacks();
     ir_.UnregisterAllListenerCallbacks();
     mar_.UnregisterAllListenerCallbacks();
@@ -134,6 +136,62 @@ public class ArchitecturalState {
   
   public void AddAllListenerBindings() {
     // Architectural connections
+    state_machine_.RegisterListenerCallback(new ListenerCallback(
+        control_logic_, OutputId.StateMachineCycle, InputId.ControlState,
+        null));
+    state_machine_.RegisterListenerCallback(new ListenerCallback(
+        control_logic_, OutputId.StateMachineInstruction,
+        InputId.ControlInstruction, null));
+    
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        addr1_mux_, OutputId.ControlAddr1MuxSelect, InputId.AddrAdder1MuxSel,
+        null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        addr2_mux_, OutputId.ControlAddr2MuxSelect, InputId.AddrAdder2MuxSel,
+        null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        alu_, OutputId.ControlAluK, InputId.AluK, null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        alu_tri_, OutputId.ControlAluTriEnable, InputId.AluTriEnable, null));
+    // TODO bus increment/decrement
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        gpr_, OutputId.ControlGprDrAddr, InputId.GprDrLoad, null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        gpr_, OutputId.ControlGprDrLoad, InputId.GprDrAddr, null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        gpr_, OutputId.ControlGprSr1Addr, InputId.GprSr1Addr, null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        gpr_, OutputId.ControlGprSr2Addr, InputId.GprSr2Addr, null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        ir_, OutputId.ControlIrLoad, InputId.IrLoad, null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        mar_, OutputId.ControlMarLoad, InputId.MarLoad, null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        mar_mux_, OutputId.ControlMarMuxSelect, InputId.MarMuxSel, null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        mar_mux_tri_, OutputId.ControlMarMuxTriEnable, InputId.MarMuxTriEnable,
+        null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        mdr_, OutputId.ControlMdrLoad, InputId.MdrLoad, null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        mdr_tri_, OutputId.ControlMdrTriEnable, InputId.MdrTriEnable, null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        mdr_mux_, OutputId.ControlMdrMuxSelect, InputId.MdrMuxSel, null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        memory_, OutputId.ControlMemoryWriteEnable, InputId.MemoryWriteEnable,
+        null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        pc_, OutputId.ControlPcLoad, InputId.PcLoad, null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        pc_mux_, OutputId.ControlPcMuxSelect, InputId.PcMuxSel, null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        pc_tri_, OutputId.ControlPcTriEnable, InputId.PcTriEnable, null));
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        psr_, OutputId.ControlPsrLoad, InputId.PsrLoad, null));
+    // TODO Saved SP reg + mux + tri
+    control_logic_.RegisterListenerCallback(new ListenerCallback(
+        sr2_mux_, OutputId.ControlSr2MuxSelect, InputId.Sr2MuxSel, null));
+    
     pc_.RegisterListenerCallback(new ListenerCallback(
         pc_incrementer_, OutputId.Pc, InputId.PcIncrementer, null));
     pc_.RegisterListenerCallback(new ListenerCallback(
@@ -151,6 +209,8 @@ public class ArchitecturalState {
         sign_extend_5_, OutputId.Ir, InputId.IrSext5, null));
     ir_.RegisterListenerCallback(new ListenerCallback(
         zero_extend_8_, OutputId.Ir, InputId.IrZext8, null));
+    ir_.RegisterListenerCallback(new ListenerCallback(
+        state_machine_, OutputId.Ir, InputId.StateMachineInstruction, null));
     
     mar_.RegisterListenerCallback(new ListenerCallback(
         memory_, OutputId.Mar, InputId.MemoryAddr, null));
@@ -160,14 +220,21 @@ public class ArchitecturalState {
     mdr_.RegisterListenerCallback(new ListenerCallback(
         mdr_tri_, OutputId.Mdr, InputId.MdrTriData, null));
     
-    // TODO PSR, Branch logic, USP, SSP, SP_Mux, SP_Mux_tri
+    // TODO USP, SSP, SP_Mux, SP_Mux_tri
+
+    branch_flag_logic_.RegisterListenerCallback(
+        new ListenerCallback(psr_, OutputId.NzpLogic, InputId.PsrData, null));
+    
+    psr_.RegisterListenerCallback(new ListenerCallback(
+        control_logic_, OutputId.Psr, InputId.ControlPsr, null));
+
     
     gpr_.RegisterListenerCallback(new ListenerCallback(
         alu_, OutputId.GprSr1, InputId.AluA, null));
     gpr_.RegisterListenerCallback(new ListenerCallback(
         addr1_mux_, OutputId.GprSr1, InputId.AddrAdder1MuxData1, null));
     gpr_.RegisterListenerCallback(new ListenerCallback(
-        sr2_mux_, OutputId.GprSr2, InputId.AluA, null));
+        sr2_mux_, OutputId.GprSr2, InputId.Sr2MuxData0, null));
     
     memory_.RegisterListenerCallback(new ListenerCallback(
         mdr_mux_, OutputId.Memory, InputId.MdrMuxData1, null));
@@ -183,10 +250,12 @@ public class ArchitecturalState {
     pc_incrementer_.RegisterListenerCallback(new ListenerCallback(
         pc_mux_, OutputId.PcIncrementer, InputId.PcMuxData00, null));
     
+    /*
     bus_incrementer_.RegisterListenerCallback(new ListenerCallback(
         bus_increment_tri_, OutputId.BusIncrementer, InputId.Bus, null));
     bus_incrementer_.RegisterListenerCallback(new ListenerCallback(
         bus_decrement_tri_, OutputId.BusIncrementer, InputId.Bus, null));
+        */
     
     sign_extend_11_.RegisterListenerCallback(new ListenerCallback(
         addr2_mux_, OutputId.IrSext11, InputId.AddrAdder2MuxData11, null));
@@ -242,9 +311,13 @@ public class ArchitecturalState {
     bus_.RegisterListenerCallback(new ListenerCallback(
         mdr_mux_, OutputId.Bus, InputId.MdrMuxData0, null));
     bus_.RegisterListenerCallback(new ListenerCallback(
+        branch_flag_logic_, OutputId.Bus, InputId.NzpLogic, null));
+    /*
+    bus_.RegisterListenerCallback(new ListenerCallback(
         bus_incrementer_, OutputId.Bus, InputId.BusIncrementer, null));
     bus_.RegisterListenerCallback(new ListenerCallback(
         bus_decrementer_, OutputId.Bus, InputId.BusDecrementer, null));
+        */
   }
   
   public int ExecuteInstruction() {
@@ -256,9 +329,10 @@ public class ArchitecturalState {
     return pc_.Read().ToInt();
   }
   
-  // State Machine
+  // Control Plane
   private final CycleClock cycle_clock_ = new CycleClock();
   private final StateMachine state_machine_ = new StateMachine(cycle_clock_);
+  private final ControlLogic control_logic_ = new ControlLogic();
   
   // Individual registers
   private final Register pc_ =
@@ -285,10 +359,13 @@ public class ArchitecturalState {
                 OutputId.AddrAdder, kWordSize);
   private final ConstantAdder pc_incrementer_ =
       new ConstantAdder(OutputId.PcIncrementer, 1, kWordSize);
+  /*
+  // TODO: More logic for supporting interrupts. SavedSP, muxes, etc.
   private final ConstantAdder bus_incrementer_ =
       new ConstantAdder(OutputId.BusIncrementer, 1, kWordSize);
   private final ConstantAdder bus_decrementer_ =
       new ConstantAdder(OutputId.BusDecrementer, -1, kWordSize);
+      */
   private final BitExtender sign_extend_11_ =
       new BitExtender(OutputId.IrSext11, 11, kWordSize, true);
   private final BitExtender sign_extend_9_ =
@@ -320,12 +397,14 @@ public class ArchitecturalState {
       OutputId.MdrTri, InputId.MdrTriData, InputId.MdrTriEnable);
   private final TriStateBuffer alu_tri_ = new TriStateBuffer(
       OutputId.AluTri, InputId.AluTriData, InputId.AluTriEnable);
+  /*
   private final TriStateBuffer bus_increment_tri_ = new TriStateBuffer(
       OutputId.BusIncrementerTri, InputId.BusIncrementerTriData,
       InputId.BusIncrementerTriEnable);
   private final TriStateBuffer bus_decrement_tri_ = new TriStateBuffer(
       OutputId.BusDecrementerTri, InputId.BusDecrementerTriData,
       InputId.BusDecrementerTriEnable);
+      */
   
   // Shared Bus
   private final Bus bus_ = new Bus();

@@ -11,10 +11,6 @@ public enum InputId {
   PcLoad,
   Ir,
   IrLoad,
-  PsrN,
-  PsrZ,
-  PsrP,
-  PsrLoad,
   Mar,
   MarLoad,
   Mdr,
@@ -27,17 +23,19 @@ public enum InputId {
   MemoryData,
   MemoryAddr,
   MemoryWriteEnable,
+  PsrLoad,
+  PsrData,
   SavedUsp,
   SavedUspLoad,
   SavedSsp,
   SavedSspLoad,
   
   // Combinational logic inputs
-  AluA,
-  AluB,
   AddrAdderA,
   AddrAdderB,
-  PcIncrementer,
+  AluA,
+  AluB,
+  AluK,
   BusIncrementer,
   BusDecrementer,
   IrSext5,
@@ -46,6 +44,7 @@ public enum InputId {
   IrSext11,
   IrZext8,
   NzpLogic,
+  PcIncrementer,
   
   // Multiplexers
   PcMuxData00,
@@ -93,6 +92,7 @@ public enum InputId {
   ControlState,
   ControlInstruction,
   ControlPsr,
+  StateMachineInstruction,
 
   // Non-Architectural
   External,

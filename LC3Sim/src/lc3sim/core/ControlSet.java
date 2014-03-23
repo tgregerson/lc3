@@ -186,7 +186,6 @@ public class ControlSet {
   public BitWord gpr_dr_load;
   public BitWord gpr_sr1_addr;
   public BitWord gpr_sr2_addr;
-  public BitWord pc_load;
   public BitWord ir_load;
   public BitWord mar_load;
   public BitWord mar_mux_select;
@@ -195,6 +194,7 @@ public class ControlSet {
   public BitWord mdr_mux_select;
   public BitWord mdr_tri_enable;
   public BitWord memory_we;
+  public BitWord pc_load;
   public BitWord pc_mux_select;
   public BitWord pc_tri_enable;
   public BitWord psr_load;
