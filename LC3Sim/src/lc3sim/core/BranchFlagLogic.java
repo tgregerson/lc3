@@ -18,10 +18,16 @@ public class BranchFlagLogic extends AbstractPropagator{
   // Updates flags assuming 'reg_data' was written to the register file.
   public void Notify (BitWord data, OutputId sender, InputId receiver,
                       Object arg) {
-    assert data.num_bits() == 16;
-    n_ = data.TestBit(15);
-    z_ = !data.ToBoolean();
-    p_ = !(n_ || z_);
+    if (data == BitWord.EMPTY) {
+      // No driver to bus. Output default values.
+      z_ = true;
+      n_ = p_ = false;
+    } else {
+      assert data.num_bits() == ArchitecturalState.kWordSize : data.num_bits();
+      n_ = data.TestBit(ArchitecturalState.kWordSize - 1);
+      z_ = !data.ToBoolean();
+      p_ = !(n_ || z_);
+    } 
     UpdateOutput(OutputId.NzpLogic);
   }
   
