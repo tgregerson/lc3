@@ -26,7 +26,7 @@ public class BrInstruction extends Instruction {
       case kFetchInstruction3: return InstructionCycle.kStoreResult1;
       case kStoreResult1: return InstructionCycle.kFetchInstruction1;
       default:
-        assert false;
+        assert false : current_cycle;
         return null;
     }
   }
