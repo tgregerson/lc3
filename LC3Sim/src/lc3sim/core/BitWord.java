@@ -118,7 +118,7 @@ public class BitWord {
   
   public BitWord SetBit(int bit_index, boolean value) {
     assert bit_index < bits_.length;
-    boolean[] modified = new boolean[bits_.length];
+    boolean[] modified = bits_.clone();
     modified[bit_index] = value;
     return FromBooleanArray(modified);
   }
