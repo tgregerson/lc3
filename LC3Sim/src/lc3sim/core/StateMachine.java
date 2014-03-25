@@ -35,16 +35,17 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
     UpdateOutput(OutputId.StateMachineCycle);
   }
   
-  public void ExecuteCurrentCycle() {
+  // Execute current cycle and return next cycle.
+  public InstructionCycle ExecuteCurrentCycle() {
     clock_.Tick();
+    return cycle_;
   }
   
   // Advances the state machine to start of next phase.
   public void ExecuteInstruction() {
     do {
       ExecuteCurrentCycle();
-    } while (instruction_.NextCycle(cycle_) !=
-             InstructionCycle.kFetchInstruction1);
+    } while (cycle_ != InstructionCycle.kFetchInstruction1);
   }
 
   // Synchronized
@@ -73,7 +74,7 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
     } else if (id == OutputId.StateMachineInstruction) {
       return instruction_.bitword();
     } else {
-      assert false;
+      assert false : id;
       return null;
     }
   }
