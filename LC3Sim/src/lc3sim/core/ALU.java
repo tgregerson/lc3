@@ -1,55 +1,58 @@
 package lc3sim.core;
 
-import lc3sim.core.instructions.OpCode;
-
 public class ALU extends AbstractPropagator {
   public static final int kNumModeBits = 2;
+  public static final int kWordSize = ArchitecturalState.kWordSize;
 
   public ALU() {
     Init();
   }
   
   public void Init() {
-    op_a_ = BitWord.Zeroes(bitwidth_);
-    op_b_ = BitWord.Zeroes(bitwidth_);
-    op_code_ = BitWord.Zeroes(op_code_width_);
-    SetCurrentOutput(out_id_, BitWord.Zeroes(bitwidth_));
+    op_a_ = BitWord.Zeroes(kWordSize);
+    op_b_ = BitWord.Zeroes(kWordSize);
+    alu_k_ = BitWord.Zeroes(kNumModeBits);
+    UpdateOutput(out_id_);
   }
   
   @Override
   public void Notify(BitWord bit_word, OutputId sender,
                      InputId receiver, Object arg) {
-    if (receiver == in_id_a_) {
-      op_a_ = bit_word;
-    } else if (receiver == in_id_b_){
-      op_b_ = bit_word;
+    switch (receiver) {
+      case AluA:
+        op_a_ = bit_word;
+        break;
+      case AluB:
+        op_b_ = bit_word;
+        break;
+      case AluK:
+        alu_k_ = bit_word;
+        break;
+      default:
+        assert false : receiver;
     }
     UpdateOutput(out_id_);
   }
   
   @Override
   protected BitWord ComputeOutput(OutputId unused) {
-    if (op_code_.IsEqual(OpCode.ADD.as_BitWord(), false)) {
-      return op_a_.AddFixedWidth(op_b_, bitwidth_);
-    } else if (op_code_.IsEqual(OpCode.AND.as_BitWord(), false)) {
-      return op_a_.AndFixedWidth(op_b_, bitwidth_);
-    } else if (op_code_.IsEqual(OpCode.NOT.as_BitWord(), false)) {
-      return op_a_.Invert();
+    if (kAddMode.IsEqual(alu_k_, false)) {
+      return op_a_.AddFixedWidth(op_b_, kWordSize);
+    } else if (kAndMode.IsEqual(alu_k_, false)) {
+      return op_a_.AndFixedWidth(op_b_, kWordSize);
     } else {
-      assert false;
-      return null;
+      return op_a_.Invert();
     }
   }
   
-  // Buffered inputs
-  private BitWord op_a_; // From register file
-  private BitWord op_b_; // From register file or immediate
-  // TODO: This should get aluK signal rather than the whole op code.
-  private BitWord op_code_;
+  private final BitWord kAddMode = BitWord.FromInt(0, kNumModeBits);
+  private final BitWord kAndMode = BitWord.FromInt(1, kNumModeBits);
+  // All other permutations are considered NotMode.
 
-  private final int bitwidth_ = 16;
-  private final int op_code_width_ = 4;
-  private final InputId in_id_a_ = InputId.AluA;
-  private final InputId in_id_b_ = InputId.AluB;
+  // Buffered inputs
+  private BitWord op_a_;  // From register file
+  private BitWord op_b_;  // From register file or immediate
+  private BitWord alu_k_;  // ALU mode select signal.
+
   private final OutputId out_id_ = OutputId.Alu;
 }
