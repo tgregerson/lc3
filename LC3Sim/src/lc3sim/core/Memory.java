@@ -19,6 +19,11 @@ public class Memory extends AbstractPropagator implements Synchronized {
     data_in_buffer_ = BitWord.Zeroes(kWordSize);
   }
   
+  public BitWord Read(int addr) {
+    assert addr < num_entries_ : addr;
+    return data_[addr];
+  }
+  
   // Basic Propagator interface
   public BitWord ComputeOutput(OutputId unused) {
     return data_[addr_buffer_.ToInt()];

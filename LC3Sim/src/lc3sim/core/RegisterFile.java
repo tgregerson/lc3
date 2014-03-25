@@ -19,6 +19,11 @@ public class RegisterFile extends AbstractPropagator implements Synchronized {
     dr_in_ = BitWord.Zeroes(kWordSize);
   }
   
+  public BitWord Read(int reg_num) {
+    assert reg_num < num_entries_ : reg_num;
+    return regs_[reg_num];
+  }
+  
   // Basic Propagator interface
   
   public BitWord ComputeOutput(OutputId output_id) {
