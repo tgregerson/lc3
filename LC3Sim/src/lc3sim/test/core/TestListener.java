@@ -27,7 +27,7 @@ public class TestListener implements Listener {
     last_arg = arg;
     if (!check_sequence_.isEmpty()) {
       assertFalse(bw == null);
-      assertEquals(bw, check_sequence_.removeFirst());
+      assertEquals(check_sequence_.removeFirst(), bw);
     }
   }
   
