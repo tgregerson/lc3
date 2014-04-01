@@ -306,14 +306,21 @@ public class InstructionTestUtil {
     return (TrapInstruction)instruction;
   }
   
-  private static BitWord RandomReg() {
+  public static BitWord RandomReg() {
     return random_.random_bitword(kNumRegBits);
   }
 
-  private static BitWord RandomImm(int num_bits) {
+  public static BitWord RandomImm(int num_bits) {
     return random_.random_bitword(num_bits);
   }
   
+  public static BitWord RandomPsr() {
+    BitWord privilege_bit = RandomImm(1);
+    BitWord fill_bits = BitWord.Zeroes(12);
+    BitWord flag_bits = random_.SetOneOf(3);
+    return BitWord.Concatenate(
+        new BitWord[]{flag_bits, fill_bits, privilege_bit});
+  }
   
   private static class RandomBits extends Random {
     public BitWord random_bitword(int num_bits) {
