@@ -1,85 +1,241 @@
 package lc3sim.test.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.Assert.*;
-import lc3sim.core.*;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import lc3sim.core.*;
+import lc3sim.core.instructions.*;
+import lc3sim.test.core.instructions.*;
 
 public class ArchitecturalStateTest {
 
   @Before
   public void setUp() throws Exception {
     state_ = new ArchitecturalState();
-
-    pc_listener_ = new TestListener(InputId.DontCare);
-    ir_listener_ = new TestListener(InputId.DontCare);
-
-    pc_binding_ = new ArchitecturalState.ListenerBinding(
-        pc_listener_, OutputId.Pc);
-    ir_binding_ = new ArchitecturalState.ListenerBinding(
-        ir_listener_, OutputId.Ir);
-
-    pc_checksequence_ = new ArrayList<BitWord>();
-    ir_checksequence_ = new ArrayList<BitWord>();
   }
 
   @After
   public void tearDown() throws Exception {
-    assertEquals(0, pc_listener_.CheckSequence().size());
-    assertEquals(0, ir_listener_.CheckSequence().size());
   }
 
   @Test
-  public void AddRegRegInstructionTest() {
-    // R1 = 0x0137
-    // R4 = 0x0420
-    // R5 = R1 + R4
-    
-    // R5 = R1 + R4
-    final int instruction_val = 0x1A44;
-    final int instruction_addr = 0x0005;
-    final int r1_val = 0x0137;
-    final int r4_val = 0x0420;
-    
-    // Load instruction into memory.
-    state_.SetMemory(instruction_addr, instruction_val);
-    state_.SetPc(instruction_addr);
-    
-    // Load register file
-    state_.SetGpr(1, r1_val);
-    state_.SetGpr(4, r4_val);
-    
-    List<ArchitecturalState.ListenerBinding> bindings =
-        new ArrayList<ArchitecturalState.ListenerBinding>();
+  public void AddRegRegInstructionRandomTest() {
+    int instruction_addr =
+        InstructionTestUtil.RandomImm(kWordSize).ToInt();
+    for (int i = 0; i < test_iterations_; ++i) {
+      AddInstruction instruction =
+          InstructionTestUtil.RandomAddRegRegInstruction();
+      final int instruction_val = instruction.bitword().ToInt();
 
-    pc_checksequence_.add(BitWord.FromInt((instruction_addr + 1), kWordSize));
-    pc_listener_.AppendCheckSequence(pc_checksequence_);
-    bindings.add(pc_binding_);
-    
-    ir_checksequence_.add(BitWord.FromInt(instruction_val, kWordSize));
-    ir_listener_.AppendCheckSequence(ir_checksequence_);
-    bindings.add(ir_binding_);
-    
-    state_.AddExternalListenerBindings(bindings);
-    
-    assertEquals(instruction_addr + 1, state_.ExecuteInstruction());
+      // Load instruction into memory.
+      state_.SetMemory(instruction_addr, instruction_val);
+      state_.SetPc(instruction_addr);
+
+      final int sr1_val = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+      final int sr2_val = instruction.sr1().IsIdentical(instruction.sr2()) ?
+          sr1_val : InstructionTestUtil.RandomImm(kWordSize).ToInt();
+
+      // Load register file
+      state_.SetGpr(instruction.sr1().ToInt(), sr1_val);
+      state_.SetGpr(instruction.sr2().ToInt(), sr2_val);
+
+      final int expected_result = ModuloSum(sr1_val, sr2_val);
+
+      assertEquals(ModuloSum(instruction_addr, 1), state_.ExecuteInstruction());
+      
+      // Check correct result has been stored in destination register.
+      final int computed_result = state_.ReadGpr(instruction.dr().ToInt());
+      assertEquals(expected_result, computed_result);
+      instruction_addr = state_.ReadPc();
+    }
+  }
+
+  @Test
+  public void AddRegImmInstructionRandomTest() {
+    int instruction_addr =
+        InstructionTestUtil.RandomImm(kWordSize).ToInt();
+    for (int i = 0; i < test_iterations_; ++i) {
+      AddInstruction instruction =
+          InstructionTestUtil.RandomAddRegImmInstruction();
+      final int instruction_val = instruction.bitword().ToInt();
+
+      // Load instruction into memory.
+      state_.SetMemory(instruction_addr, instruction_val);
+      state_.SetPc(instruction_addr);
+
+      final int sr1_val = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+      final int imm5_val = instruction.imm5().Resize(kWordSize, true).ToInt();
+
+      // Load register file
+      state_.SetGpr(instruction.sr1().ToInt(), sr1_val);
+
+      final int expected_result = ModuloSum(sr1_val, imm5_val);
+
+      assertEquals(ModuloSum(instruction_addr, 1), state_.ExecuteInstruction());
+      
+      // Check correct result has been stored in destination register.
+      final int computed_result = state_.ReadGpr(instruction.dr().ToInt());
+      assertEquals(expected_result, computed_result);
+      instruction_addr = state_.ReadPc();
+    }
+  }
+
+  @Test
+  public void AndRegRegInstructionRandomTest() {
+    int instruction_addr =
+        InstructionTestUtil.RandomImm(kWordSize).ToInt();
+    for (int i = 0; i < test_iterations_; ++i) {
+      AndInstruction instruction =
+          InstructionTestUtil.RandomAndRegRegInstruction();
+      final int instruction_val = instruction.bitword().ToInt();
+
+      // Load instruction into memory.
+      state_.SetMemory(instruction_addr, instruction_val);
+      state_.SetPc(instruction_addr);
+
+      final int sr1_val = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+      final int sr2_val = instruction.sr1().IsIdentical(instruction.sr2()) ?
+          sr1_val : InstructionTestUtil.RandomImm(kWordSize).ToInt();
+
+      // Load register file
+      state_.SetGpr(instruction.sr1().ToInt(), sr1_val);
+      state_.SetGpr(instruction.sr2().ToInt(), sr2_val);
+
+      final int expected_result = sr1_val & sr2_val;
+
+      assertEquals(ModuloSum(instruction_addr, 1), state_.ExecuteInstruction());
+      
+      // Check correct result has been stored in destination register.
+      final int computed_result = state_.ReadGpr(instruction.dr().ToInt());
+      assertEquals(expected_result, computed_result);
+      instruction_addr = state_.ReadPc();
+    }
+  }
+
+  @Test
+  public void AndRegImmInstructionRandomTest() {
+    int instruction_addr =
+        InstructionTestUtil.RandomImm(kWordSize).ToInt();
+    for (int i = 0; i < test_iterations_; ++i) {
+      AndInstruction instruction =
+          InstructionTestUtil.RandomAndRegImmInstruction();
+      final int instruction_val = instruction.bitword().ToInt();
+
+      // Load instruction into memory.
+      state_.SetMemory(instruction_addr, instruction_val);
+      state_.SetPc(instruction_addr);
+
+      final int sr1_val = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+      final int imm5_val = instruction.imm5().Resize(kWordSize, true).ToInt();
+
+      // Load register file
+      state_.SetGpr(instruction.sr1().ToInt(), sr1_val);
+
+      final int expected_result = sr1_val & imm5_val;
+
+      assertEquals(ModuloSum(instruction_addr, 1), state_.ExecuteInstruction());
+      
+      // Check correct result has been stored in destination register.
+      final int computed_result = state_.ReadGpr(instruction.dr().ToInt());
+      assertEquals(expected_result, computed_result);
+      instruction_addr = state_.ReadPc();
+    }
+  }
+
+  @Test
+  public void BrInstructionRandomTest() {
+    int instruction_addr =
+        InstructionTestUtil.RandomImm(kWordSize).ToInt();
+    for (int i = 0; i < test_iterations_; ++i) {
+      BrInstruction instruction =
+          InstructionTestUtil.RandomBrInstruction();
+      final int instruction_val = instruction.bitword().ToInt();
+
+      // Load instruction into memory.
+      state_.SetMemory(instruction_addr, instruction_val);
+      state_.SetPc(instruction_addr);
+      
+      // Set PSR
+      int psr = InstructionTestUtil.RandomPsr().ToInt();
+      state_.SetPsr(psr);
+      
+      final int pc_offset_9 =
+          instruction.pcoffset9().Resize(kWordSize, true).ToInt();
+      final int pc_prime = ModuloSum(instruction_addr, 1);
+      final int branch_target = ModuloSum(pc_prime, pc_offset_9);
+
+      boolean take_branch = (PsrN(psr) && instruction.n()) ||
+                            (PsrZ(psr) && instruction.z()) ||
+                            (PsrP(psr) && instruction.p());
+      final int expected_result = take_branch ? branch_target : pc_prime;
+
+      state_.ExecuteInstruction();
+      
+      // Check correct result has been stored in PC.
+      final int computed_result = state_.ReadPc();
+      assertEquals(expected_result, computed_result);
+      instruction_addr = state_.ReadPc();
+    }
+  }
+
+  @Test
+  public void JmpInstructionRandomTest() {
+    int instruction_addr =
+        InstructionTestUtil.RandomImm(kWordSize).ToInt();
+    for (int i = 0; i < test_iterations_; ++i) {
+      JmpRetInstruction instruction =
+          InstructionTestUtil.RandomJmpRetInstruction();
+      final int instruction_val = instruction.bitword().ToInt();
+
+      // Load instruction into memory.
+      state_.SetMemory(instruction_addr, instruction_val);
+      state_.SetPc(instruction_addr);
+
+      final int base_r_val = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+
+      // Load register file
+      state_.SetGpr(instruction.base_r().ToInt(), base_r_val);
+      
+      final int expected_result = base_r_val;
+
+      state_.ExecuteInstruction();
+      
+      // Check correct result has been stored in PC.
+      final int computed_result = state_.ReadPc();
+      /*
+      System.out.println(
+        " SR1: "  + BitWord.FromInt(sr1_val, kWordSize) +
+        " SR2: " + BitWord.FromInt(sr2_val, kWordSize) + 
+        " DR: "   + BitWord.FromInt(computed_result, kWordSize) +
+        " EXPECTED: " + BitWord.FromInt(expected_result, kWordSize));
+      */
+      assertEquals(expected_result, computed_result);
+      instruction_addr = state_.ReadPc();
+    }
+  }
+  
+  private int ModuloSum(int a, int b) {
+    return (a + b) % (1 << kWordSize);
+  }
+  
+  private boolean PsrN(int psr) {
+    return (psr & 0x4) != 0;
+  }
+
+  private boolean PsrZ(int psr) {
+    return (psr & 0x2) != 0;
+  }
+
+  private boolean PsrP(int psr) {
+    return (psr & 0x1) != 0;
   }
   
   private final int kWordSize = ArchitecturalState.kWordSize;
+  
+  private final int test_iterations_ = 50;
 
   private ArchitecturalState state_;
-
-  private TestListener pc_listener_;
-  private TestListener ir_listener_;
-
-  private ArchitecturalState.ListenerBinding ir_binding_;
-  private ArchitecturalState.ListenerBinding pc_binding_;
-
-  private ArrayList<BitWord> pc_checksequence_;
-  private ArrayList<BitWord> ir_checksequence_;
 }
