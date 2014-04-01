@@ -160,7 +160,8 @@ public class ArchitecturalState {
   }
 
   public void SetPsr(int val) {
-    assert (val == 1 || val == 2 || val == 4);
+    int flags = val & 0x7;
+    assert (flags == 1 || flags == 2 || flags == 4) : flags;
     psr_.Notify(BitWord.FromInt(val, kWordSize), OutputId.External, InputId.Psr,
                 null);
   }
@@ -808,7 +809,7 @@ public class ArchitecturalState {
   // Arithmetic units
   private final ALU alu_ = new ALU();
   private final Adder addr_adder_ =
-      new Adder(InputId.AddrAdder1MuxData0, InputId.AddrAdder1MuxData1,
+      new Adder(InputId.AddrAdderA, InputId.AddrAdderB,
                 OutputId.AddrAdder, kWordSize);
   private final ConstantAdder pc_incrementer_ =
       new ConstantAdder(OutputId.PcIncrementer, 1, kWordSize);
