@@ -23,7 +23,7 @@ public class BitExtender extends AbstractPropagator {
   
   public void Notify(BitWord bit_word, OutputId sender, InputId receiver,
                      Object arg) {
-    input_buffer_.Resize(input_bits_, sign_extend_);
+    input_buffer_ = bit_word.Resize(input_bits_, sign_extend_);
     UpdateOutput(out_id_);
   }
   
