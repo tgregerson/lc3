@@ -40,6 +40,8 @@ public class BitWord {
   public boolean IsEqual(BitWord cmp, boolean signed) {
     if (cmp == null) {
       return false;
+    } else if (cmp == this) {
+      return true;
     }
     if (num_bits() == 0 || cmp.num_bits() == 0) {
       return num_bits() == cmp.num_bits();
@@ -63,6 +65,8 @@ public class BitWord {
   public boolean IsIdentical(BitWord cmp) {
     if (cmp == null) {
       return false;
+    } else if (cmp == this) {
+      return true;
     } else {
       return (num_bits() == cmp.num_bits()) && IsEqual(cmp, false);
     }
