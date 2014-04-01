@@ -10,16 +10,8 @@ public class BitWord {
   public static final BitWord FALSE = new BitWord(new boolean[]{false});
   public static final BitWord EMPTY = new BitWord(new boolean[]{});
   
-  private BitWord(int num_bits) {
-    bits_ = new boolean[num_bits];
-  }
-  
   private BitWord(boolean bits[]) {
     bits_ = java.util.Arrays.copyOf(bits, bits.length);
-  }
-  
-  public BitWord(BitWord bit_word) {
-    bits_ = bit_word.bits();
   }
   
   public String toString() {
@@ -215,13 +207,16 @@ public class BitWord {
   
   // Returns a bitword with the specified number of bits, set to all zero.
   public static BitWord Zeroes(int num_bits) {
-    if (num_bits == 0) {
-      return BitWord.EMPTY;
-    } else if (num_bits == 1) {
-      return BitWord.FALSE;
-    } else {
-      return new BitWord(num_bits);
-    }
+    boolean[] bits = new boolean[num_bits];
+    Arrays.fill(bits, false);
+    return FromBooleanArray(bits);
+  }
+
+  // Returns a bitword with the specified number of bits, set to all one.
+  public static BitWord Ones(int num_bits) {
+    boolean[] bits = new boolean[num_bits];
+    Arrays.fill(bits, true);
+    return FromBooleanArray(bits);
   }
   
   // Like the boolean[] constructor, but returns static instances for TRUE,
