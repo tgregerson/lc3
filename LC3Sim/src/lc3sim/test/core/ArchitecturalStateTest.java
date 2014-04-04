@@ -50,6 +50,7 @@ public class ArchitecturalStateTest {
       // Check correct result has been stored in destination register.
       final int computed_result = state_.ReadGpr(instruction.dr().ToInt());
       assertEquals(expected_result, computed_result);
+      CheckConditionCodes(expected_result);
       instruction_addr = state_.ReadPc();
     }
   }
@@ -80,6 +81,7 @@ public class ArchitecturalStateTest {
       // Check correct result has been stored in destination register.
       final int computed_result = state_.ReadGpr(instruction.dr().ToInt());
       assertEquals(expected_result, computed_result);
+      CheckConditionCodes(expected_result);
       instruction_addr = state_.ReadPc();
     }
   }
@@ -112,6 +114,7 @@ public class ArchitecturalStateTest {
       // Check correct result has been stored in destination register.
       final int computed_result = state_.ReadGpr(instruction.dr().ToInt());
       assertEquals(expected_result, computed_result);
+      CheckConditionCodes(expected_result);
       instruction_addr = state_.ReadPc();
     }
   }
@@ -142,6 +145,7 @@ public class ArchitecturalStateTest {
       // Check correct result has been stored in destination register.
       final int computed_result = state_.ReadGpr(instruction.dr().ToInt());
       assertEquals(expected_result, computed_result);
+      CheckConditionCodes(expected_result);
       instruction_addr = state_.ReadPc();
     }
   }
@@ -274,9 +278,6 @@ public class ArchitecturalStateTest {
     }
   }
   
-  // TODO For memory-related operations, add check to ensure instruction address
-  // does not collide with memory addresses.
-
   @Test
   public void LdInstructionRandomTest() {
     int instruction_addr =
@@ -308,6 +309,7 @@ public class ArchitecturalStateTest {
       // Check correct result has been stored in DR.
       final int computed_dr = state_.ReadGpr(dr);
       assertEquals(expected_result, computed_dr);
+      CheckConditionCodes(expected_result);
       instruction_addr = state_.ReadPc();
     }
   }
@@ -348,6 +350,7 @@ public class ArchitecturalStateTest {
       // Check correct result has been stored in DR.
       final int computed_dr = state_.ReadGpr(dr);
       assertEquals(expected_result, computed_dr);
+      CheckConditionCodes(expected_result);
       instruction_addr = state_.ReadPc();
     }
   }
@@ -383,6 +386,7 @@ public class ArchitecturalStateTest {
       // Check correct result has been stored in DR.
       final int computed_dr = state_.ReadGpr(dr);
       assertEquals(expected_result, computed_dr);
+      CheckConditionCodes(expected_result);
       instruction_addr = state_.ReadPc();
     }
   }
@@ -413,6 +417,7 @@ public class ArchitecturalStateTest {
       // Check correct result has been stored in DR.
       final int computed_dr = state_.ReadGpr(dr);
       assertEquals(expected_result, computed_dr);
+      CheckConditionCodes(expected_result);
       instruction_addr = state_.ReadPc();
     }
   }
@@ -442,6 +447,7 @@ public class ArchitecturalStateTest {
       // Check correct result has been stored in destination register.
       final int computed_result = state_.ReadGpr(instruction.dr().ToInt());
       assertEquals(expected_result, computed_result);
+      CheckConditionCodes(expected_result);
       instruction_addr = state_.ReadPc();
     }
   }
@@ -590,6 +596,18 @@ public class ArchitecturalStateTest {
   
   private int ModuloSum(int a, int b) {
     return (a + b) % (1 << kWordSize);
+  }
+  
+  private void CheckConditionCodes(int written_value) {
+    final boolean expected_n = written_value > 0x7FFF;
+    final boolean expected_z = written_value == 0;
+    final boolean expected_p = !(expected_n || expected_z);
+    final boolean computed_n = (state_.ReadPsr() & 0x4) != 0;
+    final boolean computed_z = (state_.ReadPsr() & 0x2) != 0;
+    final boolean computed_p = (state_.ReadPsr() & 0x1) != 0;
+    assertEquals(expected_n, computed_n);
+    assertEquals(expected_z, computed_z);
+    assertEquals(expected_p, computed_p);
   }
   
   private boolean PsrN(int psr) {

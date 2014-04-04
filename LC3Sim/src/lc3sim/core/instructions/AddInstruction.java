@@ -42,6 +42,7 @@ public class AddInstruction extends Instruction {
   private ControlSet StoreResult1ControlSet() {
     ControlSet control_set = StateIndependentControlSet();
     control_set.gpr_dr_load = BitWord.TRUE;
+    control_set.psr_load = BitWord.TRUE;
     control_set.alu_tri_enable = BitWord.TRUE;
     return control_set;
   }

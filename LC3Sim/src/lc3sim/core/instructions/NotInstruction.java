@@ -42,6 +42,7 @@ public class NotInstruction extends Instruction {
     ControlSet control_set = StateIndependentControlSet();
     control_set.alu_tri_enable = BitWord.TRUE;
     control_set.gpr_dr_load = BitWord.TRUE;
+    control_set.psr_load = BitWord.TRUE;
     return control_set;
   }
 
