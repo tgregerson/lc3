@@ -42,15 +42,14 @@ public class StiInstruction extends Instruction {
   protected ControlSet StateIndependentControlSet() {
     ControlSet control_set = super.StateIndependentControlSet(); 
     control_set.gpr_sr1_addr = sr();
-    control_set.addr1_mux_select = BitWord.FALSE;
-    control_set.addr2_mux_select = BitWord.FromInt(2, 2);
     control_set.mar_mux_select = BitWord.FALSE;
-    control_set.mdr_mux_select = BitWord.TRUE;
     return control_set;
   }
   
   private ControlSet EvaluateAddress1ControlSet() {
     ControlSet control_set = StateIndependentControlSet();
+    control_set.addr1_mux_select = BitWord.FALSE;
+    control_set.addr2_mux_select = BitWord.FromInt(2, 2);
     control_set.mar_mux_tri_enable = BitWord.TRUE;
     control_set.mar_load = BitWord.TRUE;
     return control_set;
@@ -59,6 +58,7 @@ public class StiInstruction extends Instruction {
   private ControlSet FetchOperands1ControlSet() {
     ControlSet control_set = StateIndependentControlSet();
     control_set.mdr_load = BitWord.TRUE;
+    control_set.mdr_mux_select = BitWord.TRUE;
     return control_set;
   }
 
@@ -70,8 +70,10 @@ public class StiInstruction extends Instruction {
   }
 
   private ControlSet ExecuteOperation2ControlSet() {
-    ControlSet control_set = new ControlSet();
-    control_set.gpr_sr1_addr = sr();
+    ControlSet control_set = StateIndependentControlSet();
+    control_set.mar_mux_tri_enable = BitWord.TRUE;
+    control_set.addr1_mux_select = BitWord.TRUE;
+    control_set.addr2_mux_select = BitWord.FromInt(0, 2);
     control_set.mdr_mux_select = BitWord.FALSE;
     control_set.mdr_load = BitWord.TRUE;
     return control_set;
