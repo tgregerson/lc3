@@ -22,6 +22,7 @@ public class ArchitecturalStateTest {
   }
 
   // TODO Add test of condition codes for instruction with DR
+  /*
   @Test
   public void AddRegRegInstructionRandomTest() {
     int instruction_addr =
@@ -296,7 +297,8 @@ public class ArchitecturalStateTest {
       final int computed_address = ModuloSum(pc_prime, pc_offset_9);
       
       // Store some data in memory.
-      final int memory_val = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+      final int memory_val = (computed_address == instruction_addr) ?
+          instruction_val : InstructionTestUtil.RandomImm(kWordSize).ToInt();
       state_.SetMemory(computed_address, memory_val);
       
       final int dr = instruction.dr().ToInt();
@@ -328,12 +330,14 @@ public class ArchitecturalStateTest {
       final int pc_offset_9 =
           instruction.pcoffset9().Resize(kWordSize, true).ToInt();
       final int address1 = ModuloSum(pc_prime, pc_offset_9);
-      final int address2 = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+      final int memory_val1 = (address1 == instruction_addr) ?
+          instruction_val : InstructionTestUtil.RandomImm(kWordSize).ToInt();
       
       // Store some data in memory.
-      final int memory_val1 = address2;
-      final int memory_val2 = (address1 != address2) ?
-          InstructionTestUtil.RandomImm(kWordSize).ToInt() : memory_val1;
+      final int address2 = memory_val1;
+      final int memory_val2 = (address1 == address2) ?
+          memory_val1 : (instruction_addr == address2) ?
+          instruction_val : InstructionTestUtil.RandomImm(kWordSize).ToInt();
       state_.SetMemory(address1, memory_val1);
       state_.SetMemory(address2, memory_val2);
       
@@ -368,7 +372,8 @@ public class ArchitecturalStateTest {
       state_.SetGpr(base_r, base_r_val);
       
       // Store some data in memory.
-      final int memory_val = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+      final int memory_val = (instruction_addr == base_r_val) ?
+          instruction_val : InstructionTestUtil.RandomImm(kWordSize).ToInt();
       state_.SetMemory(base_r_val, memory_val);
       
       final int dr = instruction.dr().ToInt();
@@ -378,13 +383,75 @@ public class ArchitecturalStateTest {
       
       // Check correct result has been stored in DR.
       final int computed_dr = state_.ReadGpr(dr);
+      assertEquals(expected_result, computed_dr);
+      instruction_addr = state_.ReadPc();
+    }
+  }
+
+  @Test
+  public void LeaInstructionRandomTest() {
+    int instruction_addr =
+        InstructionTestUtil.RandomImm(kWordSize).ToInt();
+    for (int i = 0; i < test_iterations_; ++i) {
+      LeaInstruction instruction =
+          InstructionTestUtil.RandomLeaInstruction();
+      final int instruction_val = instruction.bitword().ToInt();
+
+      // Load instruction into memory.
+      state_.SetMemory(instruction_addr, instruction_val);
+      state_.SetPc(instruction_addr);
+
+      final int pc_prime = ModuloSum(instruction_addr, 1);
+      final int pc_offset_9 =
+          instruction.pcoffset9().Resize(kWordSize, true).ToInt();
+      final int computed_address = ModuloSum(pc_prime, pc_offset_9);
+      
+      final int dr = instruction.dr().ToInt();
+      final int expected_result = computed_address;
+
+      state_.ExecuteInstruction();
+      
+      // Check correct result has been stored in DR.
+      final int computed_dr = state_.ReadGpr(dr);
+      assertEquals(expected_result, computed_dr);
+      instruction_addr = state_.ReadPc();
+    }
+  }
+  */
+
+  @Test
+  public void NotInstructionRandomTest() {
+    int instruction_addr =
+        InstructionTestUtil.RandomImm(kWordSize).ToInt();
+    for (int i = 0; i < test_iterations_; ++i) {
+      NotInstruction instruction =
+          InstructionTestUtil.RandomNotInstruction();
+      final int instruction_val = instruction.bitword().ToInt();
+
+      // Load instruction into memory.
+      state_.SetMemory(instruction_addr, instruction_val);
+      state_.SetPc(instruction_addr);
+
+      final int sr_val = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+
+      // Load register file
+      state_.SetGpr(instruction.sr().ToInt(), sr_val);
+
+      final int expected_result = (~sr_val) & 0x0FFFF;
+
+      assertEquals(ModuloSum(instruction_addr, 1), state_.ExecuteInstruction());
+      
+      // Check correct result has been stored in destination register.
+      final int computed_result = state_.ReadGpr(instruction.dr().ToInt());
       /*
       System.out.println(
-        " BASE_R_VAL: "  + BitWord.FromInt(base_r_val, kWordSize) +
-        " MEMORY_VAL: " + BitWord.FromInt(expected_result, kWordSize) + 
-        " DR_VAL: "   + BitWord.FromInt(computed_dr, kWordSize));
+        " PC_VAL: "  + BitWord.FromInt(instruction_addr, kWordSize) +
+        " INST: "  + BitWord.FromInt(instruction_val, kWordSize) +
+        " SR_VAL: "   + BitWord.FromInt(sr_val, kWordSize) +
+        " EXPECTED_VAL: " + BitWord.FromInt(expected_result, kWordSize) + 
+        " DR_VAL: "   + BitWord.FromInt(computed_result, kWordSize));
         */
-      assertEquals(expected_result, computed_dr);
+      assertEquals(expected_result, computed_result);
       instruction_addr = state_.ReadPc();
     }
   }

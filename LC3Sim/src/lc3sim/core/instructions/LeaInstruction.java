@@ -35,13 +35,14 @@ public class LeaInstruction extends Instruction {
     ControlSet control_set = super.StateIndependentControlSet(); 
     control_set.gpr_dr_addr = dr();
     control_set.addr1_mux_select = BitWord.FALSE;
-    control_set.pc_mux_select = BitWord.FromInt(2, 2);
+    control_set.addr2_mux_select = BitWord.FromInt(2, 2);
     control_set.mar_mux_select = BitWord.FALSE;
     return control_set;
   }
   
   private ControlSet StoreResult1ControlSet() {
     ControlSet control_set = StateIndependentControlSet();
+    control_set.mar_mux_tri_enable = BitWord.TRUE;
     control_set.gpr_dr_load = BitWord.TRUE;
     return control_set;
   }
