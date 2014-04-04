@@ -166,7 +166,7 @@ public class BitWord {
   public BitWord Invert() {
     boolean[] bits = new boolean[bits_.length];
     for (int i = 0; i < bits.length; ++i) {
-      bits[i] = !bits[i];
+      bits[i] = !bits_[i];
     }
     return FromBooleanArray(bits);
   }
