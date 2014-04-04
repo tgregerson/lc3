@@ -21,7 +21,6 @@ public class ArchitecturalStateTest {
   public void tearDown() throws Exception {
   }
 
-  // TODO Add test of condition codes for instruction with DR
   @Test
   public void AddRegRegInstructionRandomTest() {
     int instruction_addr =
