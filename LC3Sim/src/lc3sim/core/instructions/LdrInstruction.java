@@ -14,7 +14,6 @@ public class LdrInstruction extends Instruction {
     switch (cycle) {
       case kEvaluateAddress1: return EvaluateAddress1ControlSet();
       case kFetchOperands1: return FetchOperands1ControlSet();
-      case kExecuteOperation1: return ExecuteOperation1ControlSet();
       case kStoreResult1: return StoreResult1ControlSet();
       default: return super.ControlSet(cycle, psr);
     }
@@ -27,8 +26,7 @@ public class LdrInstruction extends Instruction {
       case kFetchInstruction2: return InstructionCycle.kFetchInstruction3;
       case kFetchInstruction3: return InstructionCycle.kEvaluateAddress1;
       case kEvaluateAddress1: return InstructionCycle.kFetchOperands1;
-      case kFetchOperands1: return InstructionCycle.kExecuteOperation1;
-      case kExecuteOperation1: return InstructionCycle.kStoreResult1;
+      case kFetchOperands1: return InstructionCycle.kStoreResult1;
       case kStoreResult1: return InstructionCycle.kFetchInstruction1;
       default:
         assert false;
@@ -42,7 +40,7 @@ public class LdrInstruction extends Instruction {
     control_set.gpr_sr1_addr = base_r();
     control_set.gpr_dr_addr = dr();
     control_set.addr1_mux_select = BitWord.TRUE;
-    control_set.addr2_mux_select = BitWord.FromInt(1, 2);
+    control_set.addr2_mux_select = BitWord.FromInt(0, 2);
     control_set.mar_mux_select = BitWord.FALSE;
     control_set.mdr_mux_select = BitWord.TRUE;
     control_set.pc_mux_select = BitWord.FromInt(2, 2);
@@ -62,14 +60,9 @@ public class LdrInstruction extends Instruction {
     return control_set;
   }
 
-  private ControlSet ExecuteOperation1ControlSet() {
-    ControlSet control_set = StateIndependentControlSet();
-    control_set.mdr_tri_enable = BitWord.TRUE;
-    return control_set;
-  }
-  
   private ControlSet StoreResult1ControlSet() {
     ControlSet control_set = StateIndependentControlSet();
+    control_set.mdr_tri_enable = BitWord.TRUE;
     control_set.gpr_dr_load = BitWord.TRUE;
     return control_set;
   }

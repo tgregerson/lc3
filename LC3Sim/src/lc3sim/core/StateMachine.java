@@ -14,7 +14,8 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
   
   public void Init() {
     Reset();
-    instruction_ = Instruction.FromBitWord(BitWord.Zeroes(Instruction.kNumBits));
+    instruction_data_buffer_ = BitWord.Zeroes(Instruction.kNumBits);
+    instruction_ = Instruction.FromBitWord(instruction_data_buffer_);
     // TODO Check on whether additional mechanism are necessary to ensure the
     // system initializes properly regardless of order of construction and
     // adding of listeners.
@@ -50,22 +51,26 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
 
   // Synchronized
   public void PreClock() {
-    cycle_buffer_ = instruction_.NextCycle(cycle_);
+    instruction_ = Instruction.FromBitWord(instruction_data_buffer_);
+    cycle_ = instruction_.NextCycle(cycle_);
   }
 
   public void PostClock() {
     // TODO Add interrupt and exception check?
-    cycle_ = cycle_buffer_;
+    UpdateOutput(OutputId.StateMachineInstruction);
+    // TODO Currently it is necessary to send Instruction before Cycle, otherwise
+    // The control logic will attempt to generate a control set for a cycle that may be invalid
+    // for the current instruction it has. This is fragile. Once all instructions are tested,
+    // ControlSet should be modified to generate a default control set for in glitch conditions.
     UpdateOutput(OutputId.StateMachineCycle);
   }
   
   // AbstractPropagator
   public void Notify(BitWord data, OutputId sender, InputId receiver,
                      Object arg) {
-    // TODO create an input id instead. This is bad for test mode.
-    assert sender == OutputId.Ir;
-    instruction_ = Instruction.FromBitWord(data);
-    UpdateOutput(OutputId.StateMachineInstruction);
+    if (cycle_ == InstructionCycle.kFetchInstruction3) {
+      instruction_data_buffer_ = data;
+    }
   }
   
   public BitWord ComputeOutput(OutputId id) {
@@ -81,6 +86,6 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
   
   private CycleClock clock_;
   private InstructionCycle cycle_;
-  private InstructionCycle cycle_buffer_;  // For Synchronized
   private Instruction instruction_;
+  private BitWord instruction_data_buffer_;
 }

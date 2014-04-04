@@ -21,6 +21,7 @@ public class ArchitecturalStateTest {
   public void tearDown() throws Exception {
   }
 
+  // TODO Add test of condition codes for instruction with DR
   @Test
   public void AddRegRegInstructionRandomTest() {
     int instruction_addr =
@@ -205,17 +206,189 @@ public class ArchitecturalStateTest {
       
       // Check correct result has been stored in PC.
       final int computed_result = state_.ReadPc();
-      /*
-      System.out.println(
-        " SR1: "  + BitWord.FromInt(sr1_val, kWordSize) +
-        " SR2: " + BitWord.FromInt(sr2_val, kWordSize) + 
-        " DR: "   + BitWord.FromInt(computed_result, kWordSize) +
-        " EXPECTED: " + BitWord.FromInt(expected_result, kWordSize));
-      */
       assertEquals(expected_result, computed_result);
       instruction_addr = state_.ReadPc();
     }
   }
+
+  @Test
+  public void JsrInstructionRandomTest() {
+    int instruction_addr =
+        InstructionTestUtil.RandomImm(kWordSize).ToInt();
+    for (int i = 0; i < test_iterations_; ++i) {
+      JsrJsrrInstruction instruction =
+          InstructionTestUtil.RandomJsrInstruction();
+      final int instruction_val = instruction.bitword().ToInt();
+
+      // Load instruction into memory.
+      state_.SetMemory(instruction_addr, instruction_val);
+      state_.SetPc(instruction_addr);
+
+      int pc_offset_11 =
+          instruction.pcoffset11().Resize(kWordSize, true).ToInt();
+      
+      final int expected_r7 = ModuloSum(instruction_addr, 1);
+      final int expected_pc = ModuloSum(expected_r7, pc_offset_11);
+
+      state_.ExecuteInstruction();
+      
+      // Check correct result has been stored in PC.
+      final int computed_pc = state_.ReadPc();
+      final int computed_r7 = state_.ReadGpr(7);
+      assertEquals(expected_pc, computed_pc);
+      assertEquals(expected_r7, computed_r7);
+      instruction_addr = state_.ReadPc();
+    }
+  }
+
+  @Test
+  public void JsrrInstructionRandomTest() {
+    int instruction_addr =
+        InstructionTestUtil.RandomImm(kWordSize).ToInt();
+    for (int i = 0; i < test_iterations_; ++i) {
+      JsrJsrrInstruction instruction =
+          InstructionTestUtil.RandomJsrrInstruction();
+      final int instruction_val = instruction.bitword().ToInt();
+
+      // Load instruction into memory.
+      state_.SetMemory(instruction_addr, instruction_val);
+      state_.SetPc(instruction_addr);
+
+      final int base_r = instruction.base_r().ToInt();
+      final int base_r_val = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+      
+      // Set register file.
+      state_.SetGpr(base_r, base_r_val);
+      
+      final int expected_r7 = ModuloSum(instruction_addr, 1);
+      final int expected_pc = base_r_val;
+
+      state_.ExecuteInstruction();
+      
+      // Check correct result has been stored in PC.
+      final int computed_pc = state_.ReadPc();
+      final int computed_r7 = state_.ReadGpr(7);
+      assertEquals(expected_pc, computed_pc);
+      assertEquals(expected_r7, computed_r7);
+      instruction_addr = state_.ReadPc();
+    }
+  }
+  
+  // TODO For memory-related operations, add check to ensure instruction address
+  // does not collide with memory addresses.
+
+  @Test
+  public void LdInstructionRandomTest() {
+    int instruction_addr =
+        InstructionTestUtil.RandomImm(kWordSize).ToInt();
+    for (int i = 0; i < test_iterations_; ++i) {
+      LdInstruction instruction =
+          InstructionTestUtil.RandomLdInstruction();
+      final int instruction_val = instruction.bitword().ToInt();
+
+      // Load instruction into memory.
+      state_.SetMemory(instruction_addr, instruction_val);
+      state_.SetPc(instruction_addr);
+
+      final int pc_prime = ModuloSum(instruction_addr, 1);
+      final int pc_offset_9 =
+          instruction.pcoffset9().Resize(kWordSize, true).ToInt();
+      final int computed_address = ModuloSum(pc_prime, pc_offset_9);
+      
+      // Store some data in memory.
+      final int memory_val = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+      state_.SetMemory(computed_address, memory_val);
+      
+      final int dr = instruction.dr().ToInt();
+      final int expected_result = memory_val;
+
+      state_.ExecuteInstruction();
+      
+      // Check correct result has been stored in DR.
+      final int computed_dr = state_.ReadGpr(dr);
+      assertEquals(expected_result, computed_dr);
+      instruction_addr = state_.ReadPc();
+    }
+  }
+
+  @Test
+  public void LdiInstructionRandomTest() {
+    int instruction_addr =
+        InstructionTestUtil.RandomImm(kWordSize).ToInt();
+    for (int i = 0; i < test_iterations_; ++i) {
+      LdiInstruction instruction =
+          InstructionTestUtil.RandomLdiInstruction();
+      final int instruction_val = instruction.bitword().ToInt();
+
+      // Load instruction into memory.
+      state_.SetMemory(instruction_addr, instruction_val);
+      state_.SetPc(instruction_addr);
+
+      final int pc_prime = ModuloSum(instruction_addr, 1);
+      final int pc_offset_9 =
+          instruction.pcoffset9().Resize(kWordSize, true).ToInt();
+      final int address1 = ModuloSum(pc_prime, pc_offset_9);
+      final int address2 = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+      
+      // Store some data in memory.
+      final int memory_val1 = address2;
+      final int memory_val2 = (address1 != address2) ?
+          InstructionTestUtil.RandomImm(kWordSize).ToInt() : memory_val1;
+      state_.SetMemory(address1, memory_val1);
+      state_.SetMemory(address2, memory_val2);
+      
+      final int dr = instruction.dr().ToInt();
+      final int expected_result = memory_val2;
+
+      state_.ExecuteInstruction();
+      
+      // Check correct result has been stored in DR.
+      final int computed_dr = state_.ReadGpr(dr);
+      assertEquals(expected_result, computed_dr);
+      instruction_addr = state_.ReadPc();
+    }
+  }
+
+  @Test
+  public void LdrInstructionRandomTest() {
+    int instruction_addr =
+        InstructionTestUtil.RandomImm(kWordSize).ToInt();
+    for (int i = 0; i < test_iterations_; ++i) {
+      LdrInstruction instruction =
+          InstructionTestUtil.RandomLdrInstruction();
+      final int instruction_val = instruction.bitword().ToInt();
+
+      // Load instruction into memory.
+      state_.SetMemory(instruction_addr, instruction_val);
+      state_.SetPc(instruction_addr);
+
+      // Set register file.
+      final int base_r = instruction.base_r().ToInt();
+      final int base_r_val = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+      state_.SetGpr(base_r, base_r_val);
+      
+      // Store some data in memory.
+      final int memory_val = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+      state_.SetMemory(base_r_val, memory_val);
+      
+      final int dr = instruction.dr().ToInt();
+      final int expected_result = memory_val;
+
+      state_.ExecuteInstruction();
+      
+      // Check correct result has been stored in DR.
+      final int computed_dr = state_.ReadGpr(dr);
+      /*
+      System.out.println(
+        " BASE_R_VAL: "  + BitWord.FromInt(base_r_val, kWordSize) +
+        " MEMORY_VAL: " + BitWord.FromInt(expected_result, kWordSize) + 
+        " DR_VAL: "   + BitWord.FromInt(computed_dr, kWordSize));
+        */
+      assertEquals(expected_result, computed_dr);
+      instruction_addr = state_.ReadPc();
+    }
+  }
+
   
   private int ModuloSum(int a, int b) {
     return (a + b) % (1 << kWordSize);

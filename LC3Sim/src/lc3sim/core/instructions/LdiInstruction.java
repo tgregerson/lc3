@@ -71,13 +71,13 @@ public class LdiInstruction extends Instruction {
 
   private ControlSet ExecuteOperation2ControlSet() {
     ControlSet control_set = StateIndependentControlSet();
-    control_set.mdr_tri_enable = BitWord.TRUE;
     control_set.mdr_load = BitWord.TRUE;
     return control_set;
   }
   
   private ControlSet StoreResult1ControlSet() {
     ControlSet control_set = StateIndependentControlSet();
+    control_set.mdr_tri_enable = BitWord.TRUE;
     control_set.gpr_dr_load = BitWord.TRUE;
     return control_set;
   }

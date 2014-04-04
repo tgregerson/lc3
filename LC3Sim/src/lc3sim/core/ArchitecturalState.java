@@ -309,8 +309,6 @@ public class ArchitecturalState {
         sign_extend_5_, OutputId.Ir, InputId.IrSext5, null));
     ir_.RegisterListenerCallback(new ListenerCallback(
         zero_extend_8_, OutputId.Ir, InputId.IrZext8, null));
-    ir_.RegisterListenerCallback(new ListenerCallback(
-        state_machine_, OutputId.Ir, InputId.StateMachineInstruction, null));
     
     mar_.RegisterListenerCallback(new ListenerCallback(
         memory_, OutputId.Mar, InputId.MemoryAddr, null));
@@ -398,6 +396,8 @@ public class ArchitecturalState {
     alu_tri_.RegisterListenerCallback(new ListenerCallback(
         bus_, OutputId.AluTri, InputId.Bus, null));
     
+    bus_.RegisterListenerCallback(new ListenerCallback(
+        state_machine_, OutputId.Bus, InputId.StateMachineInstruction, null));
     bus_.RegisterListenerCallback(new ListenerCallback(
         gpr_, OutputId.Bus, InputId.GprDrData, null));
     bus_.RegisterListenerCallback(new ListenerCallback(
@@ -829,7 +829,7 @@ public class ArchitecturalState {
   private final BitExtender sign_extend_5_ =
       new BitExtender(OutputId.IrSext5, 5, kWordSize, true);
   private final BitExtender zero_extend_8_ =
-      new BitExtender(OutputId.IrZext8, 8, kWordSize, true);
+      new BitExtender(OutputId.IrZext8, 8, kWordSize, false);
   
   // Multiplexers - Initialized in constructor
   private final Multiplexer pc_mux_;

@@ -36,7 +36,7 @@ public abstract class Instruction {
       case STR:      return new StrInstruction(bitword);
       case TRAP:     return new TrapInstruction(bitword);
       default:
-        assert false;
+        assert false : op_code;
         return null;
     }
   }

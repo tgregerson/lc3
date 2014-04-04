@@ -41,7 +41,7 @@ public class StrInstruction extends Instruction {
     ControlSet control_set = super.StateIndependentControlSet(); 
     control_set.gpr_sr1_addr = base_r();
     control_set.addr1_mux_select = BitWord.TRUE;
-    control_set.addr2_mux_select = BitWord.FromInt(1, 2);
+    control_set.addr2_mux_select = BitWord.FromInt(0, 2);
     control_set.mar_mux_select = BitWord.FALSE;
     control_set.mdr_mux_select = BitWord.FALSE;
     return control_set;
