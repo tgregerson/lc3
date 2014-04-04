@@ -13,7 +13,6 @@ public class StInstruction extends Instruction {
   public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
       case kEvaluateAddress1: return EvaluateAddress1ControlSet();
-      case kFetchOperands1: return FetchOperands1ControlSet();
       case kExecuteOperation1: return ExecuteOperation1ControlSet();
       case kStoreResult1: return StoreResult1ControlSet();
       default: return super.ControlSet(cycle, psr);
@@ -26,8 +25,7 @@ public class StInstruction extends Instruction {
       case kFetchInstruction1: return InstructionCycle.kFetchInstruction2;
       case kFetchInstruction2: return InstructionCycle.kFetchInstruction3;
       case kFetchInstruction3: return InstructionCycle.kEvaluateAddress1;
-      case kEvaluateAddress1: return InstructionCycle.kFetchOperands1;
-      case kFetchOperands1: return InstructionCycle.kExecuteOperation1;
+      case kEvaluateAddress1: return InstructionCycle.kExecuteOperation1;
       case kExecuteOperation1: return InstructionCycle.kStoreResult1;
       case kStoreResult1: return InstructionCycle.kFetchInstruction1;
       default:
@@ -40,26 +38,25 @@ public class StInstruction extends Instruction {
   protected ControlSet StateIndependentControlSet() {
     ControlSet control_set = super.StateIndependentControlSet(); 
     control_set.gpr_sr1_addr = sr();
-    control_set.addr1_mux_select = BitWord.FALSE;
-    control_set.addr2_mux_select = BitWord.FromInt(2, 2);
     control_set.mar_mux_select = BitWord.FALSE;
+    control_set.mdr_mux_select = BitWord.FALSE;
     return control_set;
   }
   
   private ControlSet EvaluateAddress1ControlSet() {
     ControlSet control_set = StateIndependentControlSet();
+    control_set.addr1_mux_select = BitWord.FALSE;
+    control_set.addr2_mux_select = BitWord.FromInt(2, 2);
     control_set.mar_mux_tri_enable = BitWord.TRUE;
     control_set.mar_load = BitWord.TRUE;
     return control_set;
   }
   
-  private ControlSet FetchOperands1ControlSet() {
-    return StateIndependentControlSet();
-  }
-
   private ControlSet ExecuteOperation1ControlSet() {
-    ControlSet control_set = FetchOperands1ControlSet();
-    control_set.mdr_mux_select = BitWord.FALSE;
+    ControlSet control_set = StateIndependentControlSet();
+    control_set.mar_mux_tri_enable = BitWord.TRUE;
+    control_set.addr1_mux_select = BitWord.TRUE;
+    control_set.addr2_mux_select = BitWord.FromInt(0, 2);
     control_set.mdr_load = BitWord.TRUE;
     return control_set;
   }

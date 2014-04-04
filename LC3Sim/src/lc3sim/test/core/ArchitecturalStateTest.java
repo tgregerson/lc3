@@ -443,6 +443,39 @@ public class ArchitecturalStateTest {
       
       // Check correct result has been stored in destination register.
       final int computed_result = state_.ReadGpr(instruction.dr().ToInt());
+      assertEquals(expected_result, computed_result);
+      instruction_addr = state_.ReadPc();
+    }
+  }
+
+  @Test
+  public void StInstructionRandomTest() {
+    int instruction_addr =
+        InstructionTestUtil.RandomImm(kWordSize).ToInt();
+    for (int i = 0; i < test_iterations_; ++i) {
+      StInstruction instruction =
+          InstructionTestUtil.RandomStInstruction();
+      final int instruction_val = instruction.bitword().ToInt();
+
+      // Load instruction into memory.
+      state_.SetMemory(instruction_addr, instruction_val);
+      state_.SetPc(instruction_addr);
+
+      final int pc_prime = ModuloSum(instruction_addr, 1);
+      final int pc_offset_9 =
+          instruction.pcoffset9().Resize(kWordSize, true).ToInt();
+      final int computed_address = ModuloSum(pc_prime, pc_offset_9);
+      
+      // Store some data in the source register.
+      final int register_val = InstructionTestUtil.RandomImm(kWordSize).ToInt();
+      state_.SetGpr(instruction.sr().ToInt(), register_val);
+      
+      final int expected_result = register_val;
+
+      state_.ExecuteInstruction();
+      
+      // Check correct result has been stored in memory.
+      final int computed_result = state_.ReadMemory(computed_address);
       /*
       System.out.println(
         " PC_VAL: "  + BitWord.FromInt(instruction_addr, kWordSize) +
