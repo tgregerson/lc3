@@ -58,13 +58,7 @@ public class ControlPlaneTest {
     assertEquals(OpCode.ADD, instruction.op_code());
     assertTrue(instruction instanceof AddInstruction);
 
-    assertTrue(cycle_listener_.CheckSequence().isEmpty());
-    cycle_listener_.AppendCheckSequence(
-        GetCycleCheckSequence(instruction.op_code()));
-
     TestAllInstructionCycles(instruction);
-
-    assertTrue(cycle_listener_.CheckSequence().isEmpty());
   }
   
   @Test
@@ -77,47 +71,10 @@ public class ControlPlaneTest {
     for (int i = 0; i < kRandomInstructionIterations; ++i) {
       Instruction instruction = 
           InstructionTestUtil.RandomInstructionWithBlacklist(blacklist);
-      System.out.println("Testing " + instruction.op_code().name());
-      cycle_listener_.AppendCheckSequence(
-          GetCycleCheckSequence(instruction.op_code()));
       TestAllInstructionCycles(instruction);
-      assertTrue(cycle_listener_.CheckSequence().isEmpty());
     }
   }
   
-  private List<BitWord> GetCycleCheckSequence(OpCode op_code) {
-    LinkedList<BitWord> check_sequence = new LinkedList<BitWord>();
-    check_sequence.add(InstructionCycle.kFetchInstruction1.as_BitWord());
-    check_sequence.add(InstructionCycle.kFetchInstruction2.as_BitWord());
-    check_sequence.add(InstructionCycle.kFetchInstruction3.as_BitWord());
-    // TODO RESERVED should go directly to interrupt at this point.
-    switch (op_code) {
-      case LD:    // Fallthrough intended.
-      case LDR:   // Fallthrough intended.
-      case ST:    // Fallthrough intended.
-      case STR:   // Fallthrough intended.
-      case TRAP:
-        check_sequence.add(InstructionCycle.kEvaluateAddress1.as_BitWord());
-        check_sequence.add(InstructionCycle.kFetchOperands1.as_BitWord());
-        check_sequence.add(InstructionCycle.kExecuteOperation1.as_BitWord());
-        break;
-      case LDI:   // Fallthrough intended.
-      case STI:
-        check_sequence.add(InstructionCycle.kEvaluateAddress1.as_BitWord());
-        check_sequence.add(InstructionCycle.kFetchOperands1.as_BitWord());
-        check_sequence.add(InstructionCycle.kExecuteOperation1.as_BitWord());
-        check_sequence.add(InstructionCycle.kExecuteOperation2.as_BitWord());
-        break;
-      case RESERVED:
-      case RTI:
-        assert false : op_code;
-      default:
-        break;
-    }
-    check_sequence.add(InstructionCycle.kStoreResult1.as_BitWord());
-    return check_sequence;
-  }
-
   private void TestAllInstructionCycles(Instruction instruction) {
     TestFetchInstruction();
 
@@ -126,20 +83,29 @@ public class ControlPlaneTest {
     state_machine_.Notify(instruction.bitword(), OutputId.Ir,
                           InputId.DontCare, null);
 
+    // Optional cycles.
     // TODO RESERVED should go directly to interrupt at this point.
     switch (instruction.op_code()) {
       case LD:    // Fallthrough intended.
-      case LDI:   // Fallthrough intended.
-      case LDR:   // Fallthrough intended.
+      case LDR:
+        TestEvaluateAddress(instruction);
+        TestFetchOperands(instruction);
+        break;
       case ST:    // Fallthrough intended.
-      case STI:   // Fallthrough intended.
-      case STR:   // Fallthrough intended.
+      case STR:
+        TestEvaluateAddress(instruction);
+        TestExecuteOperation(instruction);
+        break;
       case TRAP:
+        TestExecuteOperation(instruction);
+        break;
+      case LDI:   // Fallthrough intended.
+      case STI:
         TestEvaluateAddress(instruction);
         TestFetchOperands(instruction);
         TestExecuteOperation(instruction);
         break;
-      case RTI:
+      case RTI:   // Fallthrough intended.
       case RESERVED:
         assert false;
       default:

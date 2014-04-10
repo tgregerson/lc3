@@ -5,9 +5,17 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ControlPlaneTest.class, MemoryTest.class, MultiplexerTest.class,
-               PropagatorTest.class, RegisterFileTest.class, RegisterTest.class,
-               TriStateBufferTest.class})
+@SuiteClasses({
+  ArchitecturalStateTest.class,
+  ControlPlaneTest.class,
+  MemoryTest.class,
+  MultiplexerTest.class,
+  PropagatorTest.class,
+  RegisterFileTest.class,
+  RegisterTest.class,
+  TriStateBufferTest.class,
+})
+
 public class CoreTestSuite {
 
 }
