@@ -580,13 +580,6 @@ public class ArchitecturalStateTest {
       // Check correct result has been stored in DR.
       final int computed_pc = state_.ReadPc();
       final int computed_r7 = state_.ReadGpr(7);
-      /*
-      System.out.println(
-        " PC_VAL: "  + BitWord.FromInt(computed_pc, kWordSize) +
-        " EXPECTED_PC_VAL: "  + BitWord.FromInt(expected_pc, kWordSize) +
-        " R7_VAL: "  + BitWord.FromInt(computed_r7, kWordSize) +
-        " EXPECTED_R7_VAL: "  + BitWord.FromInt(expected_r7, kWordSize));
-        */
       assertEquals(expected_pc, computed_pc);
       assertEquals(expected_r7, computed_r7);
       instruction_addr = state_.ReadPc();
