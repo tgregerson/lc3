@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.LinkedList;
 
 import lc3sim.core.*;
 import lc3sim.core.instructions.*;
