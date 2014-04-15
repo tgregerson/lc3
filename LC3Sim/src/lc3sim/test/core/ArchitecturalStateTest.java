@@ -6,6 +6,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import lc3sim.core.*;
 import lc3sim.core.instructions.*;
 import lc3sim.test.core.instructions.*;
@@ -568,7 +573,6 @@ public class ArchitecturalStateTest {
       // Load instruction into memory.
       state_.SetMemory(instruction_addr, instruction_val);
       state_.SetPc(instruction_addr);
-
       
       final int trapvect8 =
           instruction.trapvect8().Resize(kWordSize, false).ToInt();
@@ -584,6 +588,78 @@ public class ArchitecturalStateTest {
       assertEquals(expected_r7, computed_r7);
       instruction_addr = state_.ReadPc();
     }
+  }
+  
+  @Test
+  public void P1ObjTest() {
+    final int os_start_addr = 0x0200;
+    try {
+      LoadObjFile("lc3os.obj");
+    } catch (IOException e) {
+      System.out.println("General I/O Exception:");
+      System.out.println(e);
+    }
+
+    int program_start_addr = 0x0000;
+    try {
+      program_start_addr = LoadObjFile("p1.obj");
+    } catch (IOException e) {
+      System.out.println("General I/O Exception:");
+      System.out.println(e);
+    }
+    state_.SetPc(os_start_addr);
+    
+    final int max_warmup_instructions = 500;
+    int warmup_instructions = 0;
+    while (state_.ExecuteInstruction() != program_start_addr &&
+           warmup_instructions < max_warmup_instructions) {
+      warmup_instructions++;
+    }
+    
+    state_.SetGpr(0, 0x0101);
+    state_.SetGpr(1, 0xFF00);
+    
+    int addr = program_start_addr;
+    
+    // NOT R2, R0
+    state_.ExecuteInstruction();
+    assertEquals(++addr, state_.ReadPc());
+    assertEquals(0xFEFE, state_.ReadGpr(2));
+
+    // NOT R3, R1
+    state_.ExecuteInstruction();
+    assertEquals(++addr, state_.ReadPc());
+    assertEquals(0x00FF, state_.ReadGpr(3));
+
+    // AND R3, R0, R3
+    state_.ExecuteInstruction();
+    assertEquals(++addr, state_.ReadPc());
+    assertEquals(0x0001, state_.ReadGpr(3));
+
+    // AND R2, R1, R2
+    state_.ExecuteInstruction();
+    assertEquals(++addr, state_.ReadPc());
+    assertEquals(0xFE00, state_.ReadGpr(2));
+
+    // NOT R2, R2
+    state_.ExecuteInstruction();
+    assertEquals(++addr, state_.ReadPc());
+    assertEquals(0x01FF, state_.ReadGpr(2));
+
+    // NOT R3, R3
+    state_.ExecuteInstruction();
+    assertEquals(++addr, state_.ReadPc());
+    assertEquals(0xFFFE, state_.ReadGpr(3));
+
+    // AND R2, R2, R3
+    state_.ExecuteInstruction();
+    assertEquals(++addr, state_.ReadPc());
+    assertEquals(0x01FE, state_.ReadGpr(2));
+
+    // NOT R2, R2
+    state_.ExecuteInstruction();
+    assertEquals(++addr, state_.ReadPc());
+    assertEquals(0xFE01, state_.ReadGpr(2));
   }
   
   private int ModuloSum(int a, int b) {
@@ -612,6 +688,32 @@ public class ArchitecturalStateTest {
 
   private boolean PsrP(int psr) {
     return (psr & 0x1) != 0;
+  }
+
+  private byte[] ReadBinaryFile(String filename) throws IOException {
+    Path path = Paths.get(System.getProperty("user.dir") + "/src/lc3sim/test/core/" + filename);
+    return Files.readAllBytes(path);
+  }
+  
+  // Returns start address of object file.
+  private int LoadObjFile(String filename) throws IOException {
+    byte[] bytes = ReadBinaryFile(filename);
+    assert bytes.length >= 4 : bytes.length;
+    final int start_addr = IntFrom2Bytes(bytes, 0);
+    int addr = start_addr;
+    for (int byte_offset = 2; byte_offset < bytes.length; byte_offset += 2) {
+      int word = IntFrom2Bytes(bytes, byte_offset);
+      state_.SetMemory(addr++, word);
+    }
+    return start_addr;
+  }
+  
+  private int IntFrom2Bytes(byte[] bytes, int start_index) {
+    assert bytes.length > start_index + 2;
+    int upper = bytes[start_index] & 0x0FF;  // Treat byte as unsigned.
+    int lower = bytes[start_index + 1] & 0x0FF;
+    int val = (upper << 8) + lower;
+    return val;
   }
   
   private final int kWordSize = ArchitecturalState.kWordSize;
