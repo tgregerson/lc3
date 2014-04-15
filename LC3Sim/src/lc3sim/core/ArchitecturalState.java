@@ -164,7 +164,10 @@ public class ArchitecturalState {
 
   public void SetPsr(int val) {
     int flags = val & 0x7;
-    assert (flags == 1 || flags == 2 || flags == 4) : flags;
+    if (!(flags == 1 || flags == 2 || flags == 4)) {
+      throw new IllegalArgumentException(
+          "Illegal PSR flags: " + flags + "; Only one bit can be set.");
+    }
     psr_.Notify(BitWord.FromInt(val, kWordSize), OutputId.External, InputId.Psr,
                 null);
   }
@@ -197,7 +200,11 @@ public class ArchitecturalState {
   // Returns start address of object file.
   public int LoadObjFile(Path file_path) throws IOException {
     byte[] bytes = ReadBinaryFile(file_path);
-    assert bytes.length >= 4 : bytes.length;
+    if (bytes.length < 4 || bytes.length % 2 != 0) {
+      throw new RuntimeException(
+          "Invalid number of bytes in object file: " + bytes.length +
+          "; Number of bytes must be even and >= 4.");
+    }
     final int start_addr = IntFrom2Bytes(bytes, 0);
     int addr = start_addr;
     for (int byte_offset = 2; byte_offset < bytes.length; byte_offset += 2) {
@@ -778,8 +785,8 @@ public class ArchitecturalState {
                                    InputId.External, null));
           break;
         default:
-          assert false : binding.output_id;
-          break;
+          throw new IllegalArgumentException(
+              "Unsupported listener binding: " + binding.output_id);
       }
     }
   }
@@ -804,7 +811,6 @@ public class ArchitecturalState {
   }
   
   private int IntFrom2Bytes(byte[] bytes, int start_index) {
-    assert bytes.length > start_index + 2;
     int upper = bytes[start_index] & 0x0FF;  // Treat byte as unsigned.
     int lower = bytes[start_index + 1] & 0x0FF;
     int val = (upper << 8) + lower;

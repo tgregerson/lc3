@@ -14,9 +14,16 @@ public class Bus extends AbstractPropagator {
   // AbstractPropagator methods
   public void Notify(BitWord data, OutputId sender, InputId receiver,
                      Object arg) {
-    assert receiver == InputId.Bus;
+    if (receiver != InputId.Bus) {
+      throw new IllegalStateException(
+          "Update to Bus contained non-Bus receiver ID: " + receiver);
+    }
     if (data != BitWord.EMPTY) {
-      assert data.num_bits() == kNumBits;
+      if (data.num_bits() != kNumBits) {
+        throw new IllegalArgumentException(
+            "Mismatch between bus width and update width: " + kNumBits +
+            " vs " + data.num_bits());
+      }
     }
     
     // Bus may store null data. This occurs if the previous driver sends null

@@ -5,7 +5,10 @@ package lc3sim.core;
 public class ConstantAdder extends AbstractPropagator {
   public ConstantAdder(OutputId out_id, int constant,
                        int output_bitwidth) {
-    assert output_bitwidth <= 32;
+    if (output_bitwidth > 32) {
+      throw new IllegalArgumentException(
+          "ConstantAdder does not support output bitwidth > 32.");
+    }
     bitwidth_ = output_bitwidth;
     constant_ = constant;
     out_id_ = out_id;

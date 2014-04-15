@@ -608,6 +608,7 @@ public class ArchitecturalStateTest {
     }
     state_.SetPc(os_start_addr);
     
+    // Set a sane limit to ensure we don't get stuck in an infinite loop.
     final int max_warmup_instructions = 500;
     int warmup_instructions = 0;
     while (state_.ExecuteInstruction() != program_start_addr &&

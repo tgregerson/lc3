@@ -29,7 +29,8 @@ public class ALU extends AbstractPropagator {
         alu_k_ = bit_word;
         break;
       default:
-        assert false : receiver;
+        throw new IllegalArgumentException(
+            "Invalid receiver ID specified in ALU: " + receiver);
     }
     UpdateOutput(out_id_);
   }

@@ -19,7 +19,10 @@ public class ProcessorStatusRegister extends Register {
       if (data.TestBit(kNBit)) set_count++;
       if (data.TestBit(kZBit)) set_count++;
       if (data.TestBit(kPBit)) set_count++;
-      assert set_count == 1 : set_count;
+      if (set_count != 1) {
+        throw new IllegalStateException(
+            "PSR contains " + set_count + " set bits.");
+      }
     }
     super.Notify(data, sender, receiver, arg);
   }

@@ -15,7 +15,6 @@ public class BitWord {
   }
   
   public String toString() {
-    assert bits_ != null;
     String ret = "";
     for (int i = 0; i < bits_.length; ++i) {
       if (i != 0 && i % 4 == 0) {
@@ -31,7 +30,6 @@ public class BitWord {
   }
   
   public boolean TestBit(int bit_index) {
-    assert (bit_index < bits_.length);
     return bits_[bit_index];
   }
   
@@ -113,7 +111,6 @@ public class BitWord {
   }
   
   public BitWord SetBit(int bit_index, boolean value) {
-    assert bit_index < bits_.length;
     boolean[] modified = bits_.clone();
     modified[bit_index] = value;
     return FromBooleanArray(modified);
@@ -189,7 +186,6 @@ public class BitWord {
   // Does not sign extend BitWords < 32 bits.
   // Truncates BitWords > 32 bits.
   public int ToInt() {
-    assert bits_.length <= 32;
     int residual = 0;
     for (int i = 0; i < num_bits(); ++i) {
       if (bits_[i]) {

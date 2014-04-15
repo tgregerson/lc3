@@ -35,7 +35,8 @@ public class Register extends AbstractPropagator
       } else if (receiver == enable_id_) {
         en_ = bit_word.ToBoolean();
       } else {
-        assert false;
+        throw new IllegalArgumentException(
+            "Unexpected Register receiver ID: " + receiver);
       }
     }
   }

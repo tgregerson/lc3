@@ -65,23 +65,26 @@ public class ControlLogic extends AbstractPropagator {
     switch (receiver) {
       case ControlState:
         cycle_ = InstructionCycle.Lookup(data);
-        assert cycle_ != null;
+        if (cycle_ == null) {
+          throw new IllegalArgumentException(
+              "Cycle lookup failed for: " + data);
+        }
         break;
       case ControlInstruction:
-        assert(data.num_bits() == Instruction.kNumBits);
         if (Instruction.OpCodeFromBitWord(data) == OpCode.RESERVED) {
           // TODO: Trigger Exception
-          assert false;
+          throw new UnsupportedOperationException(
+              "Exception handling for unsupported op codes not supported.");
         } else {
           instruction_ = Instruction.FromBitWord(data);
         }
         break;
       case ControlPsr:
-        assert(data.num_bits() == ProcessorStatusRegister.kNumBits);
         psr_ = data;
         break;
       default:
-        assert false;
+        throw new IllegalArgumentException(
+            "Unsupported ControlLogic receiver ID: " + receiver);
     }
     if (cycle_ != InstructionCycle.kReset) {
       UpdateCurrentControlSet();
@@ -119,8 +122,7 @@ public class ControlLogic extends AbstractPropagator {
       case ControlSavedUspLoad: return current_control_set_.saved_usp_load;
       case ControlSr2MuxSelect: return current_control_set_.sr2_mux_select;
       default:
-        assert false;
-        return null;
+        throw new IllegalArgumentException("Unsupported output ID: " + output_id);
     }
   }
   

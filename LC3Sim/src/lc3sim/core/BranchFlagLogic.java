@@ -23,7 +23,10 @@ public class BranchFlagLogic extends AbstractPropagator{
       z_ = true;
       n_ = p_ = false;
     } else {
-      assert data.num_bits() == ArchitecturalState.kWordSize : data.num_bits();
+      if (data.num_bits() != ArchitecturalState.kWordSize) {
+        throw new IllegalArgumentException(
+            "Invalid number of flag bits: " + data.num_bits());
+      }
       n_ = data.TestBit(ArchitecturalState.kWordSize - 1);
       z_ = !data.ToBoolean();
       p_ = !(n_ || z_);

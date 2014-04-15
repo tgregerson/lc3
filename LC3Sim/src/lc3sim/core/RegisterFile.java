@@ -20,7 +20,6 @@ public class RegisterFile extends AbstractPropagator implements Synchronized {
   }
   
   public BitWord Read(int reg_num) {
-    assert reg_num < num_entries_ : reg_num;
     return regs_[reg_num];
   }
   
@@ -32,8 +31,8 @@ public class RegisterFile extends AbstractPropagator implements Synchronized {
     } else if (output_id == OutputId.GprSr2) {
       return regs_[sr2_addr_.ToInt()];
     } else {
-      assert false;
-      return null;
+      throw new IllegalArgumentException(
+          "Unexpected output ID for RegisterFile: " + output_id);
     }
   }
   
@@ -42,9 +41,11 @@ public class RegisterFile extends AbstractPropagator implements Synchronized {
                      Object arg) {
     if (sender == OutputId.External) {
       // Change to internal state from external source.
-      assert arg instanceof RegisterStateUpdate;
+      if (!(arg instanceof RegisterStateUpdate)) {
+        throw new IllegalArgumentException(
+            "Expected RegisterStateUpdate from external sender ID.");
+      }
       int register = ((RegisterStateUpdate)arg).register_number;
-      assert register < num_entries_;
       regs_[register] = ((RegisterStateUpdate)arg).value.Resize(
           ArchitecturalState.kWordSize, false);
     } else {
@@ -66,7 +67,8 @@ public class RegisterFile extends AbstractPropagator implements Synchronized {
           dr_load_enable_ = data.ToBoolean();
           break;
         default:
-          assert false;
+          throw new IllegalArgumentException(
+              "Unexpected RegisterFile receiver ID: " + receiver);
       }
     }
     UpdateOutput(OutputId.GprSr1);

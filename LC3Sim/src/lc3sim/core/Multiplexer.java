@@ -12,11 +12,18 @@ public class Multiplexer extends AbstractPropagator {
     out_id_ = output_id;
     num_inputs_ = 1 << num_addr_bits;
     select_id_ = select_id;
-    assert bindings != null && bindings.length <= num_inputs_ &&
-           bindings.length > 0;
+    if (bindings.length > num_inputs_ || bindings.length == 0) {
+      throw new IllegalArgumentException(
+          "Invalid number of input bindings for " + num_inputs_ +
+          " input mux: " + bindings.length);
+    }
     address_bindings_ = new HashMap<InputId, Integer>();
     for (int i = 0; i < bindings.length; ++i) {
-      assert bindings[i].address.num_bits() <= num_addr_bits;
+      if (bindings[i].address.num_bits() > num_addr_bits) {
+        throw new IllegalArgumentException(
+            "Invalid number of binding address bits for " + num_addr_bits_ +
+            " mux: " + bindings[i].address.num_bits());
+      }
       address_bindings_.put(bindings[i].input,
                             bindings[i].address.ToInt());
     }
@@ -39,9 +46,14 @@ public class Multiplexer extends AbstractPropagator {
           data.Resize(num_data_bits_, false); 
     } else if (receiver == select_id_){
       address_buffer_ = data.Resize(num_addr_bits_, false);
-      assert address_buffer_.ToInt() < input_buffers_.length;
+      if (address_buffer_.ToInt() >= input_buffers_.length) {
+        throw new IllegalArgumentException(
+            "Address " + address_buffer_ + " is out-of-range for " +
+            input_buffers_.length + " input mux.");
+      }
     } else {
-      assert false;
+      throw new IllegalArgumentException(
+          "Invalid update to mux. Receiver ID: " + receiver + " Data: " + data);
     }
     UpdateOutput(out_id_);
   }

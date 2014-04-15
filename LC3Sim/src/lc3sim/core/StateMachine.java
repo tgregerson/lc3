@@ -26,7 +26,10 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
   }
   
   public void Start() {
-    assert !(IsRunning());
+    if (IsRunning()) {
+      throw new IllegalStateException(
+          "Called Start() on already running state machine.");
+    }
     cycle_ = InstructionCycle.kFetchInstruction1;
     UpdateOutput(OutputId.StateMachineCycle);
   }
@@ -79,8 +82,7 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
     } else if (id == OutputId.StateMachineInstruction) {
       return instruction_.bitword();
     } else {
-      assert false : id;
-      return null;
+      throw new IllegalArgumentException("Unexpected StateMachine output ID: " + id);
     }
   }
   

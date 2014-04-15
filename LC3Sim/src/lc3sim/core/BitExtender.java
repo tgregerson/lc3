@@ -8,7 +8,6 @@ package lc3sim.core;
 public class BitExtender extends AbstractPropagator {
   public BitExtender(OutputId output_id, int input_bits, int output_bits,
                       Boolean sign_extend) {
-    assert input_bits < output_bits;
     input_bits_ = input_bits;
     output_bits_ = output_bits;
     out_id_ = output_id;

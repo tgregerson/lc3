@@ -20,7 +20,6 @@ public class Memory extends AbstractPropagator implements Synchronized {
   }
   
   public BitWord Read(int addr) {
-    assert addr < num_entries_ : addr;
     return data_[addr];
   }
   
@@ -34,9 +33,11 @@ public class Memory extends AbstractPropagator implements Synchronized {
                      Object arg) {
     if (sender == OutputId.External) {
       // Change to internal state from external source.
-      assert arg instanceof MemoryStateUpdate;
+      if (!(arg instanceof MemoryStateUpdate)) {
+        throw new IllegalArgumentException(
+            "Expected MemoryStateUpdate from external sender ID.");
+      }
       int address = ((MemoryStateUpdate)arg).address.ToInt();
-      assert address < num_entries_;
       data_[address] =
           ((MemoryStateUpdate)arg).value.Resize(kWordSize, false);
       UpdateOutput(OutputId.Memory);
@@ -54,7 +55,8 @@ public class Memory extends AbstractPropagator implements Synchronized {
           write_enable_buffer_ = data.ToBoolean();
           break;
         default:
-          assert false;
+          throw new IllegalArgumentException(
+              "Unexpected Memory receiver ID: " + receiver);
       }
     }
   }
