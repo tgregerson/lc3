@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -594,7 +593,7 @@ public class ArchitecturalStateTest {
   public void P1ObjTest() {
     final int os_start_addr = 0x0200;
     try {
-      LoadObjFile("lc3os.obj");
+      state_.LoadObjFile(GetTestFilePath("lc3os.obj"));
     } catch (IOException e) {
       System.out.println("General I/O Exception:");
       System.out.println(e);
@@ -602,7 +601,7 @@ public class ArchitecturalStateTest {
 
     int program_start_addr = 0x0000;
     try {
-      program_start_addr = LoadObjFile("p1.obj");
+      program_start_addr = state_.LoadObjFile(GetTestFilePath("p1.obj"));
     } catch (IOException e) {
       System.out.println("General I/O Exception:");
       System.out.println(e);
@@ -690,32 +689,10 @@ public class ArchitecturalStateTest {
     return (psr & 0x1) != 0;
   }
 
-  private byte[] ReadBinaryFile(String filename) throws IOException {
-    Path path = Paths.get(System.getProperty("user.dir") + "/src/lc3sim/test/core/" + filename);
-    return Files.readAllBytes(path);
+  private Path GetTestFilePath(String filename) {
+    return Paths.get(System.getProperty("user.dir") + "/src/lc3sim/test/core/" + filename);
   }
-  
-  // Returns start address of object file.
-  private int LoadObjFile(String filename) throws IOException {
-    byte[] bytes = ReadBinaryFile(filename);
-    assert bytes.length >= 4 : bytes.length;
-    final int start_addr = IntFrom2Bytes(bytes, 0);
-    int addr = start_addr;
-    for (int byte_offset = 2; byte_offset < bytes.length; byte_offset += 2) {
-      int word = IntFrom2Bytes(bytes, byte_offset);
-      state_.SetMemory(addr++, word);
-    }
-    return start_addr;
-  }
-  
-  private int IntFrom2Bytes(byte[] bytes, int start_index) {
-    assert bytes.length > start_index + 2;
-    int upper = bytes[start_index] & 0x0FF;  // Treat byte as unsigned.
-    int lower = bytes[start_index + 1] & 0x0FF;
-    int val = (upper << 8) + lower;
-    return val;
-  }
-  
+
   private final int kWordSize = ArchitecturalState.kWordSize;
   
   private final int test_iterations_ = 1000;

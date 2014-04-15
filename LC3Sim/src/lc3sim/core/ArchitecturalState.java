@@ -2,6 +2,9 @@ package lc3sim.core;
 
 import java.util.List;
 
+import java.io.*;
+import java.nio.file.*;
+
 // Encapsulates the architectural state of the LC3 processor
 public class ArchitecturalState {
   public static final int kWordSize = 16;
@@ -191,6 +194,19 @@ public class ArchitecturalState {
     return memory_.Read(addr).ToInt();
   }
 
+  // Returns start address of object file.
+  public int LoadObjFile(Path file_path) throws IOException {
+    byte[] bytes = ReadBinaryFile(file_path);
+    assert bytes.length >= 4 : bytes.length;
+    final int start_addr = IntFrom2Bytes(bytes, 0);
+    int addr = start_addr;
+    for (int byte_offset = 2; byte_offset < bytes.length; byte_offset += 2) {
+      int word = IntFrom2Bytes(bytes, byte_offset);
+      SetMemory(addr++, word);
+    }
+    return start_addr;
+  }
+  
   public void ResetCycleClockRegistrations() {
     cycle_clock_.RemoveAllElements();
     cycle_clock_.AddSynchronizedElement(pc_);
@@ -781,6 +797,18 @@ public class ArchitecturalState {
   
   public int Pc() {
     return pc_.Read().ToInt();
+  }
+
+  private byte[] ReadBinaryFile(Path file_path) throws IOException {
+    return Files.readAllBytes(file_path);
+  }
+  
+  private int IntFrom2Bytes(byte[] bytes, int start_index) {
+    assert bytes.length > start_index + 2;
+    int upper = bytes[start_index] & 0x0FF;  // Treat byte as unsigned.
+    int lower = bytes[start_index + 1] & 0x0FF;
+    int val = (upper << 8) + lower;
+    return val;
   }
   
   // Control Plane
