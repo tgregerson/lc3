@@ -13,6 +13,11 @@ public class InterruptInstruction extends Instruction {
     PrivilegeModeException,
     ExternalInterrupt,
   }
+
+  @Override
+  public String toString() {
+    return "INTERRUPT";
+  }
   
   public InterruptInstruction(InterruptType type) {  
     super (BitWord.Zeroes(Instruction.kNumBits));

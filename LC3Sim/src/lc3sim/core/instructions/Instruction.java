@@ -54,6 +54,8 @@ public abstract class Instruction {
     return OpCode.Lookup(
         bitword.GetBitRange(kOpCodeHighBit, kOpCodeLowBit));
   }
+  
+  public abstract String toString();
 
   public abstract InstructionCycle NextCycle(
       InstructionCycle current_cycle);

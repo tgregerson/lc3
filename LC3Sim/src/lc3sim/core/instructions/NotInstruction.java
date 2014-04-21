@@ -10,6 +10,14 @@ public class NotInstruction extends Instruction {
   }
 
   @Override
+  public String toString() {
+    final String op_name = "NOT";
+    final String operand1 = "R" + dr().ToInt();
+    final String operand2 = "R" + sr().ToInt();
+    return op_name + " " + operand1 + ", " + operand2;
+  }
+
+  @Override
   public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
       case kStoreResult1: return StoreResult1ControlSet();

@@ -10,6 +10,14 @@ public class LdInstruction extends Instruction {
   }
 
   @Override
+  public String toString() {
+    final String op_name = "LD";
+    final String operand1 = "R" + dr().ToInt();
+    final String operand2 = "#" + pcoffset9().ToInt();
+    return op_name + " " + operand1 + ", " + operand2;
+  }
+
+  @Override
   public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
       case kEvaluateAddress1: return EvaluateAddress1ControlSet();

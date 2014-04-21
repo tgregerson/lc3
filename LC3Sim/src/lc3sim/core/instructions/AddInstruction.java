@@ -10,6 +10,16 @@ public class AddInstruction extends Instruction {
   }
   
   @Override
+  public String toString() {
+    final String op_name = "ADD";
+    final String operand1 = "R" + dr().ToInt();
+    final String operand2 = "R" + sr1().ToInt();
+    final String operand3 = has_sr2() ?
+        "R" + sr2().ToInt() : "#" + imm5().ToInt();
+    return op_name + operand1 + ", " + operand2 + ", " + operand3;
+  }
+  
+  @Override
   public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
       case kStoreResult1: return StoreResult1ControlSet();

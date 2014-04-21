@@ -10,6 +10,14 @@ public class JsrJsrrInstruction extends Instruction {
   }
 
   @Override
+  public String toString() {
+    final String op_name = mode_bit() ? "JSR" : "JSRR";
+    final String operand1 = mode_bit() ? "#" + pcoffset11().ToInt() :
+                                         "R" + base_r().ToInt();
+    return op_name + " " + operand1;
+  }
+
+  @Override
   public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
       case kStoreResult1: return StoreResult1ControlSet();

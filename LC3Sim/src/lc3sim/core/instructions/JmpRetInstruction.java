@@ -10,6 +10,14 @@ public class JmpRetInstruction extends Instruction {
   }
 
   @Override
+  public String toString() {
+    final String op_name = (base_r().ToInt() == 7) ? "RET" : "JMP";
+    final String operand1 =
+        (base_r().ToInt() == 7) ? "" : "R" + base_r().ToInt();
+    return op_name + " " + operand1;
+  }
+
+  @Override
   public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
       case kStoreResult1: return StoreResult1ControlSet();

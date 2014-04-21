@@ -10,6 +10,13 @@ public class TrapInstruction extends Instruction{
   }
 
   @Override
+  public String toString() {
+    final String op_name = "TRAP";
+    final String operand1 = "#" + trapvect8().ToInt();
+    return op_name + " " + operand1;
+  }
+
+  @Override
   public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
       case kExecuteOperation1: return ExecuteOperation1ControlSet();

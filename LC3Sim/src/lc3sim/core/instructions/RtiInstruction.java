@@ -10,6 +10,11 @@ public class RtiInstruction extends Instruction {
   }
 
   @Override
+  public String toString() {
+    return "RTI";
+  }
+
+  @Override
   public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
       case kFetchInstruction1:

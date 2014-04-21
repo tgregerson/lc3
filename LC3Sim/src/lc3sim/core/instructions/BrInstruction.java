@@ -11,6 +11,16 @@ public class BrInstruction extends Instruction {
   }
 
   @Override
+  public String toString() {
+    final String op_name = "BR";
+    String flags = "";
+    flags.concat(n() ? "n" : "");
+    flags.concat(z() ? "z" : "");
+    flags.concat(p() ? "p" : "");
+    return op_name + flags + " " + pcoffset9().ToInt();
+  }
+
+  @Override
   public ControlSet ControlSet(InstructionCycle cycle, BitWord psr) {
     switch (cycle) {
       case kStoreResult1: return StoreResult1ControlSet(psr);
