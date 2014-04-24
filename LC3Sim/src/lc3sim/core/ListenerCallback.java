@@ -27,6 +27,10 @@ public class ListenerCallback {
   public void Run(BitWord bit_word) {
     listener_.Notify(bit_word, sender_, receiver_, arg_);
   }
+
+  public void Run(BitWord bit_word, Object arg) {
+    listener_.Notify(bit_word, sender_, receiver_, arg);
+  }
   
   public Listener listener() {
     return listener_;

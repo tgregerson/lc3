@@ -57,6 +57,15 @@ public abstract class AbstractPropagator implements Listener, Listenable {
       }
     }
   }
+
+  // Executes NotifyUpdate on listeners with associated with 'sender_id'.
+  protected void SendNotification(BitWord bit_word, Object arg, OutputId sender_id) {
+    for (ListenerCallback cb : listener_bindings_) {
+      if (cb.sender() == sender_id) {
+        cb.Run(bit_word, arg);
+      }
+    }
+  }
   
   protected void UpdateOutput(OutputId id) {
     BitWord old_output = CurrentOutput(id);

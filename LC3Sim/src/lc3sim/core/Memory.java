@@ -37,9 +37,9 @@ public class Memory extends AbstractPropagator implements Synchronized {
         throw new IllegalArgumentException(
             "Expected MemoryStateUpdate from external sender ID.");
       }
-      int address = ((MemoryStateUpdate)arg).address.ToInt();
+      int address = ((MemoryStateUpdate)arg).address;
       data_[address] =
-          ((MemoryStateUpdate)arg).value.Resize(kWordSize, false);
+          BitWord.FromInt(((MemoryStateUpdate)arg).value, kWordSize);
       UpdateOutput(OutputId.Memory);
     } else {
       // Change to one of the inputs.
@@ -63,18 +63,25 @@ public class Memory extends AbstractPropagator implements Synchronized {
   
   // Used by external UI to force updates to register state.
   public static class MemoryStateUpdate {
-    public MemoryStateUpdate(BitWord addr, BitWord val) {
+    public MemoryStateUpdate(int addr, int val) {
       address = addr;
       value = val;
     }  
-    public BitWord address;
-    public BitWord value;
+    public int address;
+    public int value;
   };
   
   // Synchronized interface
   public void PreClock() {
     if (write_enable_buffer_) {
+      BitWord old_data = data_[addr_buffer_.ToInt()];
       data_[addr_buffer_.ToInt()] = data_in_buffer_;
+      if (!old_data.IsIdentical(data_in_buffer_)) {
+        Memory.MemoryStateUpdate update =
+            new Memory.MemoryStateUpdate(addr_buffer_.ToInt(),
+                                         data_in_buffer_.ToInt());
+        SendNotification(null, update, OutputId.MemoryInternal);
+      }
     }
   }
   

@@ -17,6 +17,11 @@ public enum OutputId {
 	SavedUsp,
 	SavedSsp,
 	
+	// For synchronous logic with internal state that is not visible from a
+	// physical output
+	GprInternal,
+	MemoryInternal,
+	
 	// Outputs of Combinational logic
 	PcIncrementer,
 	BusIncrementer,

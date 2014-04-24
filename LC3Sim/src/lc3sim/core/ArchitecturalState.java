@@ -188,8 +188,8 @@ public class ArchitecturalState {
   }
   
   public void SetMemory(int address, int val) {
-    Memory.MemoryStateUpdate update = new Memory.MemoryStateUpdate(
-        BitWord.FromInt(address, kWordSize), BitWord.FromInt(val, kWordSize));
+    Memory.MemoryStateUpdate update =
+        new Memory.MemoryStateUpdate(address, val);
     memory_.Notify(null, OutputId.External, null, update);
   }
 

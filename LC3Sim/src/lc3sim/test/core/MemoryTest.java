@@ -67,7 +67,7 @@ public class MemoryTest {
     BitWord ext_address = BitWord.FromInt(25000, Memory.kNumAddrBits);
     memory_.Notify(BitWord.FALSE, int_sender, InputId.MemoryWriteEnable, null);
     Memory.MemoryStateUpdate update =
-        new Memory.MemoryStateUpdate(ext_address, value1);
+        new Memory.MemoryStateUpdate(ext_address.ToInt(), value1.ToInt());
     memory_.Notify(null, ext_sender, null, update);
     memory_.Notify(ext_address, int_sender, InputId.MemoryAddr, null);
     assertEquals(listener_.last_bitword, value1);
