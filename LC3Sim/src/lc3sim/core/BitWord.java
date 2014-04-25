@@ -29,6 +29,19 @@ public class BitWord {
     return "[" + ret + "]";
   }
   
+  public String toHexString() {
+    return Integer.toHexString(ToInt());
+  }
+
+  public String toSignedDecString() {
+    boolean is_negative = bits_[bits_.length - 1];
+    if (is_negative) {
+      return "-" + Negate().ToInt();
+    } else {
+      return Integer.toString(ToInt());
+    }
+  }
+  
   public boolean TestBit(int bit_index) {
     return bits_[bit_index];
   }
@@ -78,6 +91,11 @@ public class BitWord {
     } else {
       return false;
     }
+  }
+  
+  public BitWord Negate() {
+    return Invert().AddFixedWidth(
+        BitWord.TRUE.Resize(bits_.length, false), bits_.length);
   }
   
   // Add treats operands as 2's complement and sign extends, or truncates as
