@@ -13,7 +13,7 @@ public class LdInstruction extends Instruction {
   public String toString() {
     final String op_name = "LD";
     final String operand1 = "R" + dr().ToInt();
-    final String operand2 = "#" + pcoffset9().ToInt();
+    final String operand2 = "#" + pcoffset9().toSignedDecString();
     return op_name + " " + operand1 + ", " + operand2;
   }
 

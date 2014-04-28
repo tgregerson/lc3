@@ -13,7 +13,7 @@ public class StiInstruction extends Instruction {
   public String toString() {
     final String op_name = "STI";
     final String operand1 = "R" + sr().ToInt();
-    final String operand2 = "#" + pcoffset9().ToInt();
+    final String operand2 = "#" + pcoffset9().toSignedDecString();
     return op_name + " " + operand1 + ", " + operand2;
   }
 

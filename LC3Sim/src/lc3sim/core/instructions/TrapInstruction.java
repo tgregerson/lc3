@@ -12,7 +12,7 @@ public class TrapInstruction extends Instruction{
   @Override
   public String toString() {
     final String op_name = "TRAP";
-    final String operand1 = "#" + trapvect8().ToInt();
+    final String operand1 = "x" + trapvect8().toHexString();
     return op_name + " " + operand1;
   }
 

@@ -15,8 +15,8 @@ public class AddInstruction extends Instruction {
     final String operand1 = "R" + dr().ToInt();
     final String operand2 = "R" + sr1().ToInt();
     final String operand3 = has_sr2() ?
-        "R" + sr2().ToInt() : "#" + imm5().ToInt();
-    return op_name + operand1 + ", " + operand2 + ", " + operand3;
+        "R" + sr2().ToInt() : "#" + imm5().toSignedDecString();
+    return op_name + " " + operand1 + ", " + operand2 + ", " + operand3;
   }
   
   @Override

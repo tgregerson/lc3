@@ -14,10 +14,10 @@ public class BrInstruction extends Instruction {
   public String toString() {
     final String op_name = "BR";
     String flags = "";
-    flags.concat(n() ? "n" : "");
-    flags.concat(z() ? "z" : "");
-    flags.concat(p() ? "p" : "");
-    return op_name + flags + " " + pcoffset9().ToInt();
+    flags = flags.concat(n() ? "n" : "");
+    flags = flags.concat(z() ? "z" : "");
+    flags = flags.concat(p() ? "p" : "");
+    return op_name + flags + " #" + pcoffset9().toSignedDecString();
   }
 
   @Override

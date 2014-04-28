@@ -14,7 +14,8 @@ public class StrInstruction extends Instruction {
     final String op_name = "STR";
     final String operand1 = "R" + sr().ToInt();
     final String operand2 = "R" + base_r().ToInt();
-    return op_name + " " + operand1 + ", " + operand2;
+    final String operand3 = "#" + offset6().toSignedDecString();
+    return op_name + " " + operand1 + ", " + operand2 + ", " + operand3;
   }
 
   @Override
