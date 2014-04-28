@@ -95,6 +95,18 @@ public class SimulationController implements Listener {
 
     model_.AddExternalListenerBindings(bindings);
   }
+  
+  public void SetModelMemory(int address, int data) {
+    model_.SetMemory(address, data);
+  }
+  
+  public void SetModelGpr(int reg_num, int data) {
+    model_.SetGpr(reg_num, data);
+  }
+  
+  public void SetModelPc(int data) {
+    model_.SetPc(data);
+  }
 
   @Override
   public void Notify(BitWord bit_word, OutputId sender, InputId receiver,

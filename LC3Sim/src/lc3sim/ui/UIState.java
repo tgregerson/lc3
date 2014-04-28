@@ -12,6 +12,10 @@ public class UIState {
       instructionString = new SimpleStringProperty(DataToInstruction(data));
     }
     
+    public int getAddress() {
+      return Hex4ToInt(getAddressString());
+    }
+    
     public String getAddressString() {
       return addressString.get();
     }
@@ -22,6 +26,10 @@ public class UIState {
     
     public void setAddress(int address) {
       addressString.set(IntTo4DigitHex(address));
+    }
+    
+    public int getData() {
+      return Hex4ToInt(getDataString());
     }
     
     public String getDataString() {
@@ -65,7 +73,6 @@ public class UIState {
         // If input is invalid, just leave the old value.
         return;
       }
-      // TODO: Call memory listener to update core state.
       dataString.set(data);
     }
 
@@ -80,6 +87,57 @@ public class UIState {
     private final SimpleStringProperty addressString;
     private final SimpleStringProperty dataString;
     private final SimpleStringProperty instructionString;
+  }
+
+  public static class RegisterEntry {
+    public RegisterEntry(String name, int data) {
+      nameString = new SimpleStringProperty(name);
+      dataString = new SimpleStringProperty(IntTo4DigitHex(data));
+    }
+    
+    public String getNameString() {
+      return nameString.get();
+    }
+    
+    public void setNameString(String address) {
+      nameString.set(address);
+    }
+    
+    public int getData() {
+      return Hex4ToInt(getDataString());
+    }
+    
+    public String getDataString() {
+      return dataString.get();
+    }
+
+    public void setDataString(String data) {
+      if (data.isEmpty()) {
+        return;
+      }
+      // Detect radix and strip leading type indicator
+      int radix = 16;
+      switch (data.charAt(0)) {
+        case '#': radix = 10;  // FALLTHROUGH-INTENDED
+        case 'x':              // FALLTHROUGH-INTENDED
+        case 'X': data = data.substring(1);
+      }
+      try {
+        int value = Integer.parseInt(data, radix);
+        data = IntTo4DigitHex(value);
+      } catch (NumberFormatException e) {
+        // If input is invalid, just leave the old value.
+        return;
+      }
+      dataString.set(data);
+    }
+
+    public void setData(int data) {
+      setDataString(Integer.toHexString(data));
+    }
+
+    private final SimpleStringProperty nameString;
+    private final SimpleStringProperty dataString;
   }
 
   public static String IntTo4DigitHex(int val) {

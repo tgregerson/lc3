@@ -54,6 +54,7 @@ public class RegisterFile extends AbstractPropagator implements Synchronized {
       int register = ((RegisterStateUpdate)arg).register_number;
       regs_[register] = ((RegisterStateUpdate)arg).value.Resize(
           ArchitecturalState.kWordSize, false);
+      SendNotification(null, arg, OutputId.GprInternal);
     } else {
       // Change to one of the inputs.
       switch (receiver) {
@@ -95,6 +96,9 @@ public class RegisterFile extends AbstractPropagator implements Synchronized {
   public void PreClock() {
     if (dr_load_enable_) {
       regs_[dr_addr_.ToInt()] = dr_in_;
+      RegisterStateUpdate update =
+          new RegisterStateUpdate(dr_addr_.ToInt(), dr_in_);
+      SendNotification(null, update, OutputId.GprInternal);
     }
   }
   
