@@ -1,5 +1,7 @@
 package lc3sim.core;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -9,7 +11,18 @@ import lc3sim.core.ArchitecturalState.ListenerBinding;
 
 public class SimulationController implements Listener {
   
-  public SimulationController() {}
+  public SimulationController() {
+    options_ = new Options();
+  }
+  
+  public void TestLoadP1() {
+    Path path = Paths.get(System.getProperty("user.dir") + "/src/lc3sim/test/core/lc3os.obj");
+    try {
+      model_.LoadObjFile(path);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
   
   public void SetModel(ArchitecturalState model) {
     if (model_ != null) {

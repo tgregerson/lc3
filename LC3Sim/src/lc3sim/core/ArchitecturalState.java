@@ -652,6 +652,10 @@ public class ArchitecturalState {
               new ListenerCallback(binding.listener, OutputId.GprSr2,
                                    InputId.External, null));
           break;
+        case GprInternal:
+          gpr_.RegisterListenerCallback(
+              new ListenerCallback(binding.listener, OutputId.GprInternal,
+                                   InputId.External, null));
         case Ir:
           ir_.RegisterListenerCallback(
               new ListenerCallback(binding.listener, OutputId.Ir,
@@ -715,6 +719,11 @@ public class ArchitecturalState {
         case Memory:
           memory_.RegisterListenerCallback(
               new ListenerCallback(binding.listener, OutputId.Memory,
+                                   InputId.External, null));
+          break;
+        case MemoryInternal:
+          memory_.RegisterListenerCallback(
+              new ListenerCallback(binding.listener, OutputId.MemoryInternal,
                                    InputId.External, null));
           break;
         case NzpLogic:

@@ -25,6 +25,11 @@ public class UIFXMain extends Application {
   
   public UIFXMain() {
     InitMemory();
+    controller_ = new lc3sim.core.SimulationController();
+    lc3sim.core.ArchitecturalState model = new lc3sim.core.ArchitecturalState();
+    controller_.SetModel(model);
+    controller_.SetView(this);
+    controller_.TestLoadP1();
   }
   
   private void InitMemory() {
@@ -42,15 +47,20 @@ public class UIFXMain extends Application {
 
 	  TableColumn<MemoryEntry, String> address_col = new TableColumn<MemoryEntry, String>("Address");
 	  TableColumn<MemoryEntry, String> data_col = new TableColumn<MemoryEntry, String>("Data");
+	  TableColumn<MemoryEntry, String> inst_col = new TableColumn<MemoryEntry, String>("Instruction");
     memory_table_.getColumns().add(address_col);
     memory_table_.getColumns().add(data_col);
+    memory_table_.getColumns().add(inst_col);
     address_col.setMinWidth(100);
     data_col.setMinWidth(100);
+    inst_col.setMinWidth(300);
     
     address_col.setCellValueFactory(
         new PropertyValueFactory<MemoryEntry, String>("addressString"));
     data_col.setCellValueFactory(
         new PropertyValueFactory<MemoryEntry, String>("dataString"));
+    inst_col.setCellValueFactory(
+        new PropertyValueFactory<MemoryEntry, String>("instructionString"));
 
     data_col.setCellFactory(TextFieldTableCell.<MemoryEntry>forTableColumn());
     data_col.setOnEditCommit(
@@ -105,6 +115,8 @@ public class UIFXMain extends Application {
       v.getColumns().get(0).setVisible(true);
     }
   }
+  
+  private lc3sim.core.SimulationController controller_;
 
 	// Maps from address (as unsigned int) to MemoryEntry.
 	private Map<Integer, MemoryEntry> memory_contents_;

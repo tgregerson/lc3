@@ -41,6 +41,7 @@ public class Memory extends AbstractPropagator implements Synchronized {
       data_[address] =
           BitWord.FromInt(((MemoryStateUpdate)arg).value, kWordSize);
       UpdateOutput(OutputId.Memory);
+      SendNotification(null, arg, OutputId.MemoryInternal);
     } else {
       // Change to one of the inputs.
       switch (receiver) {
