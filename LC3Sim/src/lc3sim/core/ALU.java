@@ -12,7 +12,11 @@ public class ALU extends AbstractPropagator {
     op_a_ = BitWord.Zeroes(kWordSize);
     op_b_ = BitWord.Zeroes(kWordSize);
     alu_k_ = BitWord.Zeroes(kNumModeBits);
-    UpdateOutput(out_id_);
+    RefreshOutput();
+  }
+
+  public void RefreshOutput() {
+    ForceUpdateOutput(out_id_);
   }
   
   @Override

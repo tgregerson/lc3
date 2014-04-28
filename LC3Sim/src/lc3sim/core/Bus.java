@@ -9,6 +9,11 @@ public class Bus extends AbstractPropagator {
   
   public void Init() {
     data_ = null;
+    RefreshOutput();
+  }
+
+  public void RefreshOutput() {
+    ForceUpdateOutput(OutputId.Bus);
   }
   
   // AbstractPropagator methods

@@ -51,8 +51,8 @@ public abstract class AbstractPropagator implements Listener, Listenable {
   protected void SendNotification(BitWord bit_word, OutputId sender_id) {
     for (ListenerCallback cb : listener_bindings_) {
       if (cb.sender() == sender_id) {
-        //String data_string = (bit_word != null) ? bit_word.toString() : "null";
-        //System.out.println("Sending " + data_string + " from OutputId." + sender_id.name() + " to InputId." + cb.receiver().name());
+        String data_string = (bit_word != null) ? bit_word.toString() : "null";
+        System.out.println("Sending " + data_string + " from OutputId." + sender_id.name() + " to InputId." + cb.receiver().name());
         cb.Run(bit_word);
       }
     }
@@ -67,6 +67,17 @@ public abstract class AbstractPropagator implements Listener, Listenable {
     }
   }
   
+  // Forces an output update on all outputs.
+  public abstract void RefreshOutput();
+  
+  // Updates output and sends notification regardless of change.
+  protected void ForceUpdateOutput(OutputId id) {
+    BitWord new_output = ComputeOutput(id);
+    SetCurrentOutput(id, new_output);
+    SendNotification(new_output, id);
+  }
+  
+  // Updates output and sends notification only if changed.
   protected void UpdateOutput(OutputId id) {
     BitWord old_output = CurrentOutput(id);
     BitWord new_output = ComputeOutput(id);

@@ -13,6 +13,11 @@ public class BranchFlagLogic extends AbstractPropagator{
   public void Init() {
     z_ = true;
     n_ = p_ = false;
+    RefreshOutput();
+  }
+
+  public void RefreshOutput() {
+    ForceUpdateOutput(OutputId.NzpLogic);
   }
   
   // Updates flags assuming 'reg_data' was written to the register file.

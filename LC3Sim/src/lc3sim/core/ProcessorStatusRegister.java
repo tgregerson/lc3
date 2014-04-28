@@ -10,7 +10,7 @@ public class ProcessorStatusRegister extends Register {
   public ProcessorStatusRegister() {
     super(kNumBits, InputId.Psr, InputId.PsrLoad, OutputId.Psr);
   }
-  
+
   public void Notify(BitWord data, OutputId sender, InputId receiver,
                      Object arg) {
     // Sanity-check updates to NZP bits before forwarding to superclass.

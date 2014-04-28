@@ -1,7 +1,8 @@
 package lc3sim.core;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
 import java.io.*;
 import java.nio.file.*;
 
@@ -58,6 +59,7 @@ public class ArchitecturalState {
     pc_mux_ = new Multiplexer(
         kNumPcMuxSelectBits, kWordSize, pc_mux_bindings, InputId.PcMuxSel,
         OutputId.PcMux);
+    all_propagating_logic_.add(pc_mux_);
     
     Multiplexer.AddressBinding[] mar_mux_bindings = {
         new Multiplexer.AddressBinding(
@@ -68,6 +70,7 @@ public class ArchitecturalState {
     mar_mux_ = new Multiplexer(
         kNumMarMuxSelectBits, kWordSize, mar_mux_bindings, InputId.MarMuxSel,
         OutputId.MarMux);
+    all_propagating_logic_.add(mar_mux_);
     
     Multiplexer.AddressBinding[] mdr_mux_bindings = {
         new Multiplexer.AddressBinding(
@@ -78,6 +81,7 @@ public class ArchitecturalState {
     mdr_mux_ = new Multiplexer(
         kNumMdrMuxSelectBits, kWordSize, mdr_mux_bindings, InputId.MdrMuxSel,
         OutputId.MdrMux);
+    all_propagating_logic_.add(mdr_mux_);
     
     Multiplexer.AddressBinding[] sr2_mux_bindings = {
         new Multiplexer.AddressBinding(
@@ -88,6 +92,7 @@ public class ArchitecturalState {
     sr2_mux_ = new Multiplexer(
         kNumSr2MuxSelectBits, kWordSize, sr2_mux_bindings, InputId.Sr2MuxSel,
         OutputId.Sr2Mux);
+    all_propagating_logic_.add(sr2_mux_);
     
     Multiplexer.AddressBinding[] addr1_mux_bindings = {
         new Multiplexer.AddressBinding(
@@ -98,6 +103,7 @@ public class ArchitecturalState {
     addr1_mux_ = new Multiplexer(
         kNumAddr1MuxSelectBits, kWordSize, addr1_mux_bindings, InputId.AddrAdder1MuxSel,
         OutputId.Addr1Mux);
+    all_propagating_logic_.add(addr1_mux_);
     
     Multiplexer.AddressBinding[] addr2_mux_bindings = {
         new Multiplexer.AddressBinding(
@@ -112,6 +118,7 @@ public class ArchitecturalState {
     addr2_mux_ = new Multiplexer(
         kNumAddr2MuxSelectBits, kWordSize, addr2_mux_bindings, InputId.AddrAdder2MuxSel,
         OutputId.Addr2Mux);
+    all_propagating_logic_.add(addr2_mux_);
     
     Init();
   }
@@ -122,6 +129,13 @@ public class ArchitecturalState {
     ResetCycleClockRegistrations();
     state_machine_.Reset();
     state_machine_.Start();
+    RefreshAllLogicOutputs();
+  }
+  
+  private void RefreshAllLogicOutputs() {
+    for (AbstractPropagator ap : all_propagating_logic_) {
+      ap.RefreshOutput();
+    }
   }
   
   // Methods for setting internal state. All setting methods take input as an
@@ -905,4 +919,35 @@ public class ArchitecturalState {
   
   // Shared Bus
   private final Bus bus_ = new Bus();
+
+  // Muxes get added in constructor since they cannot be initialized when
+  // declared.
+  private final List<AbstractPropagator> all_propagating_logic_ =
+      new ArrayList<AbstractPropagator>(
+          Arrays.asList(
+              state_machine_,
+              control_logic_,
+              pc_,
+              ir_,
+              mdr_,
+              mar_,
+              psr_,
+              gpr_,
+              memory_,
+              alu_,
+              addr_adder_,
+              pc_incrementer_,
+              sign_extend_11_,
+              sign_extend_9_,
+              sign_extend_6_,
+              sign_extend_5_,
+              zero_extend_8_,
+              branch_flag_logic_,
+              pc_tri_,
+              mar_mux_tri_,
+              mdr_tri_,
+              alu_tri_,
+              bus_
+          )
+      );
 }

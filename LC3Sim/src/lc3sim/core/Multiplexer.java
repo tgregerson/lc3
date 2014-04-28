@@ -36,6 +36,11 @@ public class Multiplexer extends AbstractPropagator {
     for (int i = 0; i < num_inputs_; ++i) {
       input_buffers_[i] = BitWord.Zeroes(num_data_bits_);
     }
+    RefreshOutput();
+  }
+
+  public void RefreshOutput() {
+    ForceUpdateOutput(out_id_);
   }
   
   // BasicPropagator interface

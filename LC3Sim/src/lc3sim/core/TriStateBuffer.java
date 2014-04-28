@@ -12,6 +12,11 @@ public class TriStateBuffer extends AbstractPropagator {
   public void Init() {
     enable_ = false;
     data_ = BitWord.EMPTY;
+    RefreshOutput();
+  }
+
+  public void RefreshOutput() {
+    ForceUpdateOutput(output_id_);
   }
   
   // AbstractPropagator methods

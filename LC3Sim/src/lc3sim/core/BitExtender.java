@@ -17,7 +17,11 @@ public class BitExtender extends AbstractPropagator {
   
   public void Init() {
     input_buffer_ = BitWord.Zeroes(output_bits_);
-    UpdateOutput(out_id_);
+    RefreshOutput();
+  }
+
+  public void RefreshOutput() {
+    ForceUpdateOutput(out_id_);
   }
   
   public void Notify(BitWord bit_word, OutputId sender, InputId receiver,

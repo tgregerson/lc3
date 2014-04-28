@@ -17,6 +17,11 @@ public class Memory extends AbstractPropagator implements Synchronized {
     addr_buffer_ = BitWord.Zeroes(kNumAddrBits);
     write_enable_buffer_ = false;
     data_in_buffer_ = BitWord.Zeroes(kWordSize);
+    RefreshOutput();
+  }
+
+  public void RefreshOutput() {
+    ForceUpdateOutput(OutputId.Memory);
   }
   
   public BitWord Read(int addr) {

@@ -19,4 +19,9 @@ public class TestPropagator extends AbstractPropagator {
   }
   
   private BitWord last_bitword_;
+
+  @Override
+  public void RefreshOutput() {
+    throw new RuntimeException("Unsupported");
+  }
 }

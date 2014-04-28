@@ -16,9 +16,12 @@ public class StateMachine extends AbstractPropagator implements Synchronized {
     Reset();
     instruction_data_buffer_ = BitWord.Zeroes(Instruction.kNumBits);
     instruction_ = Instruction.FromBitWord(instruction_data_buffer_);
-    // TODO Check on whether additional mechanism are necessary to ensure the
-    // system initializes properly regardless of order of construction and
-    // adding of listeners.
+    RefreshOutput();
+  }
+
+  public void RefreshOutput() {
+    ForceUpdateOutput(OutputId.StateMachineCycle);
+    ForceUpdateOutput(OutputId.StateMachineInstruction);
   }
   
   public boolean IsRunning() {

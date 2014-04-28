@@ -20,6 +20,37 @@ public class ControlLogic extends AbstractPropagator {
     instruction_ = Instruction.FromBitWord(BitWord.Zeroes(Instruction.kNumBits));
     psr_ = BitWord.Zeroes(ProcessorStatusRegister.kNumBits);
     current_control_set_ = new ControlSet();
+    RefreshOutput();
+  }
+
+  public void RefreshOutput() {
+    ForceUpdateOutput(OutputId.ControlAddr1MuxSelect);
+    ForceUpdateOutput(OutputId.ControlAddr2MuxSelect);
+    ForceUpdateOutput(OutputId.ControlAluK);
+    ForceUpdateOutput(OutputId.ControlAluTriEnable);
+    ForceUpdateOutput(OutputId.ControlBusDecrementerTriEnable);
+    ForceUpdateOutput(OutputId.ControlBusIncrementerTriEnable);
+    ForceUpdateOutput(OutputId.ControlGprDrLoad);
+    ForceUpdateOutput(OutputId.ControlGprDrAddr);
+    ForceUpdateOutput(OutputId.ControlGprSr1Addr);
+    ForceUpdateOutput(OutputId.ControlGprSr2Addr);
+    ForceUpdateOutput(OutputId.ControlIrLoad);
+    ForceUpdateOutput(OutputId.ControlMarLoad);
+    ForceUpdateOutput(OutputId.ControlMarMuxSelect);
+    ForceUpdateOutput(OutputId.ControlMarMuxTriEnable);
+    ForceUpdateOutput(OutputId.ControlMdrLoad);
+    ForceUpdateOutput(OutputId.ControlMdrMuxSelect);
+    ForceUpdateOutput(OutputId.ControlMdrTriEnable);
+    ForceUpdateOutput(OutputId.ControlMemoryWriteEnable);
+    ForceUpdateOutput(OutputId.ControlPcLoad);
+    ForceUpdateOutput(OutputId.ControlPcTriEnable);
+    ForceUpdateOutput(OutputId.ControlPcMuxSelect);
+    ForceUpdateOutput(OutputId.ControlPsrLoad);
+    ForceUpdateOutput(OutputId.ControlSavedSpMuxSelect);
+    ForceUpdateOutput(OutputId.ControlSavedSpMuxTriEnable);
+    ForceUpdateOutput(OutputId.ControlSavedSspLoad);
+    ForceUpdateOutput(OutputId.ControlSavedUspLoad);
+    ForceUpdateOutput(OutputId.ControlSr2MuxSelect);
   }
   
   public void UpdateAllOutputs() {

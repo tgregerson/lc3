@@ -84,7 +84,9 @@ public class SimulationController implements Listener {
     List<ListenerBinding> bindings = new ArrayList<ListenerBinding>();
     
     // Add always-on bindings.
+    bindings.add(new ListenerBinding(this, OutputId.Pc));
     bindings.add(new ListenerBinding(this, OutputId.MemoryInternal));
+    bindings.add(new ListenerBinding(this, OutputId.GprInternal));
     
     // Add optional bindings.
     if (options_.show_internal_signals) {
@@ -103,8 +105,23 @@ public class SimulationController implements Listener {
           throw new IllegalArgumentException(
               "Expected MemoryStateUpdate from memory.");
         }
-        Memory.MemoryStateUpdate update = (Memory.MemoryStateUpdate)(arg);
-        view_.UpdateMemory(update.address, update.value);
+        Memory.MemoryStateUpdate m_update = (Memory.MemoryStateUpdate)(arg);
+        view_.UpdateMemory(m_update.address, m_update.value);
+        break;
+      case GprInternal:
+        if (!(arg instanceof RegisterFile.RegisterStateUpdate)) {
+          throw new IllegalArgumentException(
+              "Expected RegisterStateUpdate from gpr.");
+        }
+        RegisterFile.RegisterStateUpdate gpr_update =
+            (RegisterFile.RegisterStateUpdate)(arg);
+        view_.UpdateGpr(gpr_update.register_number, gpr_update.value.ToInt());
+        break;
+      case Ir:
+        view_.UpdateSpr("IR", bit_word.ToInt());
+        break;
+      case Pc:
+        view_.UpdateSpr("PC", bit_word.ToInt());
         break;
       default:
         throw new IllegalArgumentException(
@@ -123,5 +140,4 @@ public class SimulationController implements Listener {
   private ArchitecturalState model_;
   
   private Set<Integer> breakpoints_;
-
 }

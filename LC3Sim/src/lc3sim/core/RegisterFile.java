@@ -17,6 +17,12 @@ public class RegisterFile extends AbstractPropagator implements Synchronized {
     sr1_addr_ = sr2_addr_ = dr_addr_ = BitWord.Zeroes(kNumAddrBits);
     dr_load_enable_ = false;
     dr_in_ = BitWord.Zeroes(kWordSize);
+    RefreshOutput();
+  }
+
+  public void RefreshOutput() {
+    ForceUpdateOutput(OutputId.GprSr1);
+    ForceUpdateOutput(OutputId.GprSr2);
   }
   
   public BitWord Read(int reg_num) {

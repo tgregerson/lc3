@@ -12,7 +12,11 @@ public class Adder extends AbstractPropagator {
   public void Init() {
     op_a_ = BitWord.Zeroes(bitwidth_);
     op_b_ = BitWord.Zeroes(bitwidth_);
-    UpdateOutput(out_id_);
+    RefreshOutput();
+  }
+  
+  public void RefreshOutput() {
+    ForceUpdateOutput(out_id_);
   }
   
   @Override
