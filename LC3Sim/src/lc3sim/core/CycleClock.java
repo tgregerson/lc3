@@ -22,7 +22,7 @@ public class CycleClock {
   }
   
   public void Tick() {
-    System.out.println("----------------------------------TICK---------------------------------");
+    //System.out.println("----------------------------------TICK---------------------------------");
     for (Synchronized element : elements_) {
       element.PreClock();
     }
