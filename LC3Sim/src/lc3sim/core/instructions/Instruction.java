@@ -36,8 +36,7 @@ public abstract class Instruction {
       case STR:      return new StrInstruction(bitword);
       case TRAP:     return new TrapInstruction(bitword);
       default:
-        assert false : op_code;
-        return null;
+        throw new IllegalArgumentException("Invalid op code: " + op_code);
     }
   }
 
@@ -70,17 +69,21 @@ public abstract class Instruction {
       case kFetchInstruction3:
         return FetchInstruction3ControlSet();
       default:
-        // Unused
-        assert false;
-        return null;
+        throw new RuntimeException("Unexpected cycle: " + cycle +
+                                   " in instruction " + this);
     }
   }
 
   protected Instruction(BitWord bitword) {
-    assert bitword.num_bits() == kNumBits;
+    if (bitword.num_bits() != kNumBits) {
+      throw new IllegalArgumentException(
+          "Invalid number of bits in instruction: " + bitword.num_bits());
+    }
     bitword_ = bitword;
     op_code_ = OpCodeFromBitWord(bitword);
-    assert op_code_ != null;
+    if (op_code_ == null) {
+      throw new RuntimeException("Failed to extract op code from " + bitword);
+    }
   }
   
   // Sets control values that can be safely assigned based on IR bits regardless

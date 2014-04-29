@@ -573,9 +573,14 @@ public class ArchitecturalStateTest {
       state_.SetMemory(instruction_addr, instruction_val);
       state_.SetPc(instruction_addr);
       
+      // Set trap target
       final int trapvect8 =
           instruction.trapvect8().Resize(kWordSize, false).ToInt();
-      final int expected_pc = trapvect8;
+      final int trap_target_addr =
+          InstructionTestUtil.RandomImm(kWordSize).ToInt();
+      state_.SetMemory(trapvect8, trap_target_addr);
+      
+      final int expected_pc = trap_target_addr;
       final int expected_r7 = ModuloSum(instruction_addr, 1);
 
       state_.ExecuteInstruction();
