@@ -5,92 +5,8 @@ import lc3sim.core.BitWord;
 import lc3sim.core.instructions.Instruction;
 
 public class UIState {
-  public static class MemoryEntry {
-    public MemoryEntry(int address, int data) {
-      addressString = new SimpleStringProperty(IntTo4DigitHex(address));
-      dataString = new SimpleStringProperty(IntTo4DigitHex(data));
-      instructionString = new SimpleStringProperty(DataToInstruction(data));
-    }
-    
-    public int getAddress() {
-      return Hex4ToInt(getAddressString());
-    }
-    
-    public String getAddressString() {
-      return addressString.get();
-    }
-    
-    public void setAddressString(String address) {
-      addressString.set(address);
-    }
-    
-    public void setAddress(int address) {
-      addressString.set(IntTo4DigitHex(address));
-    }
-    
-    public int getData() {
-      return Hex4ToInt(getDataString());
-    }
-    
-    public String getDataString() {
-      return dataString.get();
-    }
-
-    public void setDataString(String data) {
-      if (data.isEmpty()) {
-        return;
-      }
-      // Detect radix and strip leading type indicator
-      int radix = 16;
-      switch (data.charAt(0)) {
-        case '#': radix = 10;  // FALLTHROUGH-INTENDED
-        case 'x':              // FALLTHROUGH-INTENDED
-        case 'X': data = data.substring(1);
-      }
-      try {
-        int value = Integer.parseInt(data, radix);
-        data = IntTo4DigitHex(value);
-        if (value > 0x00FF) {
-          // Treat as instruction
-          instructionString.set(DataToInstruction(value));
-        } else {
-          // Treat as char.
-          char c = (char)value;
-          String printchar;
-          switch (c) {
-            case '\0':
-              printchar = "\\0";
-              break;
-            case '\n':
-              printchar = "\\n";
-              break;
-            default:
-              printchar = "" + c;
-          }
-          instructionString.set(printchar);
-        }
-      } catch (NumberFormatException e) {
-        // If input is invalid, just leave the old value.
-        return;
-      }
-      dataString.set(data);
-    }
-
-    public String getInstructionString() {
-      return instructionString.get();
-    }
-    
-    public void setData(int data) {
-      setDataString(Integer.toHexString(data));
-    }
-
-    private final SimpleStringProperty addressString;
-    private final SimpleStringProperty dataString;
-    private final SimpleStringProperty instructionString;
-  }
-
-  public static class RegisterEntry {
-    public RegisterEntry(String name, int data) {
+  public static class HexDataEntry {
+    public HexDataEntry(String name, int data) {
       nameString = new SimpleStringProperty(name);
       dataString = new SimpleStringProperty(IntTo4DigitHex(data));
     }
@@ -103,7 +19,7 @@ public class UIState {
       nameString.set(address);
     }
     
-    public int getData() {
+    public Integer getData() {
       return Hex4ToInt(getDataString());
     }
     
@@ -132,12 +48,37 @@ public class UIState {
       dataString.set(data);
     }
 
-    public void setData(int data) {
+    public void setData(Integer data) {
       setDataString(Integer.toHexString(data));
     }
 
-    private final SimpleStringProperty nameString;
-    private final SimpleStringProperty dataString;
+    protected final SimpleStringProperty nameString;
+    protected final SimpleStringProperty dataString;
+  }
+
+  // Uses its address, in 4-digit hex format prefixed with 'x', as its name.
+  public static class MemoryEntry extends HexDataEntry {
+    public MemoryEntry(int address, int data) {
+      super(IntTo4DigitHex(address), data);
+    }
+    
+    public int getAddress() {
+      return Hex4ToInt(getAddressString());
+    }
+    
+    public String getAddressString() {
+      return getNameString();
+    }
+    
+    public String getInstructionString() {
+      return DataToInstruction(getData());
+    }
+  }
+
+  public static class RegisterEntry extends HexDataEntry {
+    public RegisterEntry(String name, int data) {
+      super(name, data);
+    }
   }
 
   public static String IntTo4DigitHex(int val) {

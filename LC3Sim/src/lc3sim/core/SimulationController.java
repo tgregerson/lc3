@@ -15,8 +15,14 @@ public class SimulationController implements Listener {
     options_ = new Options();
   }
   
-  public void TestLoadP1() {
+  public void TestLoadObjs() {
     Path path = Paths.get(System.getProperty("user.dir") + "/src/lc3sim/test/core/lc3os.obj");
+    try {
+      model_.LoadObjFile(path);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    path = Paths.get(System.getProperty("user.dir") + "/src/lc3sim/test/core/p1.obj");
     try {
       model_.LoadObjFile(path);
     } catch (Exception e) {
@@ -85,6 +91,10 @@ public class SimulationController implements Listener {
     
     // Add always-on bindings.
     bindings.add(new ListenerBinding(this, OutputId.Pc));
+    bindings.add(new ListenerBinding(this, OutputId.Ir));
+    bindings.add(new ListenerBinding(this, OutputId.Mar));
+    bindings.add(new ListenerBinding(this, OutputId.Mdr));
+    bindings.add(new ListenerBinding(this, OutputId.Psr));
     bindings.add(new ListenerBinding(this, OutputId.MemoryInternal));
     bindings.add(new ListenerBinding(this, OutputId.GprInternal));
     
@@ -103,9 +113,21 @@ public class SimulationController implements Listener {
   public void SetModelGpr(int reg_num, int data) {
     model_.SetGpr(reg_num, data);
   }
+
+  public void SetModelMar(int data) {
+    model_.SetMar(data);
+  }
+
+  public void SetModelMdr(int data) {
+    model_.SetMdr(data);
+  }
   
   public void SetModelPc(int data) {
     model_.SetPc(data);
+  }
+
+  public void SetModelPsr(int data) {
+    model_.SetPsr(data);
   }
 
   @Override
@@ -132,8 +154,18 @@ public class SimulationController implements Listener {
       case Ir:
         view_.UpdateSpr("IR", bit_word.ToInt());
         break;
+      case Mar:
+        view_.UpdateSpr("MAR", bit_word.ToInt());
+        break;
+      case Mdr:
+        view_.UpdateSpr("MDR", bit_word.ToInt());
+        break;
       case Pc:
         view_.UpdateSpr("PC", bit_word.ToInt());
+        view_.SetCurrentMemoryLine(bit_word.ToInt());
+        break;
+      case Psr:
+        view_.UpdateSpr("PSR", bit_word.ToInt());
         break;
       default:
         throw new IllegalArgumentException(

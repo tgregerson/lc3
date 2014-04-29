@@ -86,6 +86,10 @@ public class ControlLogic extends AbstractPropagator {
   private void UpdateCurrentControlSet() {
     // TODO Special-case handling for interrupt and exception
     current_control_set_ = instruction_.ControlSet(cycle_, psr_);
+    if (current_control_set_ == null) {
+      throw new RuntimeException("Received null control set for instruction " +
+                                 instruction_ + " on cycle " + cycle_);
+    }
   }
   
   // AbstractPropagator methods

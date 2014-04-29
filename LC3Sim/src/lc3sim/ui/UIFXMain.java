@@ -1,7 +1,9 @@
 package lc3sim.ui;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -13,6 +15,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
@@ -20,8 +23,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+import lc3sim.ui.UIState.MemoryEntry;
 import lc3sim.ui.UIState.*;
 
 public class UIFXMain extends Application {
@@ -35,7 +41,8 @@ public class UIFXMain extends Application {
     lc3sim.core.ArchitecturalState model = new lc3sim.core.ArchitecturalState();
     controller_.SetModel(model);
     controller_.SetView(this);
-    controller_.TestLoadP1();
+    controller_.TestLoadObjs();
+    controller_.SetModelPc(0x0200);
   }
   
   private void InitButtons() {
@@ -43,7 +50,11 @@ public class UIFXMain extends Application {
     step_into_button_.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent event) {
+        changed_state_items_.clear();
         controller_.StepInto();
+        ForceUpdate(spr_table_);
+        ForceUpdate(gpr_table_);
+        ForceUpdate(memory_table_);
       }
     });
   }
@@ -56,7 +67,7 @@ public class UIFXMain extends Application {
     ObservableList<RegisterEntry> observable_list =
         FXCollections.observableArrayList();
 
-    String[] spr_names = {"PC", "IR"};
+    String[] spr_names = {"PC", "IR", "MAR", "MDR", "PSR"};
     for (String name : spr_names) {
       RegisterEntry entry = new RegisterEntry(name, 0);
       spr_contents_.put(name, entry);
@@ -73,6 +84,8 @@ public class UIFXMain extends Application {
         new PropertyValueFactory<RegisterEntry, String>("nameString"));
     data_col.setCellValueFactory(
         new PropertyValueFactory<RegisterEntry, String>("dataString"));
+
+    name_col.setCellFactory(this.<RegisterEntry>GetChangeHighlightedCellFactory());
 
     data_col.setCellFactory(TextFieldTableCell.<RegisterEntry>forTableColumn());
     data_col.setOnEditCommit(
@@ -123,6 +136,8 @@ public class UIFXMain extends Application {
         new PropertyValueFactory<RegisterEntry, String>("nameString"));
     data_col.setCellValueFactory(
         new PropertyValueFactory<RegisterEntry, String>("dataString"));
+    
+    name_col.setCellFactory(this.<RegisterEntry>GetChangeHighlightedCellFactory());
 
     data_col.setCellFactory(TextFieldTableCell.<RegisterEntry>forTableColumn());
     data_col.setOnEditCommit(
@@ -173,6 +188,36 @@ public class UIFXMain extends Application {
         new PropertyValueFactory<MemoryEntry, String>("dataString"));
     inst_col.setCellValueFactory(
         new PropertyValueFactory<MemoryEntry, String>("instructionString"));
+    
+    Callback<TableColumn<MemoryEntry, String>,
+             TableCell<MemoryEntry, String>> highlighting_factory =
+        new Callback<TableColumn<MemoryEntry, String>,
+                     TableCell<MemoryEntry, String>>() {
+          @Override
+          public TableCell<MemoryEntry, String> call(
+              TableColumn<MemoryEntry, String> param) {
+            return new TableCell<MemoryEntry, String>() {
+              @Override
+              public void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (!empty) {
+                  this.setTextFill(Color.BLACK);
+                  if (this.getTableRow() != null &&
+                      this.getTableRow().getItem() != null) {
+                    MemoryEntry entry =
+                        (MemoryEntry)this.getTableRow().getItem();
+                    if (entry.getAddress() == current_memory_line_) {
+                      this.setTextFill(Color.BLUE);
+                    }
+                  }
+                  this.setText(item);
+                }
+              }
+            };
+          }
+        };
+    
+    address_col.setCellFactory(highlighting_factory);
 
     data_col.setCellFactory(TextFieldTableCell.<MemoryEntry>forTableColumn());
     data_col.setOnEditCommit(
@@ -194,21 +239,35 @@ public class UIFXMain extends Application {
   
   public void UpdateMemory(int address, int data) {
     MemoryEntry e = memory_contents_.get(address);
+    boolean changed = e.getData() != data;
+    if (changed) {
+      changed_state_items_.add(e);
+    }
     e.setData(data);
-    ForceUpdate(memory_table_);
   }
 
   public void UpdateGpr(int address, int data) {
     String name = "R" + address;
     RegisterEntry e = gpr_contents_.get(name);
+    boolean changed = e.getData() != data;
+    if (changed) {
+      changed_state_items_.add(e);
+    }
     e.setData(data);
-    ForceUpdate(gpr_table_);
   }
 
   public void UpdateSpr(String name, int data) {
     RegisterEntry e = spr_contents_.get(name);
+    boolean changed = e.getData() != data;
+    if (changed) {
+      changed_state_items_.add(e);
+    }
     e.setData(data);
-    ForceUpdate(spr_table_);
+  }
+  
+  public void SetCurrentMemoryLine(int address) {
+    current_memory_line_ = address;
+    memory_table_.scrollTo(address);
   }
   
 	@Override
@@ -269,9 +328,39 @@ public class UIFXMain extends Application {
     }
   }
   
+  private <T> Callback<TableColumn<T, String>, TableCell<T, String>>
+  GetChangeHighlightedCellFactory() {
+    return new Callback<TableColumn<T, String>, TableCell<T, String>>() {
+      @Override
+      public TableCell<T, String> call(TableColumn<T, String> param) {
+        return new TableCell<T, String>() {
+          @Override
+          public void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            if (!empty) {
+              this.setTextFill(Color.BLACK);
+              if (this.getTableRow() != null &&
+                  this.getTableRow().getItem() != null) {
+                Object value = this.getTableRow().getItem();
+                if (changed_state_items_.contains(value)) {
+                  this.setTextFill(Color.RED);
+                }
+              }
+              this.setText(item);
+            }
+          }
+        };
+      }
+    };
+  }
+  
   private lc3sim.core.SimulationController controller_;
   
   private Button step_into_button_;
+  
+  private int current_memory_line_ = 0;
+  
+  private Set<HexDataEntry> changed_state_items_ = new HashSet<HexDataEntry>();
 
 	// Maps from address (as unsigned int) to MemoryEntry.
 	private Map<Integer, MemoryEntry> memory_contents_;
