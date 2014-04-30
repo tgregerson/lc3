@@ -91,11 +91,9 @@ public class ControlPlaneTest {
         TestFetchOperands(instruction);
         break;
       case ST:    // Fallthrough intended.
-      case STR:
-        TestEvaluateAddress(instruction);
-        TestExecuteOperation(instruction);
-        break;
+      case STR:   // Fallthrough intended.
       case TRAP:
+        TestEvaluateAddress(instruction);
         TestExecuteOperation(instruction);
         break;
       case LDI:   // Fallthrough intended.
