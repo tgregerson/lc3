@@ -1,7 +1,9 @@
 package lc3sim.ui;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,6 +17,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
@@ -25,6 +28,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import lc3sim.ui.UIState.MemoryEntry;
@@ -51,6 +55,8 @@ public class UIFXMain extends Application {
       @Override
       public void handle(ActionEvent event) {
         changed_state_items_.clear();
+        state_change_list_.setItems(state_changes_);
+        state_changes_.clear();
         controller_.StepInto();
         ForceUpdate(spr_table_);
         ForceUpdate(gpr_table_);
@@ -240,29 +246,35 @@ public class UIFXMain extends Application {
   public void UpdateMemory(int address, int data) {
     MemoryEntry e = memory_contents_.get(address);
     boolean changed = e.getData() != data;
+    e.setData(data);
     if (changed) {
       changed_state_items_.add(e);
+      state_changes_.add(e.getNameString() + " <- " + e.getDataString());
+      state_change_list_.setItems(state_changes_);
     }
-    e.setData(data);
   }
 
   public void UpdateGpr(int address, int data) {
     String name = "R" + address;
     RegisterEntry e = gpr_contents_.get(name);
     boolean changed = e.getData() != data;
+    e.setData(data);
     if (changed) {
       changed_state_items_.add(e);
+      state_changes_.add(e.getNameString() + " <- " + e.getDataString());
+      state_change_list_.setItems(state_changes_);
     }
-    e.setData(data);
   }
 
   public void UpdateSpr(String name, int data) {
     RegisterEntry e = spr_contents_.get(name);
     boolean changed = e.getData() != data;
+    e.setData(data);
     if (changed) {
       changed_state_items_.add(e);
+      state_changes_.add(e.getNameString() + " <- " + e.getDataString());
+      state_change_list_.setItems(state_changes_);
     }
-    e.setData(data);
   }
   
   public void SetCurrentMemoryLine(int address) {
@@ -273,11 +285,10 @@ public class UIFXMain extends Application {
 	@Override
 	public void start(Stage stage) {
 	  Scene scene = new Scene(new Group());
-	  stage.setTitle("Table View");
+	  stage.setTitle("LC3 Architectural State");
 	  stage.setWidth(800);
-	  stage.setHeight(700);
+	  stage.setHeight(800);
 	  
-	  final VBox v_layout = new VBox(5);
 	  
 	  final HBox button_box = new HBox();
 	  button_box.setSpacing(5);
@@ -308,10 +319,17 @@ public class UIFXMain extends Application {
 	  mem_box.getChildren().addAll(mem_label, memory_table_);
 	  mem_box.setMinWidth(350);
 	  state_box.getChildren().addAll(mem_box);
+	  
+	  final VBox change_box = new VBox(5);
+	  change_box.setPadding(new Insets(10, 0, 0, 10));
+	  final Label change_label = new Label("State Changes");
+	  change_label.setFont(new Font("Arial", 20));
+	  state_change_list_.setItems(state_changes_);
+	  change_box.getChildren().addAll(change_label, state_change_list_);
 
-	  v_layout.getChildren().addAll(button_box, state_box);
+	  v_layout_.getChildren().addAll(button_box, state_box, change_box);
 
-	  ((Group)scene.getRoot()).getChildren().addAll(v_layout);
+	  ((Group)scene.getRoot()).getChildren().addAll(v_layout_);
 	  
 	  stage.setScene(scene);
 	  stage.show();
@@ -320,7 +338,7 @@ public class UIFXMain extends Application {
 	public static void main(String[] args) {
 		launch(args);
 	}
-
+	
   private void ForceUpdate(TableView<?> v) {
     if (v.getColumns().size() > 0) {
       v.getColumns().get(0).setVisible(false);
@@ -355,12 +373,16 @@ public class UIFXMain extends Application {
   }
   
   private lc3sim.core.SimulationController controller_;
+
+	private final VBox v_layout_ = new VBox(5);
   
   private Button step_into_button_;
   
   private int current_memory_line_ = 0;
   
   private Set<HexDataEntry> changed_state_items_ = new HashSet<HexDataEntry>();
+  private ObservableList<String> state_changes_ = FXCollections.observableArrayList();
+  private ListView<String> state_change_list_ = new ListView<String>();
 
 	// Maps from address (as unsigned int) to MemoryEntry.
 	private Map<Integer, MemoryEntry> memory_contents_;
