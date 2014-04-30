@@ -668,7 +668,7 @@ public class ArchitecturalStateTest {
   }
   
   private int ModuloSum(int a, int b) {
-    return (a + b) % (1 << (kWordSize - 1));
+    return (a + b) % (1 << kWordSize);
   }
   
   private void CheckConditionCodes(int written_value) {
