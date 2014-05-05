@@ -1,6 +1,6 @@
 package lc3sim.ui;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +28,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import lc3sim.ui.UIState.MemoryEntry;
@@ -45,11 +45,27 @@ public class UIFXMain extends Application {
     lc3sim.core.ArchitecturalState model = new lc3sim.core.ArchitecturalState();
     controller_.SetModel(model);
     controller_.SetView(this);
-    controller_.TestLoadObjs();
+    //controller_.TestLoadObjs();
     controller_.SetModelPc(0x0200);
   }
   
   private void InitButtons() {
+    file_open_button_ = new Button("Open Obj");
+    file_open_button_.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent event) {
+        FileChooser file_chooser = new FileChooser();
+        file_chooser.setTitle("Open Obj File");
+        List<File> objs = file_chooser.showOpenMultipleDialog(stage_);
+        if (objs != null) {
+          for (File f : objs) {
+            controller_.LoadObj(f);
+          }
+        }
+        ForceUpdate(memory_table_);
+      }
+    });
+
     step_into_button_ = new Button("Step Into");
     step_into_button_.setOnAction(new EventHandler<ActionEvent>() {
       @Override
@@ -284,6 +300,8 @@ public class UIFXMain extends Application {
   
 	@Override
 	public void start(Stage stage) {
+	  stage_ = stage;
+	  
 	  Scene scene = new Scene(new Group());
 	  stage.setTitle("LC3 Architectural State");
 	  stage.setWidth(800);
@@ -293,7 +311,7 @@ public class UIFXMain extends Application {
 	  final HBox button_box = new HBox();
 	  button_box.setSpacing(5);
 	  button_box.setPadding(new Insets(10, 0, 0, 10));
-	  button_box.getChildren().addAll(step_into_button_);
+	  button_box.getChildren().addAll(file_open_button_, step_into_button_);
 	  
 	  final HBox state_box = new HBox();
 	  state_box.setSpacing(5);
@@ -373,9 +391,12 @@ public class UIFXMain extends Application {
   }
   
   private lc3sim.core.SimulationController controller_;
+  
+  private Stage stage_;
 
 	private final VBox v_layout_ = new VBox(5);
   
+  private Button file_open_button_;
   private Button step_into_button_;
   
   private int current_memory_line_ = 0;
