@@ -22,6 +22,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
@@ -58,9 +59,7 @@ public class UIFXMain extends Application {
         state_change_list_.setItems(state_changes_);
         state_changes_.clear();
         controller_.StepInto();
-        ForceUpdate(spr_table_);
-        ForceUpdate(gpr_table_);
-        ForceUpdate(memory_table_);
+        ForceUpdateAll();
       }
     });
   }
@@ -110,7 +109,7 @@ public class UIFXMain extends Application {
               throw new RuntimeException(
                   "Unrecognized SPR: " + entry.getNameString());
           }
-          ForceUpdate(event.getTableView());
+          ForceUpdateAll();
         }
       }
     );
@@ -156,7 +155,7 @@ public class UIFXMain extends Application {
           entry.setDataString(event.getNewValue());
           int reg_num = Integer.parseInt(entry.getNameString().substring(1));
           controller_.SetModelGpr(reg_num, entry.getData());
-          ForceUpdate(event.getTableView());
+          ForceUpdateAll();
         }
       }
     );
@@ -224,25 +223,81 @@ public class UIFXMain extends Application {
         };
     
     address_col.setCellFactory(highlighting_factory);
-
+    
+    EventHandler<CellEditEvent<MemoryEntry, String>> data_edit_handler =
+        new EventHandler<CellEditEvent<MemoryEntry, String>>() {
+          @Override
+          public void handle(CellEditEvent<MemoryEntry, String> event) {
+            MemoryEntry entry = 
+                ((MemoryEntry)event.getTableView().getItems().get(
+                    event.getTablePosition().getRow()));
+            entry.setDataString(event.getNewValue());
+            controller_.SetModelMemory(entry.getAddress(), entry.getData());
+            ForceUpdateAll();
+          }
+        };
     data_col.setCellFactory(TextFieldTableCell.<MemoryEntry>forTableColumn());
-    data_col.setOnEditCommit(
-      new EventHandler<CellEditEvent<MemoryEntry, String>>() {
+    data_col.setOnEditCommit(data_edit_handler);
+    
+    memory_table_.setItems(observable_list);
+
+    memory_watch_table_ = new TableView<MemoryEntry>(); 
+    memory_watch_table_.setEditable(true);
+    memory_watch_list_ = FXCollections.observableArrayList();
+
+ 	  TableColumn<MemoryEntry, String> watch_address_col = new TableColumn<MemoryEntry, String>("Address");
+	  TableColumn<MemoryEntry, String> watch_data_col = new TableColumn<MemoryEntry, String>("Data");
+	  watch_address_col.setSortable(true);
+    memory_watch_table_.getColumns().add(watch_address_col);
+    memory_watch_table_.getColumns().add(watch_data_col);
+    watch_address_col.setMinWidth(80);
+    watch_data_col.setMinWidth(80);
+    memory_watch_table_.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+    
+    memory_watch_add_button_ = new Button("Add");
+    memory_watch_clear_button_ = new Button("Clear");
+    memory_watch_add_field_ = new TextField();
+    memory_watch_add_field_.setPromptText("Address");
+    memory_watch_add_field_.setMaxWidth(watch_address_col.getPrefWidth());
+    
+    memory_watch_add_button_.setOnAction(
+      new EventHandler<ActionEvent>() {
         @Override
-        public void handle(CellEditEvent<MemoryEntry, String> event) {
-          MemoryEntry entry = 
-              ((MemoryEntry)event.getTableView().getItems().get(
-                  event.getTablePosition().getRow()));
-          entry.setDataString(event.getNewValue());
-          controller_.SetModelMemory(entry.getAddress(), entry.getData());
-          ForceUpdate(event.getTableView());
+        public void handle(ActionEvent e) {
+          Integer address = UIState.DataStringToInt(memory_watch_add_field_.getText());
+          if (address != null && memory_contents_.containsKey(address)) {
+            MemoryEntry entry = memory_contents_.get(address);
+            memory_watch_list_.add(entry);
+          }
+          memory_watch_add_field_.clear();
+          ForceUpdate(memory_watch_table_);
         }
       }
     );
+    memory_watch_clear_button_.setOnAction(
+      new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent e) {
+          memory_watch_list_.clear();
+          ForceUpdate(memory_watch_table_);
+        }
+      }
+    );
+
+    watch_address_col.setCellValueFactory(
+        new PropertyValueFactory<MemoryEntry, String>("addressString"));
+    watch_data_col.setCellValueFactory(
+        new PropertyValueFactory<MemoryEntry, String>("dataString"));
     
-    memory_table_.setItems(observable_list);
+    watch_address_col.setCellFactory(highlighting_factory);
+
+    watch_data_col.setCellFactory(TextFieldTableCell.<MemoryEntry>forTableColumn());
+    watch_data_col.setOnEditCommit(data_edit_handler);
+    
+    memory_watch_table_.setItems(memory_watch_list_);   
+    
   }
-  
+
   public void UpdateMemory(int address, int data) {
     MemoryEntry e = memory_contents_.get(address);
     boolean changed = e.getData() != data;
@@ -319,6 +374,18 @@ public class UIFXMain extends Application {
 	  mem_box.getChildren().addAll(mem_label, memory_table_);
 	  mem_box.setMinWidth(350);
 	  state_box.getChildren().addAll(mem_box);
+
+	  final VBox mem_watch_box = new VBox(5);
+	  final Label mem_watch_label = new Label("Memory Watch List");
+	  mem_watch_label.setFont(new Font("Arial", 20));
+	  final HBox mem_watch_add_box = new HBox(5);
+	  mem_watch_add_box.getChildren().addAll(
+	      memory_watch_add_field_, memory_watch_add_button_,
+	      memory_watch_clear_button_);
+	  mem_watch_box.getChildren().addAll(mem_watch_label, memory_watch_table_,
+	                                     mem_watch_add_box);
+	  mem_watch_box.setMinWidth(150);
+	  state_box.getChildren().addAll(mem_watch_box);
 	  
 	  final VBox change_box = new VBox(5);
 	  change_box.setPadding(new Insets(10, 0, 0, 10));
@@ -344,6 +411,13 @@ public class UIFXMain extends Application {
       v.getColumns().get(0).setVisible(false);
       v.getColumns().get(0).setVisible(true);
     }
+  }
+  
+  private void ForceUpdateAll() {
+    ForceUpdate(spr_table_);
+    ForceUpdate(gpr_table_);
+    ForceUpdate(memory_table_);
+    ForceUpdate(memory_watch_table_);
   }
   
   private <T> Callback<TableColumn<T, String>, TableCell<T, String>>
@@ -387,6 +461,14 @@ public class UIFXMain extends Application {
 	// Maps from address (as unsigned int) to MemoryEntry.
 	private Map<Integer, MemoryEntry> memory_contents_;
 	private TableView<MemoryEntry> memory_table_;
+
+	// Shares data with the memory, but users can add or remove the addresses they
+	// want to display.
+	private TextField memory_watch_add_field_;
+	private Button memory_watch_add_button_;
+	private Button memory_watch_clear_button_;
+	private ObservableList<MemoryEntry> memory_watch_list_;
+	private TableView<MemoryEntry> memory_watch_table_;
 
 	// Maps from register name (as String) to RegisterEntry.
 	private Map<String, RegisterEntry> gpr_contents_;

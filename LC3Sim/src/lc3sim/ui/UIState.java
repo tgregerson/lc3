@@ -93,6 +93,25 @@ public class UIState {
     return "x" + leading_zeroes.toString() + val_str;
   }
   
+  // Return null if data string does not match recognized formats.
+  public static Integer DataStringToInt(String data) {
+    Integer value = null;
+    if (!data.isEmpty()) {
+      // Detect radix and strip leading type indicator
+      int radix = 16;
+      switch (data.charAt(0)) {
+        case '#': radix = 10;  // FALLTHROUGH-INTENDED
+        case 'x':              // FALLTHROUGH-INTENDED
+        case 'X': data = data.substring(1);
+      }
+      try {
+        value = Integer.parseInt(data, radix);
+      } catch (NumberFormatException e) {
+      }
+    }
+    return value;
+  }
+  
   public static int Hex4ToInt(String hex4) {
     if (hex4.charAt(0) == 'x' || hex4.charAt(0) == 'X') {
       hex4 = hex4.substring(1);
