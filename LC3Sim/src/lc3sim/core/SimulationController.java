@@ -1,5 +1,6 @@
 package lc3sim.core;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -13,6 +14,15 @@ public class SimulationController implements Listener {
   
   public SimulationController() {
     options_ = new Options();
+  }
+  
+  public void LoadObj(File file) {
+    Path path = Paths.get(file.getAbsolutePath());
+    try {
+      model_.LoadObjFile(path);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
   
   public void TestLoadObjs() {
