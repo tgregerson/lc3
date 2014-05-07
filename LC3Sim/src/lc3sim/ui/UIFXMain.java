@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javafx.application.Application;
+import javafx.beans.Observable;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -23,6 +25,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
@@ -46,7 +49,6 @@ public class UIFXMain extends Application {
     lc3sim.core.ArchitecturalState model = new lc3sim.core.ArchitecturalState();
     controller_.SetModel(model);
     controller_.SetView(this);
-    //controller_.TestLoadObjs();
     controller_.SetModelPc(0x0200);
   }
   
@@ -75,6 +77,30 @@ public class UIFXMain extends Application {
         state_change_list_.setItems(state_changes_);
         state_changes_.clear();
         controller_.StepInto();
+        ForceUpdateAll();
+      }
+    });
+
+    step_over_button_ = new Button("Step Over");
+    step_over_button_.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent event) {
+        changed_state_items_.clear();
+        state_change_list_.setItems(state_changes_);
+        state_changes_.clear();
+        controller_.StepOver();
+        ForceUpdateAll();
+      }
+    });
+
+    continue_button_ = new Button("Continue");
+    continue_button_.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent event) {
+        changed_state_items_.clear();
+        state_change_list_.setItems(state_changes_);
+        state_changes_.clear();
+        controller_.Run();
         ForceUpdateAll();
       }
     });
@@ -184,32 +210,69 @@ public class UIFXMain extends Application {
     memory_table_.setEditable(true);
 
     memory_contents_ = new HashMap<Integer, MemoryEntry>();
-    ObservableList<MemoryEntry> observable_list =
-        FXCollections.observableArrayList();
+    ObservableList<MemoryEntry> observable_list = FXCollections.<MemoryEntry>observableArrayList(
+      new Callback<MemoryEntry, Observable[]>() {
+        @Override
+        public Observable[] call(MemoryEntry param) {
+          return new Observable[]{
+              param.bpSetProperty()
+          };
+        } 
+      }
+    );
     for (int i = 0; i < kMemoryAddressLimit; ++i) {
       MemoryEntry entry = new MemoryEntry(i, 0);
       memory_contents_.put(i, entry);
       observable_list.add(entry);
     }
+    observable_list.addListener(
+        new ListChangeListener<MemoryEntry>() {
+          @Override
+          public void onChanged(
+              javafx.collections.ListChangeListener.Change<? extends MemoryEntry> c) {
+            while (c.next()) {
+              if (c.wasUpdated()) {
+                for (int i = c.getFrom(); i < c.getTo(); ++i) {
+                  MemoryEntry entry = c.getList().get(i);
+                  if (entry.getBpSet()) {
+                    System.out.println("Add bp at " + entry.getAddress());
+                    controller_.AddBreakpoint(entry.getAddress());
+                  } else {
+                    System.out.println("Remove bp at " + entry.getAddress());
+                    controller_.RemoveBreakpoint(entry.getAddress());
+                  }
+                }
+              }
+            }
+          }
+        }
+    );
 
+    TableColumn<MemoryEntry, Boolean> break_check_col = new TableColumn<MemoryEntry, Boolean>("BP");
 	  TableColumn<MemoryEntry, String> address_col = new TableColumn<MemoryEntry, String>("Address");
 	  TableColumn<MemoryEntry, String> data_col = new TableColumn<MemoryEntry, String>("Data");
 	  TableColumn<MemoryEntry, String> inst_col = new TableColumn<MemoryEntry, String>("Instruction");
+    memory_table_.getColumns().add(break_check_col);
     memory_table_.getColumns().add(address_col);
     memory_table_.getColumns().add(data_col);
     memory_table_.getColumns().add(inst_col);
+    break_check_col.setMinWidth(30);
     address_col.setMinWidth(80);
     data_col.setMinWidth(80);
     inst_col.setMinWidth(150);
     memory_table_.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     
+    break_check_col.setCellValueFactory(
+        new PropertyValueFactory<MemoryEntry, Boolean>("bpSet"));
     address_col.setCellValueFactory(
         new PropertyValueFactory<MemoryEntry, String>("addressString"));
     data_col.setCellValueFactory(
         new PropertyValueFactory<MemoryEntry, String>("dataString"));
     inst_col.setCellValueFactory(
         new PropertyValueFactory<MemoryEntry, String>("instructionString"));
-    
+
+    break_check_col.setCellFactory(CheckBoxTableCell.forTableColumn(break_check_col));
+
     Callback<TableColumn<MemoryEntry, String>,
              TableCell<MemoryEntry, String>> highlighting_factory =
         new Callback<TableColumn<MemoryEntry, String>,
@@ -220,24 +283,23 @@ public class UIFXMain extends Application {
             return new TableCell<MemoryEntry, String>() {
               @Override
               public void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (!empty) {
-                  this.setTextFill(Color.BLACK);
-                  if (this.getTableRow() != null &&
-                      this.getTableRow().getItem() != null) {
-                    MemoryEntry entry =
-                        (MemoryEntry)this.getTableRow().getItem();
-                    if (entry.getAddress() == current_memory_line_) {
-                      this.setTextFill(Color.BLUE);
-                    }
+                if (!empty && this.getTableRow() != null &&
+                    this.getTableRow().getItem() != null) {
+                  MemoryEntry entry =
+                      (MemoryEntry)this.getTableRow().getItem();
+                  if (entry.getAddress() == current_memory_line_) {
+                    this.setTextFill(Color.BLUE);
+                  } else {
+                    this.setTextFill(Color.BLACK);
                   }
                   this.setText(item);
+                } else {
+                  this.setText("");
                 }
               }
             };
           }
         };
-    
     address_col.setCellFactory(highlighting_factory);
     
     EventHandler<CellEditEvent<MemoryEntry, String>> data_edit_handler =
@@ -254,6 +316,24 @@ public class UIFXMain extends Application {
         };
     data_col.setCellFactory(TextFieldTableCell.<MemoryEntry>forTableColumn());
     data_col.setOnEditCommit(data_edit_handler);
+
+    memory_goto_button_ = new Button("Goto");
+    memory_goto_field_ = new TextField();
+    memory_goto_field_.setPromptText("Address");
+    memory_goto_field_.setMaxWidth(address_col.getPrefWidth());
+    
+    EventHandler<ActionEvent> goto_event =
+        new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(ActionEvent e) {
+            Integer address = UIState.DataStringToInt(memory_goto_field_.getText());
+            memory_table_.scrollTo(address);
+            memory_goto_field_.clear();
+            ForceUpdate(memory_table_);
+          }
+        };
+    memory_goto_field_.setOnAction(goto_event);
+    memory_goto_button_.setOnAction(goto_event);
     
     memory_table_.setItems(observable_list);
 
@@ -271,25 +351,26 @@ public class UIFXMain extends Application {
     memory_watch_table_.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     
     memory_watch_add_button_ = new Button("Add");
-    memory_watch_clear_button_ = new Button("Clear");
+    memory_watch_clear_button_ = new Button("Remove All");
     memory_watch_add_field_ = new TextField();
     memory_watch_add_field_.setPromptText("Address");
     memory_watch_add_field_.setMaxWidth(watch_address_col.getPrefWidth());
     
-    memory_watch_add_button_.setOnAction(
-      new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent e) {
-          Integer address = UIState.DataStringToInt(memory_watch_add_field_.getText());
-          if (address != null && memory_contents_.containsKey(address)) {
-            MemoryEntry entry = memory_contents_.get(address);
-            memory_watch_list_.add(entry);
+    EventHandler<ActionEvent> add_watch_handler = 
+        new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(ActionEvent e) {
+            Integer address = UIState.DataStringToInt(memory_watch_add_field_.getText());
+            if (address != null && memory_contents_.containsKey(address)) {
+              MemoryEntry entry = memory_contents_.get(address);
+              memory_watch_list_.add(entry);
+            }
+            memory_watch_add_field_.clear();
+            ForceUpdate(memory_watch_table_);
           }
-          memory_watch_add_field_.clear();
-          ForceUpdate(memory_watch_table_);
-        }
-      }
-    );
+        };
+    memory_watch_add_button_.setOnAction(add_watch_handler);
+    memory_watch_add_field_.setOnAction(add_watch_handler);
     memory_watch_clear_button_.setOnAction(
       new EventHandler<ActionEvent>() {
         @Override
@@ -350,7 +431,11 @@ public class UIFXMain extends Application {
   
   public void SetCurrentMemoryLine(int address) {
     current_memory_line_ = address;
-    memory_table_.scrollTo(address);
+    if (address > 5) {
+      memory_table_.scrollTo(address - 5);
+    } else {
+      memory_table_.scrollTo(0);
+    }
   }
   
 	@Override
@@ -359,14 +444,17 @@ public class UIFXMain extends Application {
 	  
 	  Scene scene = new Scene(new Group());
 	  stage.setTitle("LC3 Architectural State");
-	  stage.setWidth(800);
+	  stage.setWidth(1000);
 	  stage.setHeight(800);
 	  
+	  state_change_list_.setMaxHeight(200);
 	  
 	  final HBox button_box = new HBox();
 	  button_box.setSpacing(5);
 	  button_box.setPadding(new Insets(10, 0, 0, 10));
-	  button_box.getChildren().addAll(file_open_button_, step_into_button_);
+	  button_box.getChildren().addAll(
+	      file_open_button_, step_into_button_, step_over_button_,
+	      continue_button_);
 	  
 	  final HBox state_box = new HBox();
 	  state_box.setSpacing(5);
@@ -389,7 +477,10 @@ public class UIFXMain extends Application {
 	  final VBox mem_box = new VBox(5);
 	  final Label mem_label = new Label("Memory Contents");
 	  mem_label.setFont(new Font("Arial", 20));
-	  mem_box.getChildren().addAll(mem_label, memory_table_);
+	  final HBox mem_goto_box = new HBox(5);
+	  mem_goto_box.getChildren().addAll(
+	      memory_goto_field_, memory_goto_button_);
+	  mem_box.getChildren().addAll(mem_label, memory_table_, mem_goto_box);
 	  mem_box.setMinWidth(350);
 	  state_box.getChildren().addAll(mem_box);
 
@@ -472,6 +563,8 @@ public class UIFXMain extends Application {
   
   private Button file_open_button_;
   private Button step_into_button_;
+  private Button step_over_button_;
+  private Button continue_button_;
   
   private int current_memory_line_ = 0;
   
@@ -482,6 +575,8 @@ public class UIFXMain extends Application {
 	// Maps from address (as unsigned int) to MemoryEntry.
 	private Map<Integer, MemoryEntry> memory_contents_;
 	private TableView<MemoryEntry> memory_table_;
+	private TextField memory_goto_field_;
+	private Button memory_goto_button_;
 
 	// Shares data with the memory, but users can add or remove the addresses they
 	// want to display.

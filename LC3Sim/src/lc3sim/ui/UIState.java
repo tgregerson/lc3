@@ -1,6 +1,9 @@
 package lc3sim.ui;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import lc3sim.core.BitWord;
 import lc3sim.core.instructions.Instruction;
 
@@ -11,22 +14,30 @@ public class UIState {
       dataString = new SimpleStringProperty(IntTo4DigitHex(data));
     }
     
-    public String getNameString() {
+    public final String getNameString() {
       return nameString.get();
     }
-    
-    public void setNameString(String address) {
+
+    public final StringProperty nameStringProperty() {
+      return nameString;
+    }   
+
+    public final void setNameString(String address) {
       nameString.set(address);
     }
     
-    public Integer getData() {
+    public final Integer getData() {
       return Hex4ToInt(getDataString());
     }
     
-    public String getDataString() {
+    public final String getDataString() {
       return dataString.get();
     }
-
+    
+    public final StringProperty dataStringProperty() {
+      return dataString;
+    }
+    
     public void setDataString(String data) {
       if (data.isEmpty()) {
         return;
@@ -60,19 +71,39 @@ public class UIState {
   public static class MemoryEntry extends HexDataEntry {
     public MemoryEntry(int address, int data) {
       super(IntTo4DigitHex(address), data);
+      bpSet = new SimpleBooleanProperty(false);
     }
     
     public int getAddress() {
       return Hex4ToInt(getAddressString());
     }
     
-    public String getAddressString() {
+    public final String getAddressString() {
       return getNameString();
     }
     
-    public String getInstructionString() {
+    public final StringProperty addressStringProperty() {
+      return nameStringProperty();
+    }
+    
+    public final String getInstructionString() {
       return DataToInstruction(getData());
     }
+    
+    public final Boolean getBpSet() {
+      return bpSet.get();
+    }
+
+    public final BooleanProperty bpSetProperty() {
+      return bpSet;
+    }  
+
+    public final void setBpSet(boolean set) {
+      System.out.println("Setting BP Set to " + set);
+      bpSet.set(set);
+    }
+    
+    protected SimpleBooleanProperty bpSet;
   }
 
   public static class RegisterEntry extends HexDataEntry {

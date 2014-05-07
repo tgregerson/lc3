@@ -13,6 +13,8 @@ import lc3sim.core.ArchitecturalState.ListenerBinding;
 public class SimulationController implements Listener {
   
   public SimulationController() {
+    halt_ = false;
+    breakpoints_ = new HashSet<Integer>();
     options_ = new Options();
   }
   
@@ -54,26 +56,39 @@ public class SimulationController implements Listener {
   }
   
   public int Run() {
+    halt_ = false;
     return AdvanceToAddr(breakpoints_);
   }
   
-  // Ignores breakpoints.
+  public void Halt() {
+    halt_ = true;
+  }
+  
   public int StepOver() {
+    halt_ = false;
     Set<Integer> address = new HashSet<Integer>(); 
+    address.addAll(breakpoints_);
     address.add(ModuloSum(model_.Pc(), 1, ArchitecturalState.kWordSize));
     return AdvanceToAddr(address);
   }
   
   public int StepInto() {
+    halt_ = false;
     return model_.ExecuteInstruction();
   }
   
   public void AddBreakpoint(int address) {
     breakpoints_.add(address);
+    for (int bp : breakpoints_) {
+      System.out.println("BP: " + bp);
+    }
   }
   
   public void RemoveBreakpoint(int address) {
     breakpoints_.remove(address);
+    for (int bp : breakpoints_) {
+      System.out.println("BP: " + bp);
+    }
   }
   
   public void RemoveAllBreakpoints() {
@@ -87,12 +102,13 @@ public class SimulationController implements Listener {
   // Advances the state machine until the PC is equal to one of the values in
   // 'addresses' (or halt). Stops at the beginning of the next cycle.
   private int AdvanceToAddr(Set<Integer> addresses) {
-    while (true) {
+    while (!halt_) {
       int current_address = StepInto();
       if (addresses.contains(current_address)) {
         return current_address;
       }
     }
+    return model_.Pc();
   }
   
   private void BindToModel() {
@@ -187,6 +203,9 @@ public class SimulationController implements Listener {
     // If true, controller monitors and relays changes to combinational signals.
     public boolean show_internal_signals = false;
   };
+  
+  // Used to halt the model from the UI.
+  private boolean halt_;
   
   private Options options_;
   
